@@ -11,7 +11,9 @@ namespace Project {
     class Chunk {
     private:
         std::vector<Block*> data;
-        int vbo_id;
+        std::vector<unsigned int> mesh;
+        unsigned int vbo_id;
+        unsigned short counter;
 
     public:
         static const int CHUNK_SIZE = 16;
@@ -35,17 +37,20 @@ namespace Project {
          */
         void ReMesh();
 
-
+        /**
+         * @brief Bind the mesh VBO, such that it is ready to be rendered.
+         * 
+         */
         void PushMesh();
         
         /**
          * @brief Access the block given at the x y z coordiate a b c
          * 
-         * @param r x
-         * @param c y
-         * @param w z
-         * @return Block& the reference to the block desired.
+         * @param x x
+         * @param y y
+         * @param z z
+         * @return Block* the reference to the block desired.
          */
-        Block*& operator()(const int r, const int c, const int w);
+        Block* operator()(const int x, const int y, const int z);
     };
 }

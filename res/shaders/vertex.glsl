@@ -1,6 +1,7 @@
 #version 330 core
 
 layout(location = 0) in vec3 layout_position;
+layout(location = 1) in int block_data;
 
 uniform mat4 projection_matrix;
 uniform mat4 mvp_matrix;

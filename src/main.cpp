@@ -95,6 +95,10 @@ int main() {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //begin logic
+
+        //end logic
+
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         //glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
         renderer.RenderChunkManager(world, shader);
