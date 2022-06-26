@@ -1,0 +1,51 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: clang++ build active file",
+			"command": "/usr/bin/clang++",
+			"args": [
+				"-std=c++20",
+				"-fdiagnostics-color=always",
+				"-g",
+				"-I${workspaceFolder}/include",
+				"-L${workspaceFolder}/lib",
+				"${workspaceFolder}/lib/libglfw.3.3.dylib",
+				"${workspaceFolder}/glad.c",
+				"-I${workspaceFolder}/modules",
+				"${workspaceFolder}/modules/input/*.cpp",
+				"${workspaceFolder}/modules/shader/*.cpp",
+				"${workspaceFolder}/modules/camera/*.cpp",
+				"${workspaceFolder}/modules/display/*.cpp",
+				"${workspaceFolder}/modules/generic/*.cpp",
+				"${workspaceFolder}/modules/chunk/*.cpp",
+				"${workspaceFolder}/modules/world_renderer/*.cpp",
+				"-framework",
+				"OpenGL",
+				"-framework",
+				"Cocoa",
+				"-framework",
+				"IOKit",
+				"-framework",
+				"CoreVideo",
+				"-framework",
+				"CoreFoundation",
+				"${file}",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "compiler: /usr/bin/clang++"
+		}
+	]
+}
