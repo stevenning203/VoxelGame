@@ -49,8 +49,8 @@ namespace Project {
          * @param x x
          * @param y y
          * @param z z
-         * @return Block* the reference to the block desired.
+         * @return Block* the reference to pointer to the block desired.
          */
-        Block* operator()(const int x, const int y, const int z);
+        Block*& operator()(const int x, const int y, const int z);
     };
 }

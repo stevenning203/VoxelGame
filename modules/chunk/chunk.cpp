@@ -14,6 +14,14 @@ Project::Chunk::~Chunk() {
 }
 
 void Project::Chunk::ReMesh() {
+    static const int indices[6][6] = {
+        { 0, 2, 1, 2, 3, 1 },
+        { 0, 5, 4, 0, 1, 5 },
+        { 1, 3, 7, 1, 7, 5 },
+        { 2, 7, 3, 2, 6, 7 },
+        { 0, 6, 2, 0, 4, 6 },
+        { 4, 5, 6, 6, 5, 7 }
+    };
     this->counter = 0;
     for (int r{0}; r < CHUNK_SIZE; r++) {
         for (int c{0}; c < CHUNK_SIZE; c++) {
@@ -27,8 +35,11 @@ void Project::Chunk::ReMesh() {
                     }
                     
                     if (block->IsOpaque()) {
-                        this->mesh[this->counter] = (r * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + c) | (face << 16);
-                        this->counter++;
+                        int pos = r << 12 + y + c << 8;
+                        for (int i = 0; i < 6; i++) {
+                            this->mesh[this->counter] = pos | (indices[face][i] << 16);
+                            this->counter++;
+                        }
                     }
                 };
                 lambda(r + 1, c, y, 2);
@@ -45,9 +56,9 @@ void Project::Chunk::ReMesh() {
 void Project::Chunk::PushMesh() {
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
     glBufferData(GL_ARRAY_BUFFER, this->counter, &this->mesh[0], GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(1, 1, )
+    glVertexAttribPointer(1, 1, GL_INT, GL_FALSE, sizeof(int), (void*)0);
 }
 
-Project::Block* Project::Chunk::operator()(const int x, const int y, const int z) {
+Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
 }
