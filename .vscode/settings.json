@@ -69,7 +69,8 @@
         "fstream": "cpp",
         "deque": "cpp",
         "stack": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "thread": "cpp"
     },
     "cmake.configureOnOpen": false
 }

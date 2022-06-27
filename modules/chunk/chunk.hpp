@@ -12,8 +12,9 @@ namespace Project {
     private:
         std::vector<Block*> data;
         std::vector<unsigned int> mesh;
-        unsigned int vbo_id;
+        unsigned int vbo_id, vao_id;
         unsigned short counter;
+        int row, col;
 
     public:
         static const int CHUNK_SIZE = 16;
@@ -23,7 +24,7 @@ namespace Project {
          * @brief Construct a new Chunk object with the size of the 3d object given by the static dimensions
          * 
          */
-        Chunk();
+        Chunk(int row, int col);
 
         /**
          * @brief Destroy the Chunk object and all blocks associated with it;
@@ -32,16 +33,32 @@ namespace Project {
         ~Chunk();
 
         /**
+         * @brief Push the data into the chunk buffer; should only be called if something changed and remesh was done.
+         * 
+         */
+        void PushMeshData();
+
+        /**
          * @brief completely remesh the entire chunk. the generated mesh is stored, but not pushed.
          * 
          */
         void ReMesh();
 
         /**
-         * @brief Bind the mesh VBO, such that it is ready to be rendered.
+         * @brief Bind the mesh VAO, such that it is ready to be rendered.
          * 
          */
         void PushMesh();
+
+        int GetRow();
+
+        int GetCol();
+
+        unsigned int GetVAO();
+
+        unsigned int GetVBO();
+
+        unsigned short GetCounter();
         
         /**
          * @brief Access the block given at the x y z coordiate a b c

@@ -8,14 +8,11 @@
 void Project::WorldRenderer::RenderChunkManager(ChunkManager& cm, Program& p) {
     std::vector<Project::Chunk>& v = cm.GetChunks();
     for (Chunk& chunk : v) {
-        for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
-            for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
-                for (int y{0}; y < Chunk::CHUNK_DEPTH; y++) {
-                    glm::mat4 model_matrix = glm::translate(glm::mat4(1.f), glm::vec3(r, y, c));
-                    p.UniformMatrix("chunk_matrix", model_matrix);
-                    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-                }
-            }
-        }
+        glm::mat4 model_matrix = glm::translate(glm::mat4(1.f),
+            glm::vec3(chunk.GetRow() * Chunk::CHUNK_SIZE, 0, chunk.GetCol() * Chunk::CHUNK_SIZE));
+        model_matrix = glm::mat4(1.f);
+        chunk.PushMesh();
+        p.UniformMatrix("chunk_matrix", model_matrix);
+        glDrawArrays(GL_TRIANGLES, 0, chunk.GetCounter());
     }
 }

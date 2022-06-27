@@ -18,5 +18,11 @@ namespace Project {
         void WorldGen();
 
         std::vector<Chunk>& GetChunks();
+
+        /**
+         * @brief Suggest a remesh on all the visible chunks
+         * 
+         */
+        void SuggestRemesh();
     };
 }

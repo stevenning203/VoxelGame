@@ -14,6 +14,7 @@
 				"${workspaceFolder}/lib/libglfw.3.3.dylib",
 				"${workspaceFolder}/glad.c",
 				"-I${workspaceFolder}/modules",
+				"${workspaceFolder}/modules/block/*.cpp",
 				"${workspaceFolder}/modules/input/*.cpp",
 				"${workspaceFolder}/modules/shader/*.cpp",
 				"${workspaceFolder}/modules/camera/*.cpp",

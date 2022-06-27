@@ -26,10 +26,7 @@ void Project::Display::Init(const int width, const int height, const char* title
     }
     glfwSetFramebufferSizeCallback(this->pointer, _FRAMEBUFFER_CALLBACK);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
+    //glEnable(GL_CULL_FACE);
 }
 
 void Project::Display::SwapBuffers() {
