@@ -12,7 +12,7 @@ namespace Project {
         std::vector<Chunk> chunks;
     public:
         /**
-         * @brief Generate the world
+         * @brief Generate the world for some chunks near spawn
          * 
          */
         void WorldGen();

@@ -51,8 +51,6 @@ int main() {
         //end logic
 
         renderer.RenderChunkManager(world, shader);
-        //glBindVertexArray(vao);
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
 
         display.SwapBuffers();
         camera.PushMatrix(shader);

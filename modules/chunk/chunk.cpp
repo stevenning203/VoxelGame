@@ -36,6 +36,9 @@ void Project::Chunk::ReMesh() {
     for (int r{0}; r < CHUNK_SIZE; r++) {
         for (int c{0}; c < CHUNK_SIZE; c++) {
             for (int y{0}; y < CHUNK_DEPTH; y++) {
+                if (!this->operator()(r, y, c)->IsOpaque()) {
+                    continue;
+                }
                 auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
                     if (row < 0 || col < 0 || depth < 0 ||
                     row >= CHUNK_SIZE || col >= CHUNK_SIZE ||
