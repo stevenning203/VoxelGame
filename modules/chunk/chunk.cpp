@@ -10,10 +10,8 @@
 Project::Chunk::Chunk(int row, int col) : counter(0), row(row), col(col) {
     this->data = std::vector<Block*>();
     for (int i{0}; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_DEPTH; i++) {
-        this->data.push_back(new GrassBlock());
+        this->data.push_back(nullptr);
     }
-    delete this->data[0];
-    this->data[0] = new AirBlock();
     this->mesh = std::vector<unsigned int>();
     glGenVertexArrays(1, &this->vao_id);
     glBindVertexArray(this->vao_id);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 namespace Project {
     class Block;
@@ -19,6 +20,8 @@ namespace Project {
     public:
         static const int CHUNK_SIZE = 16;
         static const int CHUNK_DEPTH = 128;
+        static const int CHUNK_SQUARED = CHUNK_SIZE * CHUNK_SIZE;
+        static const int CHUNK_VOLUME = CHUNK_SQUARED * CHUNK_DEPTH;
 
         /**
          * @brief Construct a new Chunk object with the size of the 3d object given by the static dimensions

@@ -52,9 +52,6 @@ int main() {
 
         renderer.RenderChunkManager(world, shader);
 
-        //glBindVertexArray(a);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-
         display.SwapBuffers();
         camera.PushMatrix(shader);
         //shader.PushMVPMatrix(camera, display, identity);
