@@ -44,6 +44,9 @@ void Project::MouseHandler::Update(Display& d) {
     this->dy = this->mousey - this->ly;
     this->lx = this->mousex;
     this->ly = this->mousey;
+    for (int i{0}; i < 6; i++) {
+        key_state[i] = false;
+    }
 }
 
 void Project::MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m) {

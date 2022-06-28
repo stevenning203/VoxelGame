@@ -3,7 +3,11 @@
 #include <block/grass_block.hpp>
 
 void Project::ChunkManager::WorldGen() {
-    this->chunks.emplace_back(0, 0);
+    for (int i{-2}; i <= 2; i++) {
+        for (int j{-2}; j <= 2; j++) {
+            this->chunks.emplace_back(i, j);
+        }
+    }
 }
 
 std::vector<Project::Chunk>& Project::ChunkManager::GetChunks() {

@@ -24,6 +24,14 @@ namespace Project {
     class Program : public Identifiable<unsigned int> {
     private:
         std::unordered_map<std::string, int> uniform_locations;
+
+        /**
+         * @brief Get the uniform location based on the given name
+         * 
+         * @param s location variable name
+         * @return int the location
+         */
+        int GetUniformLocation(const std::string& s);
     public:
         /**
          * @brief Construct a new Program object with the given fragment shader and vertex shader
@@ -47,6 +55,14 @@ namespace Project {
          * 
          */
         void UniformMatrix(const std::string& name, const glm::mat4& data);
+
+        /**
+         * @brief pass the given float to the uniform location specified by the name
+         * 
+         * @param name the name of the uniform variable in the program
+         * @param data  the float data
+         */
+        void UniformFloat(const std::string& name, const float data);
 
         /**
          * @brief push the calculated mvp matrix to the shader

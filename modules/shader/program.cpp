@@ -29,38 +29,31 @@ Project::Program::Program(Shader& vertex_shader, Shader& fragment_shader) {
     glDeleteShader(fragment_shader.GetID());
 }
 
-/**
- * @brief use this program as the active program.
- * 
- */
 void Project::Program::Use() {
     glUseProgram(this->id);
 }
 
-/**
- * @brief pass the given matrix to the uniform locations specified by the name
- * 
- * @param name the name of the uniform variable in the shader
- * @param data the matrix data
- */
-void Project::Program::UniformMatrix(const std::string& name, const glm::mat4& data) {
+int Project::Program::GetUniformLocation(const std::string& s) {
     int location;
-    if (!uniform_locations.count(name)) {
-        location = glGetUniformLocation(this->id, name.c_str());
-        uniform_locations[name] = location;
+    if (!uniform_locations.count(s)) {
+        location = glGetUniformLocation(this->id, s.c_str());
+        uniform_locations[s] = location;
     } else {
-        location = uniform_locations[name];
+        location = uniform_locations[s];
     }
+    return location;
+}
+
+void Project::Program::UniformMatrix(const std::string& name, const glm::mat4& data) {
+    int location = GetUniformLocation(name);
     glUniformMatrix4fv(location, 1, false, glm::value_ptr(data));
 }
 
-/**
- * @brief push the calculated mvp matrix to the shader
- * 
- * @param camera the camera with the view matrix that should be used
- * @param d the display
- * @param model the model matrix
- */
+void Project::Program::UniformFloat(const std::string& name, const float data) {
+    int location = GetUniformLocation(name);
+    glUniform1f(location, data);
+}
+
 void Project::Program::PushMVPMatrix(Camera& camera, Display& display, glm::mat4& model) {
     glm::mat4 matrix = display.GetMatrix() * camera.GetMatrix() * model;
     this->UniformMatrix("mvp_matrix", matrix);

@@ -3,10 +3,10 @@
 
 namespace Project {
     /**
-     * @brief grass block in the game
+     * @brief air block in the game
      * 
      */
-    class GrassBlock : public Block {
+    class AirBlock : public Block {
         virtual bool IsOpaque() override;
 
         virtual bool SkipRender() override;

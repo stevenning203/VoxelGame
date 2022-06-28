@@ -34,7 +34,8 @@
 				"CoreFoundation",
 				"${file}",
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}"
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"-fsanitize=address,undefined"
 			],
 			"options": {
 				"cwd": "${fileDirname}"

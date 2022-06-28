@@ -42,7 +42,7 @@ int main() {
 
     world.SuggestRemesh();
 
-    while (!display.ShouldClose() and !mouse.GetMouseState(Project::MouseHandler::MouseEnum::RMB_DOWN)) {
+    while (!display.ShouldClose()) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -52,6 +52,9 @@ int main() {
 
         renderer.RenderChunkManager(world, shader);
 
+        //glBindVertexArray(a);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+
         display.SwapBuffers();
         camera.PushMatrix(shader);
         //shader.PushMVPMatrix(camera, display, identity);
@@ -59,6 +62,9 @@ int main() {
         camera.UpdateMovement(keyboard, timer);
         
         timer.Update();
+        if (mouse.GetMouseState(Project::MouseHandler::MouseEnum::RMB_DOWN)) {
+            break;
+        }
         mouse.Update(display);
         keyboard.Update();
         timer.Sleep(5);

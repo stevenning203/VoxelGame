@@ -8,11 +8,11 @@
 void Project::WorldRenderer::RenderChunkManager(ChunkManager& cm, Program& p) {
     std::vector<Project::Chunk>& v = cm.GetChunks();
     for (Chunk& chunk : v) {
-        glm::mat4 model_matrix = glm::translate(glm::mat4(1.f),
-        glm::vec3(chunk.GetRow() * Chunk::CHUNK_SIZE, 0, chunk.GetCol() * Chunk::CHUNK_SIZE));
-        model_matrix = glm::mat4(1.f);
+        int x = chunk.GetRow();
+        int z = chunk.GetCol();
         chunk.PushMesh();
-        p.UniformMatrix("chunk_matrix", model_matrix);
+        p.UniformFloat("chunk_offset_x", static_cast<float>(x * Chunk::CHUNK_SIZE));
+        p.UniformFloat("chunk_offset_z", static_cast<float>(z * Chunk::CHUNK_SIZE));
         glDrawArrays(GL_TRIANGLES, 0, chunk.GetCounter());
     }
 }
