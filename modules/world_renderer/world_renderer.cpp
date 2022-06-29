@@ -6,13 +6,12 @@
 #include <shader/program.hpp>
 
 void Project::WorldRenderer::RenderChunkManager(ChunkManager& cm, Program& p) {
-    std::vector<Project::Chunk>& v = cm.GetChunks();
-    for (Chunk& chunk : v) {
-        int x = chunk.GetRow();
-        int z = chunk.GetCol();
-        chunk.PushMesh();
+    for (auto& pair : cm) {
+        int x = pair.second->GetRow();
+        int z = pair.second->GetCol();
+        pair.second->PushMesh();
         p.UniformFloat("chunk_offset_x", static_cast<float>(x * Chunk::CHUNK_SIZE));
         p.UniformFloat("chunk_offset_z", static_cast<float>(z * Chunk::CHUNK_SIZE));
-        glDrawArrays(GL_TRIANGLES, 0, chunk.GetCounter());
+        glDrawArrays(GL_TRIANGLES, 0, pair.second->GetCounter());
     }
 }

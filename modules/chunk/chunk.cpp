@@ -22,8 +22,8 @@ Project::Chunk::Chunk(int row, int col) : counter(0), row(row), col(col) {
 }
 
 Project::Chunk::~Chunk() {
-    //glDeleteVertexArrays(1, &this->vao_id);
-    //glDeleteBuffers(1, &this->vbo_id);
+    glDeleteVertexArrays(1, &this->vao_id);
+    glDeleteBuffers(1, &this->vbo_id);
 }
 
 void Project::Chunk::ReMesh() {
