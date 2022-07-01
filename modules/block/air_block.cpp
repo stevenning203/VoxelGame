@@ -7,3 +7,7 @@ bool Project::AirBlock::IsOpaque() {
 bool Project::AirBlock::SkipRender() {
     return true;
 }
+
+Project::AirBlock::AirBlock() {
+    this->id = 0;
+}

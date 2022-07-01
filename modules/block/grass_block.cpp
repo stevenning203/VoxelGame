@@ -7,3 +7,7 @@ bool Project::GrassBlock::IsOpaque() {
 bool Project::GrassBlock::SkipRender() {
     return false;
 }
+
+Project::GrassBlock::GrassBlock() {
+    this->id = 1;
+}

@@ -3,6 +3,7 @@
 namespace Project {
     class ChunkManager;
     class Program;
+    class TextureAtlas;
 
     /**
      * @brief Renderer for the world
@@ -10,6 +11,12 @@ namespace Project {
      */
     class WorldRenderer {
     public:
-        void RenderChunkManager(ChunkManager& cm, Program& p);
+        /**
+         * @brief Render the chunk manager with the given shaderprogram
+         * 
+         * @param cm chunk
+         * @param p program
+         */
+        void RenderChunkManager(ChunkManager& cm, Program& p, TextureAtlas& atlas);
     };
 }

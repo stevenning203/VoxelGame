@@ -1,4 +1,6 @@
 #include "game.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <display/display.hpp>
 #include <shader/shader.hpp>
 #include <shader/program.hpp>
@@ -8,6 +10,7 @@
 #include <chunk/chunk_manager.hpp>
 #include <world_renderer/world_renderer.hpp>
 #include <input/key_handler.hpp>
+#include <texture_atlas/texture_atlas.hpp>
 
 extern Project::Display display;
 
@@ -20,7 +23,7 @@ void Project::Game::Main() {
         
         //end logic
 
-        this->renderer->RenderChunkManager(*world, *shader);
+        this->renderer->RenderChunkManager(*world, *shader, *this->atlas);
 
         display.SwapBuffers();
         this->camera->PushMatrix(*shader);
@@ -48,6 +51,8 @@ Project::Game::Game() {
     this->keyboard = new KeyHandler(display);
     this->timer = new Timer();
     this->camera = new Camera();
+    this->atlas = new TextureAtlas("assets/atlas.png");
+    this->atlas->Bind();
     display.SetShader(shader);
     display.SuggestDimensions();
 

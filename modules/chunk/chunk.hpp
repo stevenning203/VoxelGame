@@ -44,6 +44,16 @@ namespace Project {
         /**
          * @brief completely remesh the entire chunk. the generated mesh is stored, but not pushed.
          * 
+         * The format of the unsigned int used to store vertex information is as follows:
+         * 
+         * 0b0000_00000_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
+         * 
+         * 0 -> unused
+         * B -> block id numeric
+         * X -> x offset
+         * Z -> z offest
+         * Y -> y offset
+         * V -> vertex
          */
         void ReMesh();
 

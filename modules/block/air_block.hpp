@@ -7,6 +7,8 @@ namespace Project {
      * 
      */
     class AirBlock : public Block {
+        AirBlock();
+        
         virtual bool IsOpaque() override;
 
         virtual bool SkipRender() override;

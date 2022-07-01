@@ -9,6 +9,7 @@
 namespace Project {
     class Chunk;
     class CustomChunkPairHasher;
+    class Block;
 
     /**
      * @brief Manager for chunks
@@ -29,6 +30,16 @@ namespace Project {
          * 
          */
         void SuggestRemesh();
+
+        /**
+         * @brief get the block at the specified WORLD coordinates.
+         * 
+         * @param x the x world coordinate
+         * @param y the y world coordinate
+         * @param z the z world coordinate
+         * @return Block*& the reference to the block* at the specified location
+         */
+        Block*& operator()(const int x, const int y, const int z);
 
         /**
          * @brief return the STL iterator to the beginning

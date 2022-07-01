@@ -46,7 +46,9 @@ void Project::Chunk::ReMesh() {
                     if (row < 0 || col < 0 || depth < 0 ||
                     row >= CHUNK_SIZE || col >= CHUNK_SIZE ||
                     depth >= CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
-                        int pos = (r << 12) + (y) + (c << 8);
+                        unsigned int pos = (r << 12) + (y) + (c << 8);
+                        int texture_index = this->operator()(row, depth, col)->GetID();
+                        texture_index *= 3;
                         for (int i = 0; i < 6; i++) {
                             if (this->counter >= this->mesh.size()) {
                                 this->mesh.push_back(0);

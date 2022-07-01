@@ -5,6 +5,7 @@
 #include <block/air_block.hpp>
 #include <block/grass_block.hpp>
 #include <iostream>
+#include <block/block.hpp>
 
 void Project::ChunkManager::WorldGen() {
     for (int i{-2}; i <= 2; i++) {
@@ -43,3 +44,15 @@ std::unordered_map<std::pair<int, int>, Project::Chunk*, Project::CustomChunkPai
 std::unordered_map<std::pair<int, int>, Project::Chunk*, Project::CustomChunkPairHasher>::iterator Project::ChunkManager::end() {
     return this->chunks.end();
 }
+
+Project::Block*& Project::ChunkManager::operator()(const int x, const int y, const int z) {
+    int row = x / Chunk::CHUNK_SIZE;
+    int col = z / Chunk::CHUNK_SIZE;
+    if (!this->chunks.count({row, col})) {
+        throw new std::runtime_error("Chunk not loaded when operator() called");
+    }
+    Chunk* chunk = this->chunks[{row, col}];
+    int modx = x % Chunk::CHUNK_SIZE;
+    int modz = z % Chunk::CHUNK_SIZE;
+    return chunk->operator()(modx, y, modz);
+} 

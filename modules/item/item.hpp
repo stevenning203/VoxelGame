@@ -1,5 +1,7 @@
 #pragma once
 
+#include <generic/idable.hpp>
+
 namespace Project {
     class Game;
 
@@ -8,7 +10,7 @@ namespace Project {
      * the use virtual function.
      * 
      */
-    class Item {
-        virtual void Use(Game& game) = 0;
+    class Item : public Identifiable<int> {
+        virtual void Use(Game& game);
     };
 }

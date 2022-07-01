@@ -10,6 +10,7 @@ uniform float chunk_offset_x;
 uniform float chunk_offset_z;
 
 out vec4 vertex_color;
+flat out uint tc_index;
 
 const vec3 vertices[8] = vec3[](
     vec3(0.f, 1.f, 1.f), 
@@ -28,6 +29,7 @@ void main() {
     uint x = (pos & uint(61440)) >> 12;
     uint y = pos & uint(255);
     uint z = (pos & uint(3840)) >> 8;
+    tc_index = y % uint(4);
     //gl_Position = projection_matrix * view_matrix * chunk_matrix * vec4(layout_position, 1.f);
     gl_Position = projection_matrix * view_matrix * (vec4(x + chunk_offset_x, y, z + chunk_offset_z, 1.f) + vec4(vertices[index], 1.f));
     //gl_Position = vec4(layout_position, 1.f);

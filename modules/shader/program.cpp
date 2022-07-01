@@ -33,10 +33,10 @@ void Project::Program::Use() {
     glUseProgram(this->id);
 }
 
-int Project::Program::GetUniformLocation(const std::string& s) {
+int Project::Program::GetUniformLocation(const char * s) {
     int location;
     if (!uniform_locations.count(s)) {
-        location = glGetUniformLocation(this->id, s.c_str());
+        location = glGetUniformLocation(this->id, s);
         uniform_locations[s] = location;
     } else {
         location = uniform_locations[s];
@@ -44,12 +44,12 @@ int Project::Program::GetUniformLocation(const std::string& s) {
     return location;
 }
 
-void Project::Program::UniformMatrix(const std::string& name, const glm::mat4& data) {
+void Project::Program::UniformMatrix(const char * name, const glm::mat4& data) {
     int location = GetUniformLocation(name);
     glUniformMatrix4fv(location, 1, false, glm::value_ptr(data));
 }
 
-void Project::Program::UniformFloat(const std::string& name, const float data) {
+void Project::Program::UniformFloat(const char * name, const float data) {
     int location = GetUniformLocation(name);
     glUniform1f(location, data);
 }
@@ -57,4 +57,13 @@ void Project::Program::UniformFloat(const std::string& name, const float data) {
 void Project::Program::PushMVPMatrix(Camera& camera, Display& display, glm::mat4& model) {
     glm::mat4 matrix = display.GetMatrix() * camera.GetMatrix() * model;
     this->UniformMatrix("mvp_matrix", matrix);
+}
+
+std::size_t Project::Program::CustomCStringHasher::operator()(const char* cstring) const {
+    size_t start = 5381;
+    int inc;
+    while ((inc = *cstring++)) {
+        start = ((start << 5) + start) + inc;
+    }
+    return start;
 }

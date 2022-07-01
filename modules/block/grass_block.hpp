@@ -7,6 +7,8 @@ namespace Project {
      * 
      */
     class GrassBlock : public Block {
+        GrassBlock();
+        
         virtual bool IsOpaque() override;
 
         virtual bool SkipRender() override;

@@ -10,6 +10,7 @@ namespace Project {
     class Program;
     class ChunkManager;
     class WorldRenderer;
+    class TextureAtlas;
 
     /**
      * @brief The game class that holds all the game logic.
@@ -24,7 +25,7 @@ namespace Project {
         Program* shader;
         ChunkManager* world;
         WorldRenderer* renderer;
-        Player* player;
+        TextureAtlas* atlas;
 
         /**
          * @brief the main loop

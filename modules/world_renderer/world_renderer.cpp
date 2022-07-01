@@ -4,8 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <shader/program.hpp>
+#include <texture_atlas/texture_atlas.hpp>
 
-void Project::WorldRenderer::RenderChunkManager(ChunkManager& cm, Program& p) {
+void Project::WorldRenderer::RenderChunkManager(ChunkManager& cm, Program& p, TextureAtlas& atlas) {
     for (auto& pair : cm) {
         int x = pair.second->GetRow();
         int z = pair.second->GetCol();

@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <string>
 
 namespace Project {
     class Shader;
@@ -23,7 +22,21 @@ namespace Project {
      */
     class Program : public Identifiable<unsigned int> {
     private:
-        std::unordered_map<std::string, int> uniform_locations;
+        /**
+         * @brief hasher for c-style strings
+         * 
+         */
+        class CustomCStringHasher {
+            /**
+             * @brief hash a c-style string
+             * 
+             * @param cstring the c-style string
+             * @return std::size_t the hash
+             */
+            std::size_t operator()(const char * cstring) const;
+        };
+
+        std::unordered_map<const char *, int> uniform_locations;
 
         /**
          * @brief Get the uniform location based on the given name
@@ -31,7 +44,7 @@ namespace Project {
          * @param s location variable name
          * @return int the location
          */
-        int GetUniformLocation(const std::string& s);
+        int GetUniformLocation(const char * s);
     public:
         /**
          * @brief Construct a new Program object with the given fragment shader and vertex shader
@@ -54,7 +67,7 @@ namespace Project {
          * @param data the matrix data
          * 
          */
-        void UniformMatrix(const std::string& name, const glm::mat4& data);
+        void UniformMatrix(const char * name, const glm::mat4& data);
 
         /**
          * @brief pass the given float to the uniform location specified by the name
@@ -62,7 +75,7 @@ namespace Project {
          * @param name the name of the uniform variable in the program
          * @param data  the float data
          */
-        void UniformFloat(const std::string& name, const float data);
+        void UniformFloat(const char * name, const float data);
 
         /**
          * @brief push the calculated mvp matrix to the shader

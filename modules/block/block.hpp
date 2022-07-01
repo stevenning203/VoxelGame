@@ -9,6 +9,12 @@ namespace Project {
      */
     class Block : public Item {
     public:
+        /**
+         * @brief Indicate whether or not this block has transparency values
+         * 
+         * @return true this block is opaque so and blocks that it obscures should not have that face rendered.
+         * @return false this block has transparency so blocks it obscures should still be rendered.
+         */
         virtual bool IsOpaque() = 0;
 
         /**

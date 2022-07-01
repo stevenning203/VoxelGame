@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <physics/entity.hpp>
 
 namespace Project {
 
@@ -8,7 +9,7 @@ namespace Project {
      * @brief Player class
      * 
      */
-    class Player {
-        glm::vec2 position;
+    class Player : public Entity {
+        
     };
 }

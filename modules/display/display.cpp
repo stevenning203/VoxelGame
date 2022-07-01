@@ -1,5 +1,6 @@
 #include <shader/program.hpp>
 #include "display.hpp"
+#include <stb/stb_image.h>
 
 Project::Display display;
 
@@ -30,6 +31,7 @@ void Project::Display::Init(const int width, const int height, const char* title
     glfwSetInputMode(display.GetWindowPointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(0);
     glClearColor(0.8f, 0.9f, 0.8f, 1.0f);
+    stbi_set_flip_vertically_on_load(1);
 }
 
 void Project::Display::SwapBuffers() {
