@@ -28,12 +28,12 @@ Project::Chunk::~Chunk() {
 
 void Project::Chunk::ReMesh() {
     static const std::vector<std::vector<unsigned int>> indices = {
-        { 0, 2, 1, 2, 3, 1 },
-        { 0, 5, 4, 0, 1, 5 },
-        { 1, 3, 7, 1, 7, 5 },
-        { 2, 7, 3, 2, 6, 7 },
-        { 0, 6, 2, 0, 4, 6 },
-        { 4, 5, 6, 6, 5, 7 }
+        { 0, 2, 1, 2, 3, 1 }, // 0
+        { 0, 5, 4, 0, 1, 5 }, // 1
+        { 1, 3, 7, 1, 7, 5 }, // 2
+        { 2, 7, 3, 2, 6, 7 }, // 3
+        { 0, 6, 2, 0, 4, 6 }, // 4
+        { 4, 5, 6, 6, 5, 7 }  // 5
     };
     this->counter = 0;
     for (int r{0}; r < CHUNK_SIZE; r++) {
@@ -47,13 +47,85 @@ void Project::Chunk::ReMesh() {
                     row >= CHUNK_SIZE || col >= CHUNK_SIZE ||
                     depth >= CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
                         unsigned int pos = (r << 12) + (y) + (c << 8);
-                        int texture_index = this->operator()(row, depth, col)->GetID();
-                        texture_index *= 3;
+                        unsigned int texture_index = static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
+                        texture_index *= 3U;
+                        if (face == 3U) {
+                            texture_index += 2U;
+                        } else if (face != 1U) {
+                            texture_index += 1U;
+                        }
+                        if (texture_index >= 256U) {
+                            throw new std::runtime_error
+                            ("The texture index is too large for bitwise manipulation. Fix by adding another integer in the vertex information");
+                        }
                         for (int i = 0; i < 6; i++) {
+                            unsigned int uv_index = 0;
+                            unsigned int vertex_index = indices.at(face).at(i);
+                            if (face == 0U) {
+                                if (vertex_index == 0U) {
+                                    uv_index = 0;
+                                } else if (vertex_index == 1U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 2U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 3U) {
+                                    uv_index = 3U;
+                                }
+                            } else if (face == 1U) {
+                                if (vertex_index == 0U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 5U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 4U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 1U) {
+                                    uv_index = 3U;
+                                }
+                            } else if (face == 2U) {
+                                if (vertex_index == 1U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 3U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 7U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 5U) {
+                                    uv_index = 1U;
+                                }
+                            } else if (face == 3U) {
+                                if (vertex_index == 2U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 3U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 7U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 6U) {
+                                    uv_index = 1U;
+                                }
+                            } else if (face == 4U) {
+                                if (vertex_index == 0U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 6U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 2U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 4U) {
+                                    uv_index = 0U;
+                                }
+                            } else if (face == 5U) {
+                                if (vertex_index == 4U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 6U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 5U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 7U) {
+                                    uv_index = 2U;
+                                }
+                            }
                             if (this->counter >= this->mesh.size()) {
                                 this->mesh.push_back(0);
                             }
-                            this->mesh.at(this->counter) = pos | (indices.at(face).at(i) << 16);
+                            this->mesh.at(this->counter) = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
                             this->counter++;
                         }
                     }

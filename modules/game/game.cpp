@@ -51,6 +51,7 @@ Project::Game::Game() {
     this->keyboard = new KeyHandler(display);
     this->timer = new Timer();
     this->camera = new Camera();
+    
     this->atlas = new TextureAtlas("assets/atlas.png");
     this->atlas->Bind();
     display.SetShader(shader);
@@ -59,6 +60,7 @@ Project::Game::Game() {
     this->world = new ChunkManager();
     world->WorldGen();
     this->renderer = new WorldRenderer();
+
     this->world->SuggestRemesh();
     this->Main();
     glfwTerminate();
