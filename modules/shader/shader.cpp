@@ -38,10 +38,6 @@ void Project::Shader::GenShader(const char* path) {
 }
 
 Project::Shader::Shader(const char* path, bool type) {
-    if (type == 0) {
-        this->id = glCreateShader(GL_VERTEX_SHADER);
-    } else {
-        this->id = glCreateShader(GL_FRAGMENT_SHADER);
-    }
+    this->id = glCreateShader((type == 0) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
     GenShader(path);
 }

@@ -4,6 +4,7 @@
 #include <glm/gtc/noise.hpp>
 #include <block/air_block.hpp>
 #include <block/grass_block.hpp>
+#include <block/dirt_block.hpp>
 #include <iostream>
 #include <block/block.hpp>
 
@@ -18,12 +19,13 @@ void Project::ChunkManager::WorldGen() {
             for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
                 int voxel_x = r + pair.second->GetRow() * Chunk::CHUNK_SIZE;
                 int voxel_z = c + pair.second->GetCol() * Chunk::CHUNK_SIZE;
-                float noise = glm::simplex(glm::vec2(voxel_x / 32.f, voxel_z / 32.f));
-                int h = static_cast<int>(4.f * (noise + 1.f)) + 15;
+                float noise = glm::simplex(glm::vec2(voxel_x / 20.f, voxel_z / 20.f));
+                int h = static_cast<int>(5.f * (noise + 1.f)) + 15;
                 for (int y{0}; y < h; y++) {
-                    pair.second->operator()(r, y, c) = new GrassBlock();
+                    pair.second->operator()(r, y, c) = new DirtBlock();
                 }
-                for (int x{h}; x < Chunk::CHUNK_DEPTH; x++) {
+                pair.second->operator()(r, h, c) = new GrassBlock();
+                for (int x{h + 1}; x < Chunk::CHUNK_DEPTH; x++) {
                     pair.second->operator()(r, x, c) = new AirBlock();
                 }
             }
