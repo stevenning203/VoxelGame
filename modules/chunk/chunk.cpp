@@ -7,11 +7,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-Project::Chunk::Chunk(int row, int col) : counter(0), row(row), col(col) {
+Project::Chunk::Chunk(int row, int col) : counter(0), row(row), col(col), empty(true) {
     this->data = std::vector<Block*>();
-    for (int i{0}; i < CHUNK_SIZE * CHUNK_SIZE * CHUNK_DEPTH; i++) {
-        this->data.push_back(nullptr);
-    }
     this->mesh = std::vector<unsigned int>();
     glGenVertexArrays(1, &this->vao_id);
     glBindVertexArray(this->vao_id);
@@ -27,6 +24,10 @@ Project::Chunk::~Chunk() {
 }
 
 void Project::Chunk::ReMesh() {
+    if (empty) {
+        empty = false;
+        FillNullData();
+    }
     static const std::vector<std::vector<unsigned int>> indices = {
         { 0, 2, 1, 2, 3, 1 }, // 0
         { 0, 5, 4, 0, 1, 5 }, // 1
@@ -142,6 +143,15 @@ void Project::Chunk::ReMesh() {
     this->PushMeshData();
 }
 
+void Project::Chunk::FillNullData() {
+    for (int i{0}; i < CHUNK_VOLUME; i++) {
+        this->data.push_back(nullptr);
+    }
+    if (this->data.size() > CHUNK_VOLUME) {
+        throw std::runtime_error("too much block nullptrs in FillNullData");
+    }
+}
+
 unsigned int Project::Chunk::GetVAO() {
     return this->vao_id;
 }
@@ -160,6 +170,10 @@ void Project::Chunk::PushMeshData() {
 }
 
 Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
+    if (empty) {
+        empty = false;
+        FillNullData();
+    }
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
 }
 

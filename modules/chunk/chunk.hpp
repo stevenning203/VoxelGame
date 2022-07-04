@@ -16,6 +16,9 @@ namespace Project {
         unsigned int vbo_id, vao_id;
         unsigned short counter;
         int row, col;
+        bool empty;
+
+        void FillNullData();
 
     public:
         static const int CHUNK_SIZE = 16;

@@ -5,6 +5,8 @@
 #include <utility>
 #include <memory>
 #include "custom_pair_hasher.hpp"
+#include <glm/glm.hpp>
+#include <queue>
 
 namespace Project {
     class Chunk;
@@ -17,8 +19,27 @@ namespace Project {
      */
     class ChunkManager {
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
+        std::queue<std::pair<int, int>> chunk_generation_queue;
+        int radius;
+    private:
+        /**
+         * @brief apply world generation to just one chunk
+         * 
+         */
+        void GenerateChunk(const int row, const int col);
 
+        /**
+         * @brief accept the next chunk in the generation queue.
+         * 
+         */
+        void NextInChunkQueue();
     public:
+
+        /**
+         * @brief Construct a new Chunk Manager object
+         * 
+         */
+        ChunkManager();
         /**
          * @brief Generate the world for some chunks near spawn
          * 
@@ -30,6 +51,13 @@ namespace Project {
          * 
          */
         void SuggestRemesh();
+
+        /**
+         * @brief Remove out of vision chunks and add chunks that should be in viewable distance
+         * 
+         * @param position the position with which we want to update respect to
+         */
+        void UpdatePlayerVisibleChunks(glm::vec3& position);
 
         /**
          * @brief get the block at the specified WORLD coordinates.

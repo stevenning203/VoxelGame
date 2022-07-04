@@ -20,7 +20,7 @@ void Project::Game::Main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //begin logic
-        
+        this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
         //end logic
 
         this->renderer->RenderChunkManager(*world, *shader, *this->atlas);
