@@ -7,9 +7,11 @@
 #include <block/dirt_block.hpp>
 #include <iostream>
 #include <block/block.hpp>
+#include "chunk_mesh_manager.hpp"
+#include "chunk_mesh.hpp"
 #include <cmath>
 
-Project::ChunkManager::ChunkManager() : radius(5) {
+Project::ChunkManager::ChunkManager(ChunkMeshManager* partner) : radius(5), partner(partner) {
 
 }
 
@@ -24,10 +26,11 @@ void Project::ChunkManager::WorldGen() {
     }
 }
 
-void Project::ChunkManager::SuggestRemesh() {
-    for (auto& p : this->chunks) {
-        p.second->ReMesh();
+Project::Chunk*& Project::ChunkManager::operator()(const int r, const int c) {
+    if (!this->chunks.count({r, c})) {
+        throw std::runtime_error("chunk manager did not contain");
     }
+    return this->chunks[{r, c}];
 }
 
 std::unordered_map<std::pair<int, int>, Project::Chunk*, Project::CustomChunkPairHasher>::iterator Project::ChunkManager::begin() {
@@ -61,10 +64,11 @@ void Project::ChunkManager::NextInChunkQueue() {
     int z = this->chunk_generation_queue.front().second;
     this->chunk_generation_queue.pop();
     GenerateChunk(x, z);
-    this->chunks[{x, z}]->ReMesh();
+    this->partner->QueueMeshGeneration(x, z, this->chunks[{x, z}]);
 }
 
 void Project::ChunkManager::GenerateChunk(const int row, const int col) {
+    std::cout << "Test" << std::endl;
     Chunk* chunk = this->chunks[{row, col}];
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
@@ -81,6 +85,7 @@ void Project::ChunkManager::GenerateChunk(const int row, const int col) {
             }
         }
     }
+    chunk->SetReady();
 }
 
 Project::Block*& Project::ChunkManager::operator()(const int x, const int y, const int z) {

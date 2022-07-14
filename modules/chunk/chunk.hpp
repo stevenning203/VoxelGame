@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include <atomic>
 
 namespace Project {
     class Block;
@@ -12,11 +13,11 @@ namespace Project {
     class Chunk {
     private:
         std::vector<Block*> data;
-        std::vector<unsigned int> mesh;
         unsigned int vbo_id, vao_id;
-        unsigned short counter;
         int row, col;
         bool empty;
+        std::atomic<bool> ready;
+        std::atomic<bool> needs_remeshing;
 
         void FillNullData();
 
@@ -33,34 +34,6 @@ namespace Project {
         Chunk(int row, int col);
 
         /**
-         * @brief Destroy the Chunk object and all blocks associated with it;
-         * 
-         */
-        ~Chunk();
-
-        /**
-         * @brief Push the data into the chunk buffer; should only be called if something changed and remesh was done.
-         * 
-         */
-        void PushMeshData();
-
-        /**
-         * @brief completely remesh the entire chunk. the generated mesh is stored, but not pushed.
-         * 
-         * The format of the unsigned int used to store vertex information is as follows:
-         * 
-         * 0b0000_00000_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
-         * 
-         * 0 -> unused
-         * B -> block id numeric
-         * X -> x offset
-         * Z -> z offest
-         * Y -> y offset
-         * V -> vertex
-         */
-        void ReMesh();
-
-        /**
          * @brief Bind the mesh VAO, such that it is ready to be rendered.
          * 
          */
@@ -74,7 +47,34 @@ namespace Project {
 
         unsigned int GetVBO();
 
-        unsigned short GetCounter();
+        /**
+         * @brief imply that the chunk is ready for rendering
+         * 
+         */
+        void SetReady();
+
+        /**
+         * @brief ask if this chunk is ready to render
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool GetReady();
+
+        /**
+         * @brief ask whether or not the chunk needs remeshing.
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool NeedsRemeshing();
+
+        /**
+         * @brief set if the chunk needs remeshing
+         * 
+         * @param v true/false
+         */
+        void SetNeedsRemeshing(bool v);
         
         /**
          * @brief Access the block given at the x y z coordiate a b c

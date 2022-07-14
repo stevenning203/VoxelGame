@@ -8,23 +8,29 @@
 #include <input/timer.hpp>
 #include <camera/camera.hpp>
 #include <chunk/chunk_manager.hpp>
+#include <chunk/chunk_mesh_manager.hpp>
 #include <world_renderer/world_renderer.hpp>
 #include <input/key_handler.hpp>
 #include <texture_atlas/texture_atlas.hpp>
+#include <thread>
 
 extern Project::Display display;
 
-void Project::Game::Main() {
+void Project::Game::GameLogicLoop() {
+    while (!display.ShouldClose()) {
+        this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
+    }
+}
+
+void Project::Game::RenderLoop() {
     while (!display.ShouldClose()) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //begin logic
-        this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
-        //end logic
-
-        this->renderer->RenderChunkManager(*world, *shader, *this->atlas);
-
+        this->mesher->GenerateQueuedMeshes();
+        this->mesher->ReMeshFlaggedMeshes();
+        this->renderer->RenderChunkMeshManager(*this->mesher, *this->shader, *this->atlas);
+        
         display.SwapBuffers();
         this->camera->PushMatrix(*shader);
         //shader.PushMVPMatrix(camera, display, identity);
@@ -33,12 +39,18 @@ void Project::Game::Main() {
         
         this->timer->Update();
         if (this->mouse->GetMouseState(Project::MouseHandler::MouseEnum::RMB_DOWN)) {
-            break;
+            display.HintClose();
         }
         this->mouse->Update(display);
         this->keyboard->Update();
         this->timer->Sleep(5);
     }
+}
+
+void Project::Game::Main() {
+    std::thread logic_thread_loop([this](){this->GameLogicLoop(); });
+    RenderLoop();
+    logic_thread_loop.join();
 }
 
 Project::Game::Game() {
@@ -51,17 +63,17 @@ Project::Game::Game() {
     this->keyboard = new KeyHandler(display);
     this->timer = new Timer();
     this->camera = new Camera();
+    this->mesher = new ChunkMeshManager(this->world);
     
     this->atlas = new TextureAtlas("assets/atlas.png");
     this->atlas->Bind();
     display.SetShader(shader);
     display.SuggestDimensions();
 
-    this->world = new ChunkManager();
+    this->world = new ChunkManager(this->mesher);
     world->WorldGen();
     this->renderer = new WorldRenderer();
 
-    this->world->SuggestRemesh();
     this->Main();
     glfwTerminate();
 }

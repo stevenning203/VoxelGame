@@ -4,7 +4,7 @@
 
 Project::Display display;
 
-Project::Display::Display() {
+Project::Display::Display() : should_close(false) {
 
 }
 
@@ -51,7 +51,11 @@ void Project::Display::PushMatrix() {
 }
 
 bool Project::Display::ShouldClose() {
-    return glfwWindowShouldClose(this->pointer);
+    return glfwWindowShouldClose(this->pointer) || should_close;
+}
+
+void Project::Display::HintClose() {
+    this->should_close = true;
 }
 
 GLFWwindow* Project::Display::GetWindowPointer() {

@@ -12,6 +12,7 @@ namespace Project {
     class Chunk;
     class CustomChunkPairHasher;
     class Block;
+    class ChunkMeshManager;
 
     /**
      * @brief Manager for chunks
@@ -20,6 +21,7 @@ namespace Project {
     class ChunkManager {
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
+        ChunkMeshManager* partner;
         int radius;
     private:
         /**
@@ -39,18 +41,13 @@ namespace Project {
          * @brief Construct a new Chunk Manager object
          * 
          */
-        ChunkManager();
+        ChunkManager(ChunkMeshManager* a);
+        
         /**
          * @brief Generate the world for some chunks near spawn
          * 
          */
         void WorldGen();
-
-        /**
-         * @brief Suggest a remesh on all the visible chunks
-         * 
-         */
-        void SuggestRemesh();
 
         /**
          * @brief Remove out of vision chunks and add chunks that should be in viewable distance
@@ -68,6 +65,15 @@ namespace Project {
          * @return Block*& the reference to the block* at the specified location
          */
         Block*& operator()(const int x, const int y, const int z);
+
+        /**
+         * @brief get the chunk at the specified chunk coordinates
+         * 
+         * @param r row
+         * @param c col
+         * @return Chunk*& 
+         */
+        Chunk*& operator()(const int r, const int c);
 
         /**
          * @brief return the STL iterator to the beginning

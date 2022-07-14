@@ -15,6 +15,8 @@ namespace Project {
     private:
         double last_time;
         double delta_time;
+        std::chrono::high_resolution_clock::time_point point;
+        int delta_ns_high_res;
     public:
         Timer();
         /**
@@ -31,5 +33,24 @@ namespace Project {
          * @param ms milliseconds
          */
         void Sleep(int ms);
+
+        /**
+         * @brief first high resolution begin
+         * 
+         */
+        void HighResolutionMeasureFirst();
+
+        /**
+         * @brief second high resolution finish
+         * 
+         */
+        void HighResolutionMeasureSecond();
+
+        /**
+         * @brief get delta from begin to end of high res timer
+         * 
+         * @return int NANOSECONDS, -1 if never measured.
+         */
+        int GetDeltaHighResolution();
     };
 }

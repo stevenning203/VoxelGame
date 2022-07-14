@@ -11,6 +11,7 @@ namespace Project {
     class ChunkManager;
     class WorldRenderer;
     class TextureAtlas;
+    class ChunkMeshManager;
 
     /**
      * @brief The game class that holds all the game logic.
@@ -26,12 +27,25 @@ namespace Project {
         ChunkManager* world;
         WorldRenderer* renderer;
         TextureAtlas* atlas;
+        ChunkMeshManager* mesher;
 
         /**
          * @brief the main loop
          * 
          */
         void Main();
+
+        /**
+         * @brief the game logic loop
+         * 
+         */
+        void GameLogicLoop();
+
+        /**
+         * @brief the rendering loop
+         * 
+         */
+        void RenderLoop();
 
     public:
         /**

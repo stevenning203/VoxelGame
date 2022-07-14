@@ -19,6 +19,7 @@ namespace Project {
         GLFWwindow* pointer;
         glm::mat4 projection_matrix;
         Program* shader;
+        bool should_close;
         
     public:
         Display();
@@ -57,6 +58,12 @@ namespace Project {
          * @return false the window should not close
          */
         bool ShouldClose();
+
+        /**
+         * @brief hint that the display should close
+         * 
+         */
+        void HintClose();
 
         GLFWwindow* GetWindowPointer();
 

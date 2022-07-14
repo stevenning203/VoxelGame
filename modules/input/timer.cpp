@@ -2,8 +2,10 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <chrono>
+#include <iostream>
 
-Project::Timer::Timer() {
+Project::Timer::Timer() : delta_ns_high_res(-1) {
     this->last_time = 0.0;
     this->delta_time = 0.0;
 }
@@ -19,4 +21,21 @@ double Project::Timer::GetDeltaTime() {
 
 void Project::Timer::Sleep(int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
+
+void Project::Timer::HighResolutionMeasureFirst() {
+    this->point = std::chrono::high_resolution_clock::now();
+}
+
+void Project::Timer::HighResolutionMeasureSecond() {
+    long long x = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - this->point).count();
+    if (x >= (long long)INT_MAX) {
+        std::cout << "Nanoseconds greater than INT_MAX" << std::endl;
+        return;
+    }
+    this->delta_ns_high_res = static_cast<int>(x);
+}
+
+int Project::Timer::GetDeltaHighResolution() {
+    return this->delta_ns_high_res;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Project {
-    class ChunkManager;
+    class ChunkMeshManager;
     class Program;
     class TextureAtlas;
 
@@ -17,6 +17,6 @@ namespace Project {
          * @param cm chunk
          * @param p program
          */
-        void RenderChunkManager(ChunkManager& cm, Program& p, TextureAtlas& atlas);
+        void RenderChunkMeshManager(ChunkMeshManager& cm, Program& p, TextureAtlas& atlas);
     };
 }
