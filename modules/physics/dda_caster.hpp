@@ -17,7 +17,7 @@ namespace Project {
         DDACaster() = default;
 
         /**
-         * @brief 
+         * @brief generate a raycast from origin with direction. gives the row, col of the collided blocks if true is returned.
          * 
          * @param origin origin of the raycast
          * @param direction direction of the raycast
