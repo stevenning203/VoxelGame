@@ -42,7 +42,7 @@ namespace Project {
         void GenerateQueuedMeshes();
 
         /**
-         * @brief remesh all meshes that have been flagged as need remeshing.
+         * @brief queue all meshes that need remeshing and remesh one mesh from the queue.
          * 
          */
         void ReMeshFlaggedMeshes();

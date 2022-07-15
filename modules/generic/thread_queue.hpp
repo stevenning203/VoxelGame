@@ -24,6 +24,16 @@ namespace ntd {
             std::lock_guard<std::mutex> temp(lock);
             internal.push(x);
         }
+
+        /**
+         * @brief push to the queue
+         * 
+         * @param x obj
+         */
+        void Push(T&& x) {
+            std::lock_guard<std::mutex> temp(lock);
+            internal.push(x);
+        }
         
         /**
          * @brief get size of q

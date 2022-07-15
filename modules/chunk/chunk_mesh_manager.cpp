@@ -26,9 +26,15 @@ Project::ChunkMesh*& Project::ChunkMeshManager::operator()(const int row, const 
 void Project::ChunkMeshManager::ReMeshFlaggedMeshes() {
     for (auto& cm : *this) {
         if (cm.second->NeedsRemeshing()) {
-            cm.second->ReMesh();
+            this->chunk_remeshing_queue.Push({cm.first.first, cm.first.second});
         }
     }
+    if (this->chunk_remeshing_queue.Empty()) {
+        return;
+    }
+    std::pair<int, int> top = this->chunk_remeshing_queue.Front();
+    this->meshes[top]->ReMesh();
+    this->chunk_remeshing_queue.Pop();
 }
 
 void Project::ChunkMeshManager::QueueMeshGeneration(int a, int b, Chunk* y) {

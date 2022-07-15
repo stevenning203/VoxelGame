@@ -23,6 +23,9 @@ void Project::ChunkManager::WorldGen() {
     }
     for (auto& pair : this->chunks) {
         GenerateChunk(pair.second->GetRow(), pair.second->GetCol());
+        this->partner->QueueMeshGeneration(pair.second->GetRow(),
+        pair.second->GetCol(),
+        this->chunks[{pair.second->GetRow(), pair.second->GetCol()}]);
     }
 }
 
@@ -68,7 +71,6 @@ void Project::ChunkManager::NextInChunkQueue() {
 }
 
 void Project::ChunkManager::GenerateChunk(const int row, const int col) {
-    std::cout << "Test" << std::endl;
     Chunk* chunk = this->chunks[{row, col}];
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
