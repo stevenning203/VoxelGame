@@ -1,8 +1,5 @@
 #pragma once
 
-
-#include <utility>
-
 namespace ntd {
     /**
      * @brief triplet

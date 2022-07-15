@@ -27,6 +27,7 @@ void Project::ChunkMeshManager::ReMeshFlaggedMeshes() {
     for (auto& cm : *this) {
         if (cm.second->NeedsRemeshing()) {
             this->chunk_remeshing_queue.Push({cm.first.first, cm.first.second});
+            cm.second->ResetNeedsMeshing();
         }
     }
     if (this->chunk_remeshing_queue.Empty()) {

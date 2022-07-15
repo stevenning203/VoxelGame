@@ -143,6 +143,10 @@ unsigned int Project::ChunkMesh::GetVAOID() {
     return this->vao_id;
 }
 
+void Project::ChunkMesh::ResetNeedsMeshing() {
+    this->needs_remeshing = false;
+}
+
 unsigned short Project::ChunkMesh::GetCounter() {
     return this->counter;
 }

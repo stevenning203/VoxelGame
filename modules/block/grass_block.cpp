@@ -9,5 +9,9 @@ bool Project::GrassBlock::SkipRender() {
 }
 
 Project::GrassBlock::GrassBlock() {
-    this->id = 1;
+    
+}
+
+int Project::GrassBlock::GetID() {
+    return 1;
 }

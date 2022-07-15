@@ -9,5 +9,9 @@ bool Project::DirtBlock::SkipRender() {
 }
 
 Project::DirtBlock::DirtBlock() {
-    this->id = 2;
+    
+}
+
+int Project::DirtBlock::GetID() {
+    return 2;
 }

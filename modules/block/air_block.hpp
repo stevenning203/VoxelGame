@@ -13,5 +13,7 @@ namespace Project {
         virtual bool IsOpaque() override;
 
         virtual bool SkipRender() override;
+
+        virtual int GetID() override;
     };
 }

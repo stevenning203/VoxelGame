@@ -9,5 +9,9 @@ bool Project::AirBlock::SkipRender() {
 }
 
 Project::AirBlock::AirBlock() {
-    this->id = 0;
+    
+}
+
+int Project::AirBlock::GetID() {
+    return 0;
 }

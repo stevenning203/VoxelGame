@@ -10,7 +10,10 @@ namespace Project {
      * the use virtual function.
      * 
      */
-    class Item : public Identifiable<int> {
+    class Item {
+    public:
         virtual void Use(Game& game);
+
+        virtual int GetID() = 0;
     };
 }

@@ -53,6 +53,8 @@ namespace Project {
          */
         bool NeedsRemeshing();
 
+        void ResetNeedsMeshing();
+
         /**
          * @brief upload the vertexes to the buffer vbo
          * 
