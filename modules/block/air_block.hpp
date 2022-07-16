@@ -15,5 +15,9 @@ namespace Project {
         virtual bool SkipRender() override;
 
         virtual int GetID() override;
+
+        virtual bool IsSolid() override;
+
+        virtual bool IsSelectable() override;
     };
 }

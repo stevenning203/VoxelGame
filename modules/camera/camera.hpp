@@ -55,6 +55,8 @@ namespace Project {
          */
         void UpdateMovement(KeyHandler& keyboard, Timer& t);
 
-        glm::mat4 GetMatrix();
+        const glm::vec3& GetForward() const;
+
+        const glm::mat4& GetMatrix() const;
     };
 }

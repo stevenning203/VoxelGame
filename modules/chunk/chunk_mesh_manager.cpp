@@ -34,6 +34,9 @@ void Project::ChunkMeshManager::ReMeshFlaggedMeshes() {
         return;
     }
     std::pair<int, int> top = this->chunk_remeshing_queue.Front();
+    if (!this->meshes.count(top)) {
+        return;
+    }
     this->meshes[top]->ReMesh();
     this->chunk_remeshing_queue.Pop();
 }
@@ -54,4 +57,11 @@ void Project::ChunkMeshManager::GenerateQueuedMeshes() {
 
 Project::ChunkMeshManager::ChunkMeshManager(ChunkManager* p) : partner(p) {
 
+}
+
+void Project::ChunkMeshManager::QueueRemesh(const int x, const int z) {
+    if (!this->meshes.count({x, z})) {
+        return;
+    }
+    this->meshes[{x, z}]->SuggestReMesh();
 }

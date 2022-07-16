@@ -12,6 +12,8 @@ namespace Project {
     class WorldRenderer;
     class TextureAtlas;
     class ChunkMeshManager;
+    class DDACaster;
+    class WorldCollisionHandler;
 
     /**
      * @brief The game class that holds all the game logic.
@@ -28,6 +30,7 @@ namespace Project {
         WorldRenderer* renderer;
         TextureAtlas* atlas;
         ChunkMeshManager* mesher;
+        WorldCollisionHandler* collision_handler;
 
         /**
          * @brief the main loop

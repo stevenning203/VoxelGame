@@ -15,3 +15,7 @@ Project::GrassBlock::GrassBlock() {
 int Project::GrassBlock::GetID() {
     return 1;
 }
+
+bool Project::GrassBlock::IsSolid() {
+    return true;
+}

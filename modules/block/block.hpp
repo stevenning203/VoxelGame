@@ -25,5 +25,21 @@ namespace Project {
          * @return false no, please render
          */
         virtual bool SkipRender() = 0;
+
+        /**
+         * @brief indicate whether or not this block is passable by entities
+         * 
+         * @return true solid, do not pass through
+         * @return false unsolid, entities will pass through
+         */
+        virtual bool IsSolid() = 0;
+
+        /**
+         * @brief if a block is selectable (by the player)
+         * 
+         * @return true 
+         * @return false 
+         */
+        virtual bool IsSelectable();
     };
 }

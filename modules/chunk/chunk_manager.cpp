@@ -10,9 +10,14 @@
 #include "chunk_mesh_manager.hpp"
 #include "chunk_mesh.hpp"
 #include <cmath>
+#include <generic/mod.hpp>
 
 Project::ChunkManager::ChunkManager(ChunkMeshManager* partner) : radius(5), partner(partner) {
 
+}
+
+void Project::ChunkManager::HintRemeshing(const int r, const int c) {
+    this->partner->QueueRemesh(r, c);
 }
 
 void Project::ChunkManager::WorldGen() {
@@ -91,13 +96,27 @@ void Project::ChunkManager::GenerateChunk(const int row, const int col) {
 }
 
 Project::Block*& Project::ChunkManager::operator()(const int x, const int y, const int z) {
-    int row = x / Chunk::CHUNK_SIZE;
-    int col = z / Chunk::CHUNK_SIZE;
+    int row = FloorDiv(x, Chunk::CHUNK_SIZE);
+    int col = FloorDiv(z, Chunk::CHUNK_SIZE);
     if (!this->chunks.count({row, col})) {
         throw new std::runtime_error("Chunk not loaded when operator() called");
     }
     Chunk* chunk = this->chunks[{row, col}];
-    int modx = x % Chunk::CHUNK_SIZE;
-    int modz = z % Chunk::CHUNK_SIZE;
+    int modx = Mod(x, Chunk::CHUNK_SIZE);
+    int modz = Mod(z, Chunk::CHUNK_SIZE);
     return chunk->operator()(modx, y, modz);
-} 
+}
+
+bool Project::ChunkManager::BlockExists(const int a, const int b, const int c) {
+    if (b < 0) {
+        return false;
+    }
+    int row = FloorDiv(a, Chunk::CHUNK_SIZE);
+    int col = FloorDiv(c, Chunk::CHUNK_SIZE);
+    if (!this->chunks.count({row, col})) {
+        return false;
+    }
+    int modx = Mod(a, Chunk::CHUNK_SIZE);
+    int modz = Mod(c, Chunk::CHUNK_SIZE);
+    return this->chunks[{row, col}]->Contains(modx, b, modz);
+}

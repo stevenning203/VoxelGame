@@ -13,12 +13,14 @@
 #include <input/key_handler.hpp>
 #include <texture_atlas/texture_atlas.hpp>
 #include <thread>
+#include <physics/world_collision_handler.hpp>
 
 extern Project::Display display;
 
 void Project::Game::GameLogicLoop() {
     while (!display.ShouldClose()) {
         this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
+        this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, WorldCollisionHandler::PLAYER_REACH);
     }
 }
 
@@ -73,6 +75,7 @@ Project::Game::Game() {
     this->world = new ChunkManager(this->mesher);
     world->WorldGen();
     this->renderer = new WorldRenderer();
+    this->collision_handler = new WorldCollisionHandler();
 
     this->Main();
     glfwTerminate();

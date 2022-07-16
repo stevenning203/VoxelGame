@@ -15,3 +15,7 @@ Project::DirtBlock::DirtBlock() {
 int Project::DirtBlock::GetID() {
     return 2;
 }
+
+bool Project::DirtBlock::IsSolid() {
+    return true;
+}

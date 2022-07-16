@@ -67,6 +67,17 @@ namespace Project {
         Block*& operator()(const int x, const int y, const int z);
 
         /**
+         * @brief return if the block exists or not with world coordinates
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @return true 
+         * @return false 
+         */
+        bool BlockExists(const int x, const int y, const int z);
+
+        /**
          * @brief get the chunk at the specified chunk coordinates
          * 
          * @param r row
@@ -74,6 +85,14 @@ namespace Project {
          * @return Chunk*& 
          */
         Chunk*& operator()(const int r, const int c);
+
+        /**
+         * @brief hint that the chunk at r c needs to be remeshed.
+         * 
+         * @param r 
+         * @param c 
+         */
+        void HintRemeshing(const int r, const int c);
 
         /**
          * @brief return the STL iterator to the beginning

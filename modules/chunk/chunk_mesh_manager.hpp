@@ -36,6 +36,14 @@ namespace Project {
         void QueueMeshGeneration(int a, int b, Chunk* x);
 
         /**
+         * @brief suggest that some given chunk needs remeshing at the pair {x, z}
+         * 
+         * @param a 
+         * @param b 
+         */
+        void QueueRemesh(int a, int b);
+
+        /**
          * @brief generate meshes that need to be generated
          * 
          */

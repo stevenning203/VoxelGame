@@ -52,6 +52,10 @@ void Project::Camera::UpdatePanning(MouseHandler& m, Timer& t) {
     this->matrix = glm::lookAt(this->GetPosition(), this->GetPosition() + this->forward, this->up);
 }
 
-glm::mat4 Project::Camera::GetMatrix() {
+const glm::mat4& Project::Camera::GetMatrix() const {
     return this->matrix;
+}
+
+const glm::vec3& Project::Camera::GetForward() const {
+    return this->forward;
 }

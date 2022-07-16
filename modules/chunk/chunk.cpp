@@ -52,3 +52,7 @@ int Project::Chunk::GetCol() {
 int Project::Chunk::GetRow() {
     return this->row;
 }
+
+bool Project::Chunk::Contains(const int x, const int y, const int z) {
+    return !(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z >= CHUNK_VOLUME);
+}

@@ -60,21 +60,6 @@ namespace Project {
          * @return false 
          */
         bool GetReady();
-
-        /**
-         * @brief ask whether or not the chunk needs remeshing.
-         * 
-         * @return true 
-         * @return false 
-         */
-        bool NeedsRemeshing();
-
-        /**
-         * @brief set if the chunk needs remeshing
-         * 
-         * @param v true/false
-         */
-        void SetNeedsRemeshing(bool v);
         
         /**
          * @brief Access the block given at the x y z coordiate a b c
@@ -85,5 +70,16 @@ namespace Project {
          * @return Block* the reference to pointer to the block desired.
          */
         Block*& operator()(const int x, const int y, const int z);
+
+        /**
+         * @brief true if the block is contained here.
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @return true 
+         * @return false 
+         */
+        bool Contains(const int x, const int y, const int z);
     };
 }
