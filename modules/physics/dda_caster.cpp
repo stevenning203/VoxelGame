@@ -7,7 +7,7 @@
 
 bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& direction, float distance, ChunkManager& world, int& write_to_row_collision, int& write_to_col_collision, int& write_to_y_collision, int& write_to_row_backtrack, int& write_to_col_backtrack, int& write_to_y_backtrack) {
     glm::vec3 ray_start = origin;
-    auto sqr = [](float x)-> float { return x*x; };
+    auto sqr = [](float x) -> float { return x*x; };
     glm::vec3 ray_unit_step_size{std::sqrtf(1.f + sqr(direction.y / direction.x) + sqr(direction.z / direction.x)),
     std::sqrtf(1.f + sqr(direction.x / direction.y) + sqr(direction.z / direction.y)),
     std::sqrtf(1.f + sqr(direction.x / direction.z) + sqr(direction.y / direction.z))};
@@ -35,7 +35,6 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
         step.z = 1;
         ray_length.z = (static_cast<float>(map_check.z + 1) - ray_start.z) * ray_unit_step_size.z;
     }
-    bool found;
     float current_distance = 0.0f;
     int last_op = -1;
     while (current_distance < distance) {

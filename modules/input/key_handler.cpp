@@ -7,8 +7,10 @@
 
 std::unordered_map<int, int> keyboard_state;
 std::queue<int> key_reset_queue;
+std::mutex key_mutex;
 
 bool Project::KeyHandler::GetKeyState(int key, int action) {
+    std::lock_guard<std::mutex> lock(key_mutex);
     if (!keyboard_state.count(key)) {
         return false;
     }
@@ -20,6 +22,7 @@ Project::KeyHandler::KeyHandler(Display& d) {
 }
 
 void Project::KeyHandler::Update() {
+    std::lock_guard<std::mutex> lock(key_mutex);
     while (!key_reset_queue.empty()) {
         int front = key_reset_queue.front();
         key_reset_queue.pop();
@@ -28,6 +31,7 @@ void Project::KeyHandler::Update() {
 }
 
 void Project::KeyHandlerGLFWCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    std::lock_guard<std::mutex> lock(key_mutex);
     if (keyboard_state.count(key) == 0) {
         keyboard_state[key] = 0;
     }

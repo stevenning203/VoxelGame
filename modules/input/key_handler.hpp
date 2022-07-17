@@ -3,9 +3,11 @@
 #include <queue>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <mutex>
 
 extern std::unordered_map<int, int> keyboard_state;
 extern std::queue<int> key_reset_queue;
+extern std::mutex key_mutex;
 
 namespace Project {
     class Display;
