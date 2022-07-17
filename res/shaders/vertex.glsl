@@ -39,5 +39,12 @@ void main() {
     uint tc_index = (block_data & uint(4026531840)) >> 28;
     uint block_id = (block_data & uint(267386880)) >> 20;
     texture_coordinate = vec2(tcs[tc_index].x / n_atlas_count, tcs[tc_index].y) + vec2(float(block_id) / n_atlas_count, 0.f);
-    gl_Position = projection_matrix * view_matrix * (vec4(x + chunk_offset_x, y, z + chunk_offset_z, 1.f) + vec4(vertices[index], 1.f));
+    float x_pos = float(x);
+    float y_pos = float(y);
+    float z_pos = float(z);
+    x_pos += chunk_offset_x;
+    z_pos += chunk_offset_z;
+    //gl_Position = projection_matrix * view_matrix * (vec4(x_pos, y_pos, z_pos, 1.f) + vec4(vertices[index], 1.f));
+    vec3 vertex_base = vertices[index];
+    gl_Position = projection_matrix * view_matrix * vec4(vertex_base.x + x_pos, vertex_base.y + y_pos, vertex_base.z + z_pos , 1.f);
 }

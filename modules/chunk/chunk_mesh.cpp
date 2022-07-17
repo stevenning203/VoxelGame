@@ -3,6 +3,7 @@
 #include "GLFW/glfw3.h"
 #include <block/block.hpp>
 #include <chunk/chunk.hpp>
+#include <iostream>
 
 Project::ChunkMesh::ChunkMesh(Chunk* c) : counter(0), chunk(c), needs_remeshing(false), ready(false) {
     this->mesh = std::vector<unsigned int>();
@@ -115,7 +116,8 @@ void Project::ChunkMesh::ReMesh() {
                             if (this->counter >= this->mesh.size()) {
                                 this->mesh.push_back(0);
                             }
-                            this->mesh.at(this->counter) = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
+                            int vertex = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
+                            this->mesh.at(this->counter) = vertex;
                             this->counter++;
                         }
                     }

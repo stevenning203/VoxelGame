@@ -54,11 +54,6 @@ void Project::Program::UniformFloat(const char * name, const float data) {
     glUniform1f(location, data);
 }
 
-void Project::Program::PushMVPMatrix(Camera& camera, Display& display, glm::mat4& model) {
-    glm::mat4 matrix = display.GetMatrix() * camera.GetMatrix() * model;
-    this->UniformMatrix("mvp_matrix", matrix);
-}
-
 std::size_t Project::Program::CustomCStringHasher::operator()(const char* cstring) const {
     size_t start = 5381;
     int inc;

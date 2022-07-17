@@ -22,7 +22,7 @@ namespace Project {
          * 
          * @param origin origin of the raycast
          * @param direction direction of the raycast
-         * @param end the end point (position) of the raycast
+         * @param distance dist
          * @param world the world/chunk manager
          * @param write_to_row_collision row of the collision ray - abs
          * @param write_to_col_collision col of the collision ray - abs
@@ -33,7 +33,7 @@ namespace Project {
          * @return true [yes, there was a collision]
          * @return false [no, there was not a collision]
          */
-        bool Cast(const glm::vec3& origin, const glm::vec3& direction, const glm::vec3& end,
+        bool Cast(const glm::vec3& origin, const glm::vec3& direction, float distance,
         ChunkManager& world,
         int& write_to_row_collision,
         int& write_to_col_collision,

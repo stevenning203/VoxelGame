@@ -15,7 +15,7 @@ void Project::WorldCollisionHandler::EnforcePlayerVoxelCollision(ChunkManager& c
 void Project::WorldCollisionHandler::EnablePlayerBlockDestruction(ChunkManager& cm, Camera& camera, float reach) {
     int r, c, y;
     int pr, pc, py;
-    bool collide = this->ray_caster->Cast(camera.GetPosition(), camera.GetForward(), camera.GetPosition() + camera.GetForward() * reach, cm, r, c, y, pr, pc, py);
+    bool collide = this->ray_caster->Cast(camera.GetPosition(), camera.GetForward(), reach, cm, r, c, y, pr, pc, py);
     if (!collide) {
         return;
     }

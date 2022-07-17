@@ -50,8 +50,8 @@ std::unordered_map<std::pair<int, int>, Project::Chunk*, Project::CustomChunkPai
 }
 
 void Project::ChunkManager::UpdatePlayerVisibleChunks(glm::vec3& position) {
-    int left = static_cast<int>(position.x) * 2 / Chunk::CHUNK_SIZE;
-    int right = static_cast<int>(position.z) * 2 / Chunk::CHUNK_SIZE; 
+    int left = static_cast<int>(position.x) / Chunk::CHUNK_SIZE;
+    int right = static_cast<int>(position.z) / Chunk::CHUNK_SIZE; 
     for (int x{-radius + left}; x <= radius + left; x++) {
         int height = static_cast<int>(std::ceil(std::sqrt(radius * radius - (x - left) * (x - left))));
         for (int z{-height + right}; z <= height + right; z++) {
