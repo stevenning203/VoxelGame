@@ -3,9 +3,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <vector>
+#include <atomic>
 
-extern bool key_state[6];
+extern std::atomic<bool> key_state[6];
 
 namespace Project {
     class Display;
@@ -31,8 +31,8 @@ namespace Project {
         };
 
     private:
-        int mousex = 0, mousey = 0, dx = 0, dy = 0;
-        int lx = 0, ly = 0;
+        std::atomic<int> mousex = 0, mousey = 0, dx = 0, dy = 0;
+        std::atomic<int> lx = 0, ly = 0;
 
     public:
         /**

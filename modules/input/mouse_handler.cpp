@@ -6,8 +6,9 @@
 #include <vector>
 
 #include <display/display.hpp>
+#include <atomic>
 
-bool key_state[6]{false, false, false, false, false};
+std::atomic<bool> key_state[6]{false, false, false, false, false};
 
 bool Project::MouseHandler::GetMouseState(MouseEnum enumer) {
     return key_state[static_cast<int>(enumer)];
@@ -42,8 +43,8 @@ void Project::MouseHandler::Update(Display& d) {
     this->mousey = static_cast<int>(b);
     this->dx = this->mousex - this->lx;
     this->dy = this->mousey - this->ly;
-    this->lx = this->mousex;
-    this->ly = this->mousey;
+    this->lx.store(this->mousex.load());
+    this->ly.store(this->mousey.load());
     for (int i{0}; i < 6; i++) {
         key_state[i] = false;
     }
