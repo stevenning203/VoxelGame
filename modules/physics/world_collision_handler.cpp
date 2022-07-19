@@ -7,12 +7,13 @@
 #include <iostream>
 #include <generic/mod.hpp>
 #include <chunk/chunk.hpp>
+#include <input/mouse_handler.hpp>
 
 void Project::WorldCollisionHandler::EnforcePlayerVoxelCollision(ChunkManager& cm, Player& p) {
     
 }
 
-void Project::WorldCollisionHandler::EnablePlayerBlockDestruction(ChunkManager& cm, Camera& camera, float reach) {
+void Project::WorldCollisionHandler::EnablePlayerBlockDestruction(ChunkManager& cm, Camera& camera, MouseHandler& mouse, float reach) {
     int r, c, y;
     int pr, pc, py;
     bool collide = this->ray_caster->Cast(camera.GetPosition(), camera.GetForward(), reach, cm, r, c, y, pr, pc, py);

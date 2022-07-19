@@ -20,7 +20,7 @@ extern Project::Display display;
 void Project::Game::GameLogicLoop() {
     while (!display.ShouldClose()) {
         this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
-        this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, WorldCollisionHandler::PLAYER_REACH);
+        this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
     }
 }
 
@@ -35,7 +35,6 @@ void Project::Game::RenderLoop() {
         
         display.SwapBuffers();
         this->camera->PushMatrix(*shader);
-        //shader.PushMVPMatrix(camera, display, identity);
         this->camera->UpdatePanning(*mouse, *timer);
         this->camera->UpdateMovement(*keyboard, *timer);
         

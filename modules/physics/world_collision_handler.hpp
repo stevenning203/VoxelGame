@@ -5,6 +5,7 @@ namespace Project {
     class Player;
     class DDACaster;
     class Camera;
+    class MouseHandler;
     
     /**
      * @brief handle world collisions/physics
@@ -37,6 +38,6 @@ namespace Project {
          * @param c 
          * @param reach 
          */
-        void EnablePlayerBlockDestruction(ChunkManager&cm, Camera& c, float reach);
+        void EnablePlayerBlockDestruction(ChunkManager&cm, Camera& c, MouseHandler& mouse, float reach);
     };
 }

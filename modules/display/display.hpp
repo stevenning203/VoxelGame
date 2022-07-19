@@ -19,7 +19,7 @@ namespace Project {
         GLFWwindow* pointer;
         glm::mat4 projection_matrix;
         Program* shader;
-        bool should_close;
+        std::atomic<bool> should_close;
         
     public:
         Display();
