@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <generic/positionable.hpp>
+#include <mutex>
 
 namespace Project {
     class Program;
@@ -13,7 +14,7 @@ namespace Project {
      * @brief A camera inside the game.
      * 
      */
-    class Camera : public Positionable {
+    class Camera {
         static constexpr float INITIAL_SENSITIVITY = 7.5f;
         static constexpr float INITIAL_SPEED = 3.75f;
         float yaw;
@@ -21,10 +22,11 @@ namespace Project {
         float sensitivity;
         float speed;
         glm::mat4 matrix;
-        glm::vec3 forward;
+        glm::vec3 forward, position;
         glm::vec3 up;
         glm::vec3 right;
         bool changed;
+        std::mutex update_mutex;
     public:
         /**
          * @brief Construct a new Camera object
@@ -55,8 +57,8 @@ namespace Project {
          */
         void UpdateMovement(KeyHandler& keyboard, Timer& t);
 
-        const glm::vec3& GetForward() const;
+        glm::vec3 GetForward();
 
-        const glm::mat4& GetMatrix() const;
+        glm::vec3 GetPosition();
     };
 }

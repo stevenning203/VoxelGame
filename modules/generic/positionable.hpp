@@ -8,7 +8,7 @@ namespace Project {
      * 
      */
     class Positionable {
-    private:
+    protected:
         glm::vec3 position;
     public:
         /**
@@ -16,6 +16,6 @@ namespace Project {
          * 
          * @return glm::vec3& the reference to the positiion vector.
          */
-        glm::vec3& GetPosition();
+        virtual const glm::vec3& GetPosition();
     };
 }

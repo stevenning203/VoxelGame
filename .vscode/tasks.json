@@ -40,8 +40,7 @@
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
 				//"-fsanitize=address,undefined",
-				"-fsanitize=thread,undefined",
-				"-Wdeprecated-volatile"
+				//"-fsanitize=thread,undefined",
 			],
 			"options": {
 				"cwd": "${fileDirname}"

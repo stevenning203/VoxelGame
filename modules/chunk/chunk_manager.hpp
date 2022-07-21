@@ -102,7 +102,7 @@ namespace Project {
          * 
          * @param position the position with which we want to update respect to
          */
-        void UpdatePlayerVisibleChunks(glm::vec3& position);
+        void UpdatePlayerVisibleChunks(const glm::vec3& position);
 
         /**
          * @brief return if the block exists or not with world coordinates

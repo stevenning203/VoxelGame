@@ -35,7 +35,7 @@ void Project::ChunkManager::WorldGen() {
     }
 }
 
-void Project::ChunkManager::UpdatePlayerVisibleChunks(glm::vec3& position) {
+void Project::ChunkManager::UpdatePlayerVisibleChunks(const glm::vec3& position) {
     int left = static_cast<int>(position.x) / Chunk::CHUNK_SIZE;
     int right = static_cast<int>(position.z) / Chunk::CHUNK_SIZE; 
     for (int x{-radius + left}; x <= radius + left; x++) {
