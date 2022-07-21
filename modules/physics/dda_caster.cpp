@@ -54,8 +54,7 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
             ray_length.z += ray_unit_step_size.z; 
             last_op = 2;
         }
-
-        if (world.BlockExists(map_check.x, map_check.y, map_check.z) && world.operator()(map_check.x, map_check.y, map_check.z)->IsSelectable()) {
+        if (world.BlockExists(map_check.x, map_check.y, map_check.z) && world.AskBlockProperty(map_check.x, map_check.y, map_check.z, &Block::IsSelectable)) {
             write_to_row_collision = map_check.x;
             write_to_col_collision = map_check.z;
             write_to_y_collision = map_check.y;

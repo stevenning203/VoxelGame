@@ -30,15 +30,15 @@ void Project::ChunkMesh::ReMesh() {
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
             for (int y{0}; y < Chunk::CHUNK_DEPTH; y++) {
-                if (this->chunk->operator()(r, y, c)->SkipRender()) {
+                if (this->chunk->AskBlockProperty(r, y, c, &Block::SkipRender)) {
                     continue;
                 }
                 auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
                     if (row < 0 || col < 0 || depth < 0 ||
                     row >= Chunk::CHUNK_SIZE || col >= Chunk::CHUNK_SIZE ||
-                    depth >= Chunk::CHUNK_DEPTH || !this->chunk->operator()(row, depth, col)->IsOpaque()) {
+                    depth >= Chunk::CHUNK_DEPTH || !this->chunk->AskBlockProperty(row, depth, col, &Block::IsOpaque)) {
                         unsigned int pos = (r << 12) + (y) + (c << 8);
-                        unsigned int texture_index = static_cast<unsigned int>(this->chunk->operator()(r, y, c)->GetID());
+                        unsigned int texture_index = static_cast<unsigned int>(this->chunk->AskBlockID(r, y, c));
                         texture_index *= 3U;
                         if (face == 3U) {
                             texture_index += 2U;

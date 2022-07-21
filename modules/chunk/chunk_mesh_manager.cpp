@@ -7,6 +7,7 @@
 #include <iostream>
 #include "chunk.hpp"
 #include <generic/triple.hpp>
+#include <mutex>
 
 std::unordered_map<std::pair<int, int>, Project::ChunkMesh*, Project::CustomChunkPairHasher>::iterator Project::ChunkMeshManager::begin() {
     return this->meshes.begin();
@@ -16,14 +17,8 @@ std::unordered_map<std::pair<int, int>, Project::ChunkMesh*, Project::CustomChun
     return this->meshes.end();
 }
 
-Project::ChunkMesh*& Project::ChunkMeshManager::operator()(const int row, const int col) {
-    if (!this->meshes.count({row, col})) {
-        throw std::runtime_error("chunk mesh manager did not contain");
-    }
-    return this->meshes[{row, col}];
-}
-
 void Project::ChunkMeshManager::ReMeshFlaggedMeshes() {
+    std::unique_lock<std::mutex> lock(this->map_access_mutex);
     for (auto& cm : *this) {
         if (cm.second->NeedsRemeshing()) {
             this->chunk_remeshing_queue.Push({cm.first.first, cm.first.second});
@@ -37,6 +32,7 @@ void Project::ChunkMeshManager::ReMeshFlaggedMeshes() {
     if (!this->meshes.count(top)) {
         return;
     }
+    lock.unlock();
     this->meshes[top]->ReMesh();
     this->chunk_remeshing_queue.Pop();
 }
@@ -51,7 +47,9 @@ void Project::ChunkMeshManager::GenerateQueuedMeshes() {
     }
     ntd::Triple top = this->chunk_meshing_queue.Front();
     ChunkMesh* mesh = new ChunkMesh(top.Third());
+    std::unique_lock<std::mutex> lock(this->map_access_mutex);
     this->meshes.insert({{top.First(), top.Second()}, mesh});
+    lock.unlock();
     this->chunk_meshing_queue.Pop();
 }
 
@@ -60,6 +58,7 @@ Project::ChunkMeshManager::ChunkMeshManager(ChunkManager* p) : partner(p) {
 }
 
 void Project::ChunkMeshManager::QueueRemesh(const int x, const int z) {
+    std::lock_guard<std::mutex> lock(this->map_access_mutex);
     if (!this->meshes.count({x, z})) {
         return;
     }

@@ -21,8 +21,7 @@ void Project::WorldCollisionHandler::EnablePlayerBlockDestruction(ChunkManager& 
         return;
     }
     // drop blocks here?
-    delete cm.operator()(r, y, c);
-    cm.operator()(r, y, c) = new AirBlock();
+    cm.QueueBlockCreation(r, y, c, new AirBlock());
     int row = FloorDiv(r, Chunk::CHUNK_SIZE);
     int col = FloorDiv(c, Chunk::CHUNK_SIZE);
     cm.HintRemeshing(row, col);

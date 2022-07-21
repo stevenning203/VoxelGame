@@ -20,7 +20,8 @@ extern Project::Display display;
 void Project::Game::GameLogicLoop() {
     while (!display.ShouldClose()) {
         this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
-        this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
+        this->world->Work();
+        //this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
     }
 }
 
@@ -72,7 +73,6 @@ Project::Game::Game() {
     display.SuggestDimensions();
 
     this->world = new ChunkManager(this->mesher);
-    world->WorldGen();
     this->renderer = new WorldRenderer();
     this->collision_handler = new WorldCollisionHandler();
 

@@ -5,6 +5,7 @@
 #include <generic/thread_queue.hpp>
 #include <utility>
 #include <generic/triple.hpp>
+#include <mutex>
 
 namespace Project {
     class ChunkMesh;
@@ -20,6 +21,7 @@ namespace Project {
         ntd::ThreadQueue<ntd::Triple<int, int, Chunk*>> chunk_meshing_queue;
         ntd::ThreadQueue<std::pair<int, int>> chunk_remeshing_queue;
         ChunkManager* partner;
+        std::mutex map_access_mutex;
     public:
         /**
          * @brief Construct a new Chunk Mesh Manager object, partner the two managers
@@ -54,8 +56,6 @@ namespace Project {
          * 
          */
         void ReMeshFlaggedMeshes();
-
-        ChunkMesh*& operator()(const int row, const int col);
 
         /**
          * @brief return the STL iterator to the beginning

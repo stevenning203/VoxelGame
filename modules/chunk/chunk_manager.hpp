@@ -7,6 +7,9 @@
 #include "custom_pair_hasher.hpp"
 #include <glm/glm.hpp>
 #include <queue>
+#include <mutex>
+#include <generic/thread_queue.hpp>
+#include <generic/triple.hpp>
 
 namespace Project {
     class Chunk;
@@ -22,7 +25,9 @@ namespace Project {
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
         ChunkMeshManager* partner;
+        std::mutex operator_mutex;
         int radius;
+        ntd::ThreadQueue<ntd::Quadlet<int, int, int, Block*>> block_creation_queue;
     private:
         /**
          * @brief apply world generation to just one chunk
@@ -35,7 +40,50 @@ namespace Project {
          * 
          */
         void NextInChunkQueue();
+
+        /**
+         * @brief accept and create the next block in the block creation queue
+         * 
+         */
+        void NextInBlockCreationQueue();
+
+        /**
+         * @brief get the chunk at r,c
+         * 
+         * @param r 
+         * @param c 
+         * @return Chunk* 
+         */
+        Chunk* operator()(const int r, const int c);
     public:
+
+        /**
+         * @brief do some work; accept data from thread queues and work on what is needed.
+         * 
+         */
+        void Work();
+
+        /**
+         * @brief queue setting the block at xyz to b*
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param b 
+         */
+        void QueueBlockCreation(const int x, const int y, const int z, Block* b);
+
+        /**
+         * @brief atomically ask for a block property
+         * 
+         * @param x x
+         * @param y y
+         * @param z z
+         * @param prop the member function pointer
+         * @return true 
+         * @return false 
+         */
+        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)());
 
         /**
          * @brief Construct a new Chunk Manager object
@@ -57,16 +105,6 @@ namespace Project {
         void UpdatePlayerVisibleChunks(glm::vec3& position);
 
         /**
-         * @brief get the block at the specified WORLD coordinates.
-         * 
-         * @param x the x world coordinate
-         * @param y the y world coordinate
-         * @param z the z world coordinate
-         * @return Block*& the reference to the block* at the specified location
-         */
-        Block*& operator()(const int x, const int y, const int z);
-
-        /**
          * @brief return if the block exists or not with world coordinates
          * 
          * @param x 
@@ -78,15 +116,6 @@ namespace Project {
         bool BlockExists(const int x, const int y, const int z);
 
         /**
-         * @brief get the chunk at the specified chunk coordinates
-         * 
-         * @param r row
-         * @param c col
-         * @return Chunk*& 
-         */
-        Chunk*& operator()(const int r, const int c);
-
-        /**
          * @brief hint that the chunk at r c needs to be remeshed.
          * 
          * @param r 
@@ -95,17 +124,10 @@ namespace Project {
         void HintRemeshing(const int r, const int c);
 
         /**
-         * @brief return the STL iterator to the beginning
+         * @brief mutex lock, indicating that chunks inside are being operated on. iterate and apply to each chunk.
          * 
-         * @return std::unordered_map<std::pair<int, int>, std::unique_ptr<Chunk>, CustomChunkPairHasher>::iterator 
+         * @param func the function that takes a Chunk*
          */
-        std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher>::iterator begin();
-
-        /**
-         * @brief return the STL iterator to the end
-         * 
-         * @return std::unordered_map<std::pair<int, int>, std::unique_ptr<Chunk>, CustomChunkPairHasher>::iterator 
-         */
-        std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher>::iterator end();
+        void ForEachMut(void(*func)(Chunk*));
     };
 }

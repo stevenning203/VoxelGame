@@ -15,5 +15,7 @@ namespace Project {
         virtual void Use(Game& game);
 
         virtual int GetID() = 0;
+
+        virtual ~Item() = default;
     };
 }
