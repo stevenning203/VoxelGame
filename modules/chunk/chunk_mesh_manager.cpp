@@ -8,18 +8,11 @@
 #include "chunk.hpp"
 #include <generic/triple.hpp>
 #include <mutex>
-
-std::unordered_map<std::pair<int, int>, Project::ChunkMesh*, Project::CustomChunkPairHasher>::iterator Project::ChunkMeshManager::begin() {
-    return this->meshes.begin();
-}
-
-std::unordered_map<std::pair<int, int>, Project::ChunkMesh*, Project::CustomChunkPairHasher>::iterator Project::ChunkMeshManager::end() {
-    return this->meshes.end();
-}
+#include <shader/program.hpp>
 
 void Project::ChunkMeshManager::ReMeshFlaggedMeshes() {
-    std::unique_lock<std::mutex> lock(this->map_access_mutex);
-    for (auto& cm : *this) {
+    std::unique_lock lock{this->mutex};
+    for (auto& cm : this->meshes) {
         if (cm.second->NeedsRemeshing()) {
             this->chunk_remeshing_queue.Push({cm.first.first, cm.first.second});
             cm.second->ResetNeedsMeshing();
@@ -47,7 +40,7 @@ void Project::ChunkMeshManager::GenerateQueuedMeshes() {
     }
     ntd::Triple top = this->chunk_meshing_queue.Front();
     ChunkMesh* mesh = new ChunkMesh(top.Third());
-    std::unique_lock<std::mutex> lock(this->map_access_mutex);
+    std::unique_lock lock{this->mutex};
     this->meshes.insert({{top.First(), top.Second()}, mesh});
     lock.unlock();
     this->chunk_meshing_queue.Pop();
@@ -58,9 +51,16 @@ Project::ChunkMeshManager::ChunkMeshManager(ChunkManager* p) : partner(p) {
 }
 
 void Project::ChunkMeshManager::QueueRemesh(const int x, const int z) {
-    std::lock_guard<std::mutex> lock(this->map_access_mutex);
+    std::shared_lock lock{this->mutex};
     if (!this->meshes.count({x, z})) {
         return;
     }
     this->meshes[{x, z}]->SuggestReMesh();
+}
+
+void Project::ChunkMeshManager::ForEachMut(void(*func)(std::pair<const std::pair<int, int>, ChunkMesh*>&, Program&), Program& shader) {
+    std::scoped_lock lock{this->mutex};
+    for (std::pair<const std::pair<int, int>, ChunkMesh*>& p : this->meshes) {
+        func(p, shader);
+    }
 }

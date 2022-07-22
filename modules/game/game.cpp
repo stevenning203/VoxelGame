@@ -21,7 +21,7 @@ void Project::Game::GameLogicLoop() {
     while (!display.ShouldClose()) {
         this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
         this->world->Work();
-        //this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
+        this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
     }
 }
 

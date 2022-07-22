@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <atomic>
-#include <mutex>
+#include <shared_mutex>
 
 namespace Project {
     class Block;
@@ -15,8 +15,8 @@ namespace Project {
     private:
         std::vector<Block*> data;
         unsigned int vbo_id, vao_id;
-        bool empty;
-        std::mutex access_lock;
+        std::atomic<bool> empty;
+        std::shared_mutex mutex;
 
         /**
          * @brief fill the data with nullptrs

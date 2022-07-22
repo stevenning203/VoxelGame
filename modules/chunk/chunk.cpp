@@ -11,12 +11,14 @@
 #include <block/dirt_block.hpp>
 #include <glm/gtc/noise.hpp>
 
-Project::Chunk::Chunk() : empty(true) {
+Project::Chunk::Chunk() {
+    this->empty = false;
     this->data = std::vector<Block*>();
+    FillNullData();
 }
 
 void Project::Chunk::FillNullData() {
-    std::lock_guard<std::mutex> lock(this->access_lock);
+    std::scoped_lock lock{this->mutex};
     for (int i{0}; i < CHUNK_VOLUME; i++) {
         this->data.push_back(nullptr);
     }
@@ -26,7 +28,7 @@ void Project::Chunk::FillNullData() {
 }
 
 void Project::Chunk::Generate(const int row, const int col) {
-    //std::lock_guard<std::mutex> lock(this->access_lock);
+    std::scoped_lock lock{this->mutex};
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
             int voxel_x = r + row * Chunk::CHUNK_SIZE;
@@ -45,7 +47,7 @@ void Project::Chunk::Generate(const int row, const int col) {
 }
 
 void Project::Chunk::RequestReplacement(const int x, const int y, const int z, Block* b) {
-    std::lock_guard<std::mutex> lock(this->access_lock);
+    std::scoped_lock lock{this->mutex};
     delete this->operator()(x, y, z);
     this->operator()(x, y, z) = b;
 }
@@ -63,18 +65,18 @@ bool Project::Chunk::Contains(const int x, const int y, const int z) {
 }
 
 bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
-    std::lock_guard<std::mutex> lock(this->access_lock);
+    std::shared_lock lock{this->mutex};
     return (*this->operator()(x, y, z).*prop)();
 }
 
 int Project::Chunk::AskBlockID(const int x, const int y, const int z) {
-    std::lock_guard<std::mutex> lock(this->access_lock);
+    std::shared_lock lock{this->mutex};
     return this->operator()(x, y, z)->GetID();
 }
 
 Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
-    if (empty) {
-        empty = false;
+    if (this->empty) {
+        this->empty = false;
         FillNullData();
     }
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);

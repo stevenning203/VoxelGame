@@ -6,11 +6,13 @@
 #include <utility>
 #include <generic/triple.hpp>
 #include <mutex>
+#include <shared_mutex>
 
 namespace Project {
     class ChunkMesh;
     class ChunkManager;
     class Chunk;
+    class Program;
 
     /**
      * @brief collection of chunk meshes
@@ -21,7 +23,7 @@ namespace Project {
         ntd::ThreadQueue<ntd::Triple<int, int, Chunk*>> chunk_meshing_queue;
         ntd::ThreadQueue<std::pair<int, int>> chunk_remeshing_queue;
         ChunkManager* partner;
-        std::mutex map_access_mutex;
+        std::shared_mutex mutex;
     public:
         /**
          * @brief Construct a new Chunk Mesh Manager object, partner the two managers
@@ -58,17 +60,10 @@ namespace Project {
         void ReMeshFlaggedMeshes();
 
         /**
-         * @brief return the STL iterator to the beginning
+         * @brief mutex lock, indicating that chunks inside are being operated on. iterate and apply to each chunk.
          * 
-         * @return std::unordered_map<std::pair<int, int>, std::unique_ptr<Chunk>, CustomChunkPairHasher>::iterator 
+         * @param func the function that takes a reference to a pair
          */
-        std::unordered_map<std::pair<int, int>, ChunkMesh*, CustomChunkPairHasher>::iterator begin();
-
-        /**
-         * @brief return the STL iterator to the end
-         * 
-         * @return std::unordered_map<std::pair<int, int>, std::unique_ptr<Chunk>, CustomChunkPairHasher>::iterator 
-         */
-        std::unordered_map<std::pair<int, int>, ChunkMesh*, CustomChunkPairHasher>::iterator end();
-    };
+        void ForEachMut(void(*)(std::pair<const std::pair<int, int>, ChunkMesh*>&, Program&), Program& shader);
+    }; 
 }

@@ -10,11 +10,12 @@ Project::Camera::Camera() : yaw(0.f), pitch(0.f), sensitivity(INITIAL_SENSITIVIT
 }
 
 void Project::Camera::PushMatrix(Program& shader) {
-    std::lock_guard<std::mutex> lock(this->update_mutex);
+    std::shared_lock lock{this->mutex};
     shader.UniformMatrix("view_matrix", this->matrix);
 }
 
 void Project::Camera::UpdateMovement(KeyHandler& keyboard, Timer& t) {
+    std::scoped_lock lock{this->mutex};
     if (keyboard.GetKeyState(GLFW_KEY_W, 1)) {
         this->position += this->forward * (float)t.GetDeltaTime() * speed;
     }
@@ -41,6 +42,7 @@ void Project::Camera::UpdatePanning(MouseHandler& m, Timer& t) {
     } else if (this->pitch < -89.5f) {
         this->pitch = -89.5f;
     }
+    std::scoped_lock lock{this->mutex};
     this->forward = glm::normalize(
         glm::vec3(
             glm::cos(glm::radians(yaw)) * glm::cos(glm::radians(pitch)),
@@ -50,14 +52,15 @@ void Project::Camera::UpdatePanning(MouseHandler& m, Timer& t) {
     );
     this->right = glm::normalize(glm::cross(this->forward, glm::vec3(0.f, 1.f, 0.f)));
     this->up = glm::normalize(glm::cross(this->right, this->forward));
-    std::lock_guard<std::mutex> lock(this->update_mutex);
-    this->matrix = glm::lookAt(this->GetPosition(), this->GetPosition() + this->forward, this->up);
+    this->matrix = glm::lookAt(this->position, this->position + this->forward, this->up);
 }
 
 glm::vec3 Project::Camera::GetForward() {
+    std::shared_lock lock{this->mutex};
     return this->forward;
 }
 
 glm::vec3 Project::Camera::GetPosition() {
+    std::shared_lock lock{this->mutex};
     return this->position;
 }

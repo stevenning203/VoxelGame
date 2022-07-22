@@ -8,9 +8,9 @@
 #include <texture_atlas/texture_atlas.hpp>
 
 void Project::WorldRenderer::RenderChunkMeshManager(ChunkMeshManager& cm, Program& p, TextureAtlas& atlas) {
-    for (auto& pair : cm) {
+    cm.ForEachMut([](std::pair<const std::pair<int, int>, ChunkMesh*>& pair, Program& p){
         if (!pair.second->GetReady()) {
-            continue;
+            return;
         }
         int x = pair.first.first;
         int z = pair.first.second;
@@ -18,5 +18,5 @@ void Project::WorldRenderer::RenderChunkMeshManager(ChunkMeshManager& cm, Progra
         p.UniformFloat("chunk_offset_x", static_cast<float>(x * Chunk::CHUNK_SIZE));
         p.UniformFloat("chunk_offset_z", static_cast<float>(z * Chunk::CHUNK_SIZE));
         glDrawArrays(GL_TRIANGLES, 0, pair.second->GetCounter());
-    }
+    }, p);
 }

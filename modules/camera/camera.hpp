@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <generic/positionable.hpp>
 #include <mutex>
+#include <shared_mutex>
 
 namespace Project {
     class Program;
@@ -26,7 +27,7 @@ namespace Project {
         glm::vec3 up;
         glm::vec3 right;
         bool changed;
-        std::mutex update_mutex;
+        std::shared_mutex mutex;
     public:
         /**
          * @brief Construct a new Camera object

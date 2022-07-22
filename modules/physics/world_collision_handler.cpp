@@ -22,6 +22,7 @@ void Project::WorldCollisionHandler::EnablePlayerBlockDestruction(ChunkManager& 
     }
     // drop blocks here?
     cm.QueueBlockCreation(r, y, c, new AirBlock());
+    
     int row = FloorDiv(r, Chunk::CHUNK_SIZE);
     int col = FloorDiv(c, Chunk::CHUNK_SIZE);
     cm.HintRemeshing(row, col);

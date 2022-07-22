@@ -36,19 +36,19 @@ void Project::ChunkManager::WorldGen() {
 }
 
 void Project::ChunkManager::UpdatePlayerVisibleChunks(const glm::vec3& position) {
+    std::unique_lock lock{this->mutex};
     int left = static_cast<int>(position.x) / Chunk::CHUNK_SIZE;
     int right = static_cast<int>(position.z) / Chunk::CHUNK_SIZE; 
     for (int x{-radius + left}; x <= radius + left; x++) {
         int height = static_cast<int>(std::ceil(std::sqrt(radius * radius - (x - left) * (x - left))));
         for (int z{-height + right}; z <= height + right; z++) {
             if (!this->chunks.count({x, z})) {
-                this->operator_mutex.lock();
                 this->chunks[{x, z}] = new Chunk();
-                this->operator_mutex.unlock();
                 this->chunk_generation_queue.push({x, z});
             }
         }
     }
+    lock.unlock();
     NextInChunkQueue();
 }
 
@@ -56,7 +56,6 @@ void Project::ChunkManager::NextInBlockCreationQueue() {
     if (this->block_creation_queue.Empty()) {
         return;
     }
-    std::lock_guard<std::mutex> lock(this->operator_mutex);
     ntd::Quadlet<int, int, int, Block*> f = this->block_creation_queue.Front();
     int row = FloorDiv(f.First(), Chunk::CHUNK_SIZE);
     int col = FloorDiv(f.Third(), Chunk::CHUNK_SIZE);
@@ -90,12 +89,12 @@ void Project::ChunkManager::QueueBlockCreation(const int x, const int y, const i
 }
 
 bool Project::ChunkManager::BlockExists(const int a, const int b, const int c) {
-    std::lock_guard<std::mutex> lock(this->operator_mutex);
     if (b < 0) {
         return false;
     }
     int row = FloorDiv(a, Chunk::CHUNK_SIZE);
     int col = FloorDiv(c, Chunk::CHUNK_SIZE);
+    std::shared_lock lock(this->mutex);
     if (!this->chunks.count({row, col})) {
         return false;
     }
@@ -112,10 +111,10 @@ Project::Chunk* Project::ChunkManager::operator()(const int r, const int c) {
 }
 
 bool Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
-    std::lock_guard<std::mutex> lock(this->operator_mutex);
+    std::shared_lock lock(this->mutex);
     int row = FloorDiv(x, Chunk::CHUNK_SIZE);
     int col = FloorDiv(z, Chunk::CHUNK_SIZE);
     int modx = Mod(x, Chunk::CHUNK_SIZE);
     int modz = Mod(z, Chunk::CHUNK_SIZE);
-    return this->operator()(row, col)->AskBlockProperty(x, y, z, prop);
+    return this->operator()(row, col)->AskBlockProperty(modx, y, modz, prop);
 }

@@ -10,6 +10,7 @@
 #include <mutex>
 #include <generic/thread_queue.hpp>
 #include <generic/triple.hpp>
+#include <shared_mutex>
 
 namespace Project {
     class Chunk;
@@ -25,7 +26,8 @@ namespace Project {
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
         ChunkMeshManager* partner;
-        std::mutex operator_mutex;
+        std::shared_mutex mutex;
+
         int radius;
         ntd::ThreadQueue<ntd::Quadlet<int, int, int, Block*>> block_creation_queue;
     private:

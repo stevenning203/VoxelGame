@@ -1,7 +1,8 @@
 #pragma once
 
-#include <mutex>
 #include <queue>
+#include <shared_mutex>
+#include <mutex>
 
 namespace ntd {
     /**
@@ -12,7 +13,7 @@ namespace ntd {
      */
     template <typename T>
     class ThreadQueue {
-        std::mutex lock;
+        std::shared_mutex mutex;
         std::queue<T> internal;
     public:
         /**
@@ -21,7 +22,7 @@ namespace ntd {
          * @param x obj
          */
         void Push(T& x) {
-            std::lock_guard<std::mutex> temp(lock);
+            std::scoped_lock lock{this->mutex};
             internal.push(x);
         }
 
@@ -31,7 +32,7 @@ namespace ntd {
          * @param x obj
          */
         void Push(T&& x) {
-            std::lock_guard<std::mutex> temp(lock);
+            std::scoped_lock lock{this->mutex};
             internal.push(x);
         }
         
@@ -41,7 +42,7 @@ namespace ntd {
          * @return int 
          */
         int Size() {
-            std::lock_guard<std::mutex> temp(lock);
+            std::shared_lock lock{this->mutex};
             return this->internal.size();
         }
 
@@ -50,7 +51,7 @@ namespace ntd {
          * 
          */
         void Pop() {
-            std::lock_guard<std::mutex> temp(lock);
+            std::scoped_lock lock{this->mutex};
             if (this->internal.empty()) {
                 throw std::runtime_error("queue was empty when pop was called");
             }
@@ -63,7 +64,7 @@ namespace ntd {
          * @return T& the reference to the front of the queue
          */
         T& Front() {
-            std::lock_guard<std::mutex> temp(lock);
+            std::shared_lock lock{this->mutex};
             if (this->internal.empty()) {
                 throw std::runtime_error("queue was empty when front was called");
             }
@@ -77,7 +78,7 @@ namespace ntd {
          * @return false 
          */
         bool Empty() {
-            std::lock_guard<std::mutex> temp(lock);
+            std::shared_lock lock{this->mutex};
             return internal.empty();
         }
 
@@ -89,7 +90,7 @@ namespace ntd {
          */
         template <typename... Args>
         void Emplace(Args&&... args) {
-            std::lock_guard<std::mutex> temp(lock);
+            std::scoped_lock lock{this->mutex};
             this->internal.push(T(args...));
         }
     };
