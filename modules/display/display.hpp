@@ -19,6 +19,7 @@ namespace Project {
         int width, height;
         GLFWwindow* pointer;
         glm::mat4 projection_matrix;
+        glm::mat4 orthographic_matrix;
         Program* shader;
         std::atomic<bool> should_close;
         
@@ -53,6 +54,12 @@ namespace Project {
         void PushMatrix();
 
         /**
+         * @brief push ortho
+         * 
+         */
+        void PushOrtho();
+
+        /**
          * @brief return whether or not the window should close.
          * 
          * @return true the window should close
@@ -74,7 +81,9 @@ namespace Project {
          */
         void SuggestDimensions();
 
-        glm::mat4& GetMatrix();
+        int GetWidth();
+
+        int GetHeight();
     };
 }
 

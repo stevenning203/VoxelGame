@@ -78,6 +78,22 @@ namespace Project {
         void UniformFloat(const char * name, const float data);
 
         /**
+         * @brief pass the given bool to the uniform location specified by the name
+         * 
+         * @param name 
+         * @param data 
+         */
+        void UniformBool(const char * name, const bool data);
+
+        /**
+         * @brief pass the given vec3 to the uniform location specified by the name
+         * 
+         * @param name 
+         * @param data 
+         */
+        void UniformVec3(const char * name, const glm::vec3& data);
+
+        /**
          * @brief push the calculated mvp matrix to the shader
          * 
          * @param camera the camera with the view matrix that should be used

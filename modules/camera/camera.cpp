@@ -4,9 +4,10 @@
 #include <input/timer.hpp>
 #include <generic/positionable.hpp>
 #include <input/key_handler.hpp>
+#include <generic/debug.hpp>
 
 Project::Camera::Camera() : yaw(0.f), pitch(0.f), sensitivity(INITIAL_SENSITIVITY), speed(INITIAL_SPEED), changed(false) {
-    this->position = glm::vec3(0.f);
+    this->position = glm::vec3(-15.f, 10.f, 15.f);
 }
 
 void Project::Camera::PushMatrix(Program& shader) {
@@ -37,10 +38,10 @@ void Project::Camera::UpdatePanning(MouseHandler& m, Timer& t) {
     float mult = dt * this->sensitivity;
     this->yaw += static_cast<float>(dx) * mult;
     this->pitch -= static_cast<float>(dy) * mult;
-    if (this->pitch > 89.5f) {
-        this->pitch = 89.5f;
-    } else if (this->pitch < -89.5f) {
-        this->pitch = -89.5f;
+    if (this->pitch > 89.75f) {
+        this->pitch = 89.75f;
+    } else if (this->pitch < -89.75f) {
+        this->pitch = -89.75f;
     }
     std::scoped_lock lock{this->mutex};
     this->forward = glm::normalize(
