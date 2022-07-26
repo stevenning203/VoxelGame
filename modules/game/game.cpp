@@ -21,7 +21,7 @@ void Project::Game::GameLogicLoop() {
     while (!display.ShouldClose()) {
         this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
         this->world->Work();
-        this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
+        //this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
     }
 }
 
@@ -33,8 +33,7 @@ void Project::Game::RenderLoop() {
         this->mesher->GenerateQueuedMeshes();
         this->mesher->ReMeshFlaggedMeshes();
         this->renderer->RenderChunkMeshManager(*this->mesher, *this->shader, *this->atlas);
-        
-        display.SwapBuffers();
+    
         this->camera->PushMatrix(*shader);
         this->camera->UpdatePanning(*mouse, *timer);
         this->camera->UpdateMovement(*keyboard, *timer);
@@ -45,6 +44,7 @@ void Project::Game::RenderLoop() {
         }
         this->mouse->Update(display);
         this->keyboard->Update();
+        display.SwapBuffers();
         this->timer->Sleep(5);
     }
 }

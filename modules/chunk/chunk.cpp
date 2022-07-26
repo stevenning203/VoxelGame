@@ -11,10 +11,20 @@
 #include <block/dirt_block.hpp>
 #include <glm/gtc/noise.hpp>
 
-Project::Chunk::Chunk() {
+Project::Chunk::Chunk() : ready(false), counter(0), needs_remeshing(false) {
     this->empty = false;
     this->data = std::vector<Block*>();
+    this->SuggestReMesh();
     FillNullData();
+}
+
+void Project::Chunk::GLInit() {
+    glGenVertexArrays(1, &this->vao_id);
+    glBindVertexArray(this->vao_id);
+    glGenBuffers(1, &this->vbo_id);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
+    glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
+    glEnableVertexAttribArray(1);
 }
 
 void Project::Chunk::FillNullData() {
@@ -28,7 +38,6 @@ void Project::Chunk::FillNullData() {
 }
 
 void Project::Chunk::Generate(const int row, const int col) {
-    std::scoped_lock lock{this->mutex};
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
             int voxel_x = r + row * Chunk::CHUNK_SIZE;
@@ -44,10 +53,10 @@ void Project::Chunk::Generate(const int row, const int col) {
             }
         }
     }
+    this->ready = true;
 }
 
 void Project::Chunk::RequestReplacement(const int x, const int y, const int z, Block* b) {
-    std::scoped_lock lock{this->mutex};
     delete this->operator()(x, y, z);
     this->operator()(x, y, z) = b;
 }
@@ -64,20 +73,138 @@ bool Project::Chunk::Contains(const int x, const int y, const int z) {
     return !(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z >= CHUNK_VOLUME);
 }
 
-bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
-    std::shared_lock lock{this->mutex};
-    return (*this->operator()(x, y, z).*prop)();
-}
-
-int Project::Chunk::AskBlockID(const int x, const int y, const int z) {
-    std::shared_lock lock{this->mutex};
-    return this->operator()(x, y, z)->GetID();
-}
-
 Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
-    if (this->empty) {
-        this->empty = false;
-        FillNullData();
-    }
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
+}
+
+bool Project::Chunk::IsReady() {
+    return this->ready;
+}
+
+void Project::Chunk::ReMesh() {
+    if (!this->IsReady()) {
+        return;
+    }
+    this->ready = false;
+    static const std::vector<std::vector<unsigned int>> indices = {
+        { 0, 2, 1, 2, 3, 1 }, // 0
+        { 0, 5, 4, 0, 1, 5 }, // 1
+        { 1, 3, 7, 1, 7, 5 }, // 2
+        { 2, 7, 3, 2, 6, 7 }, // 3
+        { 0, 6, 2, 0, 4, 6 }, // 4
+        { 4, 5, 6, 6, 5, 7 }  // 5
+    };
+    this->counter = 0;
+    for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
+        for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
+            for (int y{0}; y < Chunk::CHUNK_DEPTH; y++) {
+                if (this->chunk->AskBlockProperty(r, y, c, &Block::SkipRender)) {
+                    continue;
+                }
+                auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
+                    if (row < 0 || col < 0 || depth < 0 ||
+                    row >= Chunk::CHUNK_SIZE || col >= Chunk::CHUNK_SIZE ||
+                    depth >= Chunk::CHUNK_DEPTH || !this->chunk->AskBlockProperty(row, depth, col, &Block::IsOpaque)) {
+                        unsigned int pos = (r << 12) + (y) + (c << 8);
+                        unsigned int texture_index = static_cast<unsigned int>(this->chunk->AskBlockID(r, y, c));
+                        texture_index *= 3U;
+                        if (face == 3U) {
+                            texture_index += 2U;
+                        } else if (face != 1U) {
+                            texture_index += 1U;
+                        }
+                        if (texture_index >= 256U) {
+                            throw new std::runtime_error
+                            ("The texture index is too large for bitwise manipulation. Fix by adding another integer in the vertex information");
+                        }
+                        for (int i = 0; i < 6; i++) {
+                            unsigned int uv_index = 0;
+                            unsigned int vertex_index = indices.at(face).at(i);
+                            if (face == 0U) {
+                                if (vertex_index == 0U) {
+                                    uv_index = 0;
+                                } else if (vertex_index == 1U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 2U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 3U) {
+                                    uv_index = 3U;
+                                }
+                            } else if (face == 1U) {
+                                if (vertex_index == 0U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 5U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 4U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 1U) {
+                                    uv_index = 3U;
+                                }
+                            } else if (face == 2U) {
+                                if (vertex_index == 1U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 3U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 7U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 5U) {
+                                    uv_index = 1U;
+                                }
+                            } else if (face == 3U) {
+                                if (vertex_index == 2U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 3U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 7U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 6U) {
+                                    uv_index = 1U;
+                                }
+                            } else if (face == 4U) {
+                                if (vertex_index == 0U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 6U) {
+                                    uv_index = 2U;
+                                } else if (vertex_index == 2U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 4U) {
+                                    uv_index = 0U;
+                                }
+                            } else if (face == 5U) {
+                                if (vertex_index == 4U) {
+                                    uv_index = 1U;
+                                } else if (vertex_index == 6U) {
+                                    uv_index = 3U;
+                                } else if (vertex_index == 5U) {
+                                    uv_index = 0U;
+                                } else if (vertex_index == 7U) {
+                                    uv_index = 2U;
+                                }
+                            }
+                            if (this->counter >= this->mesh.size()) {
+                                this->mesh.push_back(0);
+                            }
+                            int vertex = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
+                            this->mesh.at(this->counter) = vertex;
+                            this->counter++;
+                        }
+                    }
+                };
+                lambda(r + 1, c, y, 2);
+                lambda(r - 1, c, y, 4);
+                lambda(r, c + 1, y, 0);
+                lambda(r, c - 1, y, 5);
+                lambda(r, c, y - 1, 3);
+                lambda(r, c, y + 1, 1);
+            }
+        }
+    }
+    this->PushMeshData();
+    this->ready = true;
+    this->needs_remeshing = false;
+}
+
+void Project::ChunkMesh::PushMeshData() {
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
+    glBufferData(GL_ARRAY_BUFFER, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0), GL_DYNAMIC_DRAW);
 }

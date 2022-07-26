@@ -95,7 +95,7 @@ bool Project::ChunkManager::BlockExists(const int a, const int b, const int c) {
     int row = FloorDiv(a, Chunk::CHUNK_SIZE);
     int col = FloorDiv(c, Chunk::CHUNK_SIZE);
     std::shared_lock lock(this->mutex);
-    if (!this->chunks.count({row, col})) {
+    if (!this->chunks.count({row, col}) || !this->chunks[{row, col}]->IsReady()) {
         return false;
     }
     int modx = Mod(a, Chunk::CHUNK_SIZE);

@@ -15,8 +15,11 @@ namespace Project {
     private:
         std::vector<Block*> data;
         unsigned int vbo_id, vao_id;
-        std::atomic<bool> empty;
+        std::atomic<bool> empty, ready;
         std::shared_mutex mutex;
+        std::vector<unsigned int> mesh;
+        unsigned short counter;
+        std::atomic<bool> needs_remeshing;
 
         /**
          * @brief fill the data with nullptrs
@@ -48,6 +51,12 @@ namespace Project {
         Chunk();
 
         /**
+         * @brief init gl for this chunk
+         * 
+         */
+        void GLInit();
+
+        /**
          * @brief world gen the chunk
          * 
          * @param r 
@@ -61,32 +70,7 @@ namespace Project {
          */
         void PushMesh();
 
-        unsigned int GetVAO();
-
-        unsigned int GetVBO();
-
-        /**
-         * @brief true if the block is contained here.
-         * 
-         * @param x 
-         * @param y 
-         * @param z 
-         * @return true 
-         * @return false 
-         */
-        bool Contains(const int x, const int y, const int z);
-
-        /**
-         * @brief atomically ask for a boolean property of a block
-         * 
-         * @param x 
-         * @param y 
-         * @param z 
-         * @param prop func
-         * @return true 
-         * @return false 
-         */
-        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)());
+        bool IsReady();
 
         /**
          * @brief delete and replace the block at x y z with b
@@ -99,13 +83,55 @@ namespace Project {
         void RequestReplacement(const int x, const int y, const int z, Block* b);
 
         /**
-         * @brief atomically ask for the ID of a block
+         * @brief completely remesh the entire chunk. the generated mesh is stored, but not pushed.
          * 
-         * @param x 
-         * @param y 
-         * @param z 
-         * @return int 
+         * The format of the unsigned int used to store vertex information is as follows:
+         * 
+         * 0b0000_00000_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
+         * 
+         * 0 -> unused
+         * B -> block id numeric
+         * X -> x offset
+         * Z -> z offest
+         * Y -> y offset
+         * V -> vertex
          */
-        int AskBlockID(const int x, const int y, const int z);
+        void ReMesh();
+
+        /**
+         * @brief atomically suggest that this chunk mesh needs to be remeshed;
+         * 
+         */
+        void SuggestReMesh();
+
+        /**
+         * @brief if this mesh needs to be remeshed
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool NeedsRemeshing();
+
+        void ResetNeedsMeshing();
+
+        /**
+         * @brief upload the vertexes to the buffer vbo
+         * 
+         */
+        void PushMeshData();
+
+        unsigned int GetVAOID();
+
+        unsigned int GetVBOID();
+
+        unsigned short GetCounter();
+
+        /**
+         * @brief return whether or not this mesh is ready for rendering
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool GetReady();
     };
 }
