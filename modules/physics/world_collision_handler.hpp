@@ -1,5 +1,7 @@
 #pragma once
 
+#include <generic/workable.hpp>
+
 namespace Project {
     class ChunkManager;
     class Player;
@@ -11,17 +13,11 @@ namespace Project {
      * @brief handle world collisions/physics
      * 
      */
-    class WorldCollisionHandler {
+    class WorldCollisionHandler : public Workable {
     private:
-        DDACaster* ray_caster;
-    public:
-        constexpr static float PLAYER_REACH = 5.f;
-
-        /**
-         * @brief Construct a new World Collision Handler objectdefault
-         * 
-         */
-        WorldCollisionHandler();
+        ChunkManager* chunk_manager;
+        Camera* camera;
+        MouseHandler* mouse;
 
         /**
          * @brief enforce player and voxel collisions
@@ -29,15 +25,17 @@ namespace Project {
          * @param cm 
          * @param p 
          */
-        void EnforcePlayerVoxelCollision(ChunkManager& cm, Player& p);
+        void EnforcePlayerVoxelCollision();
 
+    public:
         /**
-         * @brief allow the player to select blocks
+         * @brief Construct a new World Collision Handler objectdefault
          * 
-         * @param cm 
-         * @param c 
-         * @param reach 
          */
-        void EnablePlayerBlockDestruction(ChunkManager&cm, Camera& c, MouseHandler& mouse, float reach);
+        WorldCollisionHandler(ChunkManager* chunk_manager, Camera* camera, MouseHandler* mouse);
+
+        virtual void MainThreadWork() override;
+
+        virtual void ThreadWork() override;
     };
 }

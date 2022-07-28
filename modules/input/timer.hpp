@@ -5,25 +5,31 @@
 
 #include <chrono>
 #include <thread>
+#include <generic/workable.hpp>
 
 namespace Project {
     /**
      * @brief a class to keep track of precise time
      * 
      */
-    class Timer {
+    class Timer : public Workable {
     private:
         double last_time;
         double delta_time;
         std::chrono::high_resolution_clock::time_point point;
         int delta_ns_high_res;
-    public:
-        Timer();
+
         /**
          * @brief update the timer
          * 
          */
         void Update();
+    public:
+        Timer();
+        
+        virtual void MainThreadWork() override;
+
+        virtual void ThreadWork() override;
 
         double GetDeltaTime();
 

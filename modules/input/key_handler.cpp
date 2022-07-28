@@ -17,8 +17,8 @@ bool Project::KeyHandler::GetKeyState(int key, int action) {
     return keyboard_state[key] & action;
 }
 
-Project::KeyHandler::KeyHandler(Display& d) {
-    glfwSetKeyCallback(d.GetWindowPointer(), KeyHandlerGLFWCallback);
+Project::KeyHandler::KeyHandler() {
+    glfwSetKeyCallback(Display::GetInstance().GetWindowPointer(), KeyHandlerGLFWCallback);
 }
 
 void Project::KeyHandler::Update() {
@@ -48,4 +48,12 @@ void Project::KeyHandlerGLFWCallback(GLFWwindow* window, int key, int scancode, 
             key_reset_queue.push(key);
             break;
     }
+}
+
+void Project::KeyHandler::ThreadWork() {
+    
+}
+
+void Project::KeyHandler::MainThreadWork() {
+    this->Update();
 }

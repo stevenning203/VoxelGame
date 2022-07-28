@@ -1,7 +1,9 @@
 #pragma once
 
+#include <generic/workable.hpp>
+
 namespace Project {
-    class ChunkMeshManager;
+    class ChunkManager;
     class Program;
     class TextureAtlas;
 
@@ -9,14 +11,30 @@ namespace Project {
      * @brief Renderer for the world
      * 
      */
-    class WorldRenderer {
-    public:
+    class WorldRenderer : public Workable {
+    private:
+        TextureAtlas* block_atlas;
+        Program* shader;
+        ChunkManager* chunk_manager;
+
         /**
          * @brief Render the chunk manager with the given shaderprogram
          * 
          * @param cm chunk
          * @param p program
          */
-        void RenderChunkMeshManager(ChunkMeshManager& cm, Program& p, TextureAtlas& atlas);
+        void RenderChunkManager();
+    public:
+
+        /**
+         * @brief Construct a new World Renderer object
+         * 
+         * @param p 
+         */
+        WorldRenderer(ChunkManager* cm, Program* shader);
+
+        virtual void MainThreadWork() override;
+
+        virtual void ThreadWork() override;
     };
 }

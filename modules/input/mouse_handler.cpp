@@ -30,15 +30,15 @@ int Project::MouseHandler::MouseY() {
     return this->mousey;
 }
 
-Project::MouseHandler::MouseHandler(Display& d) {
+Project::MouseHandler::MouseHandler() {
     if (glfwRawMouseMotionSupported())
-        glfwSetInputMode(d.GetWindowPointer(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    glfwSetMouseButtonCallback(d.GetWindowPointer(), MouseHandlerGLFWCallback);
+        glfwSetInputMode(Display::GetInstance().GetWindowPointer(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    glfwSetMouseButtonCallback(Display::GetInstance().GetWindowPointer(), MouseHandlerGLFWCallback);
 }
 
-void Project::MouseHandler::Update(Display& d) {
+void Project::MouseHandler::Update() {
     double a, b;
-    glfwGetCursorPos(d.GetWindowPointer(), &a, &b);
+    glfwGetCursorPos(Display::GetInstance().GetWindowPointer(), &a, &b);
     this->mousex = static_cast<int>(a);
     this->mousey = static_cast<int>(b);
     this->dx = this->mousex - this->lx;
@@ -48,6 +48,14 @@ void Project::MouseHandler::Update(Display& d) {
     for (int i{0}; i < 6; i++) {
         key_state[i] = false;
     }
+}
+
+void Project::MouseHandler::MainThreadWork() {
+    this->Update();
+}
+
+void Project::MouseHandler::ThreadWork() {
+    
 }
 
 void Project::MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m) {

@@ -11,26 +11,45 @@
 #include <generic/thread_queue.hpp>
 #include <generic/triple.hpp>
 #include <shared_mutex>
+#include <generic/workable.hpp>
 
 namespace Project {
     class Chunk;
     class CustomChunkPairHasher;
     class Block;
-    class ChunkMeshManager;
+    class Player;
+    class DDACaster;
 
     /**
      * @brief Manager for chunks
      * 
      */
-    class ChunkManager {
+    class ChunkManager : public Workable {
+        constexpr static float PLAYER_REACH = 5.f;
+        DDACaster* ray_caster;
+        Player* player;
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
-        ChunkMeshManager* partner;
         std::shared_mutex mutex;
 
-        int radius;
         ntd::ThreadQueue<ntd::Quadlet<int, int, int, Block*>> block_creation_queue;
-    private:
+        ntd::ThreadQueue<std::pair<int, int>> mesh_creation_queue;
+        ntd::ThreadQueue<std::pair<int, int>> remeshing_queue;
+
+        int radius;
+
+        /**
+         * @brief generate meshes
+         * 
+         */
+        void GenerateQueuedMeshes();
+
+        /**
+         * @brief 
+         * 
+         */
+        void ReMeshQueuedMeshes();
+
         /**
          * @brief apply world generation to just one chunk
          * 
@@ -57,13 +76,13 @@ namespace Project {
          * @return Chunk* 
          */
         Chunk* operator()(const int r, const int c);
-    public:
 
         /**
-         * @brief do some work; accept data from thread queues and work on what is needed.
+         * @brief Remove out of vision chunks and add chunks that should be in viewable distance
          * 
+         * @param position the position with which we want to update respect to
          */
-        void Work();
+        void UpdatePlayerVisibleChunks();
 
         /**
          * @brief queue setting the block at xyz to b*
@@ -75,61 +94,34 @@ namespace Project {
          */
         void QueueBlockCreation(const int x, const int y, const int z, Block* b);
 
-        /**
-         * @brief atomically ask for a block property
+         /**
+         * @brief allow the player to select blocks
          * 
-         * @param x x
-         * @param y y
-         * @param z z
-         * @param prop the member function pointer
-         * @return true 
-         * @return false 
+         * @param cm 
+         * @param c 
+         * @param reach 
          */
-        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)());
+        void EnablePlayerBlockDestruction();
+    public:
+        virtual void MainThreadWork() override;
+
+        virtual void ThreadWork() override;
+
+        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::*)());
+        
+        bool BlockExists(const int x, const int y, const int z);
 
         /**
          * @brief Construct a new Chunk Manager object
          * 
          */
-        ChunkManager(ChunkMeshManager* a);
-        
-        /**
-         * @brief Generate the world for some chunks near spawn
-         * 
-         */
-        void WorldGen();
-
-        /**
-         * @brief Remove out of vision chunks and add chunks that should be in viewable distance
-         * 
-         * @param position the position with which we want to update respect to
-         */
-        void UpdatePlayerVisibleChunks(const glm::vec3& position);
-
-        /**
-         * @brief return if the block exists or not with world coordinates
-         * 
-         * @param x 
-         * @param y 
-         * @param z 
-         * @return true 
-         * @return false 
-         */
-        bool BlockExists(const int x, const int y, const int z);
-
-        /**
-         * @brief hint that the chunk at r c needs to be remeshed.
-         * 
-         * @param r 
-         * @param c 
-         */
-        void HintRemeshing(const int r, const int c);
+        ChunkManager(Player* p);
 
         /**
          * @brief mutex lock, indicating that chunks inside are being operated on. iterate and apply to each chunk.
          * 
          * @param func the function that takes a Chunk*
          */
-        void ForEachMut(void(*func)(Chunk*));
+        void ForEachMut(const std::function<void(std::pair<const std::pair<int, int>, Chunk*>&)>& func);
     };
 }

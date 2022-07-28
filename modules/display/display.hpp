@@ -22,9 +22,13 @@ namespace Project {
         glm::mat4 orthographic_matrix;
         Program* shader;
         std::atomic<bool> should_close;
+
+        Display();
         
     public:
-        Display();
+        
+        static Display& GetInstance();
+
         /**
          * @brief Construct a new Display object and initialize glfw and glad.
          * 
@@ -86,5 +90,3 @@ namespace Project {
         int GetHeight();
     };
 }
-
-extern Project::Display display;

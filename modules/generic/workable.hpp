@@ -6,10 +6,17 @@ namespace Project {
      * 
      */
     class Workable {
+    public:
         /**
-         * @brief do work (on your self)
+         * @brief do work (on your self), includes calls that should reside only on the main thread
          * 
          */
-        virtual void Work() = 0;
+        virtual void MainThreadWork() = 0;
+
+        /**
+         * @brief all other work actions...
+         * 
+         */
+        virtual void ThreadWork() = 0;
     };
 }

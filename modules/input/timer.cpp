@@ -39,3 +39,11 @@ void Project::Timer::HighResolutionMeasureSecond() {
 int Project::Timer::GetDeltaHighResolution() {
     return this->delta_ns_high_res;
 }
+
+void Project::Timer::MainThreadWork() {
+    this->Update();
+}
+
+void Project::Timer::ThreadWork() {
+    
+}

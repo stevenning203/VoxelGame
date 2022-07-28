@@ -9,25 +9,18 @@
 #include <chunk/chunk.hpp>
 #include <input/mouse_handler.hpp>
 
-void Project::WorldCollisionHandler::EnforcePlayerVoxelCollision(ChunkManager& cm, Player& p) {
+void Project::WorldCollisionHandler::EnforcePlayerVoxelCollision() {
     
 }
 
-void Project::WorldCollisionHandler::EnablePlayerBlockDestruction(ChunkManager& cm, Camera& camera, MouseHandler& mouse, float reach) {
-    int r, c, y;
-    int pr, pc, py;
-    bool collide = this->ray_caster->Cast(camera.GetPosition(), camera.GetForward(), reach, cm, r, c, y, pr, pc, py);
-    if (!collide) {
-        return;
-    }
-    // drop blocks here?
-    cm.QueueBlockCreation(r, y, c, new AirBlock());
+Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* c, MouseHandler* mouse) : chunk_manager(cm), camera(c), mouse(mouse) {
     
-    int row = FloorDiv(r, Chunk::CHUNK_SIZE);
-    int col = FloorDiv(c, Chunk::CHUNK_SIZE);
-    cm.HintRemeshing(row, col);
 }
 
-Project::WorldCollisionHandler::WorldCollisionHandler() {
-    this->ray_caster = new DDACaster();
+void Project::WorldCollisionHandler::ThreadWork() {
+
+}
+
+void Project::WorldCollisionHandler::MainThreadWork() {
+
 }

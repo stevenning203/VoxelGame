@@ -2,10 +2,13 @@
 #include "display.hpp"
 #include <stb/stb_image.h>
 
-Project::Display display;
-
 Project::Display::Display() : should_close(false) {
 
+}
+
+Project::Display& Project::Display::GetInstance() {
+    static Display display;
+    return display;
 }
 
 void Project::Display::Init(const int width, const int height, const char* title) {
@@ -28,7 +31,7 @@ void Project::Display::Init(const int width, const int height, const char* title
     glfwSetFramebufferSizeCallback(this->pointer, _FRAMEBUFFER_CALLBACK);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glfwSetInputMode(display.GetWindowPointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(Display::GetInstance().GetWindowPointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(0);
     glClearColor(0.8f, 0.9f, 0.8f, 1.0f);
     stbi_set_flip_vertically_on_load(1);
@@ -80,7 +83,7 @@ void Project::Display::SuggestDimensions() {
 }
 
 void Project::_FRAMEBUFFER_CALLBACK(GLFWwindow* w, int width, int height) {
-    display.SuggestDimensions();
+    Display::GetInstance().SuggestDimensions();
 }
 
 int Project::Display::GetHeight() {

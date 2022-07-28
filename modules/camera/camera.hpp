@@ -1,21 +1,22 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <generic/positionable.hpp>
 #include <mutex>
 #include <shared_mutex>
+#include <generic/workable.hpp>
 
 namespace Project {
     class Program;
     class MouseHandler;
     class Timer;
     class KeyHandler;
+    class Program;
 
     /**
      * @brief A camera inside the game.
      * 
      */
-    class Camera {
+    class Camera : public Workable {
         static constexpr float INITIAL_SENSITIVITY = 7.5f;
         static constexpr float INITIAL_SPEED = 7.75f;
         float yaw;
@@ -28,19 +29,10 @@ namespace Project {
         glm::vec3 right;
         bool changed;
         std::shared_mutex mutex;
-    public:
-        /**
-         * @brief Construct a new Camera object
-         * 
-         */
-        Camera();
-
-        /**
-         * @brief push the matrix into the shader program given; compute it if something changed.
-         * 
-         * @param shader the shader to be uniformed
-         */
-        void PushMatrix(Program& shader);
+        Program* shader;
+        MouseHandler* mouse;
+        KeyHandler* keyboard;
+        Timer* timer;
 
         /**
          * @brief update the camera based on the mouse dx and dy
@@ -48,7 +40,7 @@ namespace Project {
          * @param m the mouse input handler
          * @param t the timer object
          */
-        void UpdatePanning(MouseHandler& m, Timer& t);
+        void UpdatePanning();
 
         /**
          * @brief update the camera based on the keyboard keys held
@@ -56,7 +48,24 @@ namespace Project {
          * @param keyboard the keyboard handler
          * @param t the timer object
          */
-        void UpdateMovement(KeyHandler& keyboard, Timer& t);
+        void UpdateMovement();
+
+        /**
+         * @brief push the matrix into the shader program given; compute it if something changed.
+         * 
+         * @param shader the shader to be uniformed
+         */
+        void PushMatrix();
+    public:
+        /**
+         * @brief Construct a new Camera object
+         * 
+         */
+        Camera(Program* shader, MouseHandler* mouse, KeyHandler* kb, Timer* timer);
+
+        virtual void MainThreadWork() override;
+        
+        virtual void ThreadWork() override;
 
         glm::vec3 GetForward();
 

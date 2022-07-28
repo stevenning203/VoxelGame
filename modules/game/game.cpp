@@ -8,44 +8,32 @@
 #include <input/timer.hpp>
 #include <camera/camera.hpp>
 #include <chunk/chunk_manager.hpp>
-#include <chunk/chunk_mesh_manager.hpp>
 #include <world_renderer/world_renderer.hpp>
 #include <input/key_handler.hpp>
 #include <texture_atlas/texture_atlas.hpp>
 #include <thread>
 #include <physics/world_collision_handler.hpp>
-
-extern Project::Display display;
+#include <generic/workable.hpp>
+#include <player/player.hpp>
 
 void Project::Game::GameLogicLoop() {
-    while (!display.ShouldClose()) {
-        this->world->UpdatePlayerVisibleChunks(this->camera->GetPosition());
-        this->world->Work();
-        //this->collision_handler->EnablePlayerBlockDestruction(*this->world, *this->camera, *this->mouse, WorldCollisionHandler::PLAYER_REACH);
+    while (!Display::GetInstance().ShouldClose()) {
+        for (Workable* worker : this->modules) {
+            worker->ThreadWork();
+        }
     }
 }
 
 void Project::Game::RenderLoop() {
-    while (!display.ShouldClose()) {
+    while (!Display::GetInstance().ShouldClose()) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        this->mesher->GenerateQueuedMeshes();
-        this->mesher->ReMeshFlaggedMeshes();
-        this->renderer->RenderChunkMeshManager(*this->mesher, *this->shader, *this->atlas);
-    
-        this->camera->PushMatrix(*shader);
-        this->camera->UpdatePanning(*mouse, *timer);
-        this->camera->UpdateMovement(*keyboard, *timer);
-        
-        this->timer->Update();
-        if (this->mouse->GetMouseState(Project::MouseHandler::MouseEnum::RMB_DOWN)) {
-            display.HintClose();
+        for (Workable* worker : this->modules) {
+            worker->MainThreadWork();
         }
-        this->mouse->Update(display);
-        this->keyboard->Update();
-        display.SwapBuffers();
-        this->timer->Sleep(5);
+
+        Display::GetInstance().SwapBuffers();
     }
 }
 
@@ -56,25 +44,33 @@ void Project::Game::Main() {
 }
 
 Project::Game::Game() {
-    display.Init(1280, 720, "Project F");
+    Display::GetInstance().Init(1280, 720, "Project F");
     Shader vertex_shader("res/shaders/vertex.glsl", false);
     Shader fragment_shader("res/shaders/fragment.glsl", true);
-    this->shader = new Program(vertex_shader, fragment_shader);
+    Program* shader = new Program(vertex_shader, fragment_shader);
+    Player* player = new Player();
     shader->Use();
-    this->mouse = new MouseHandler(display);
-    this->keyboard = new KeyHandler(display);
-    this->timer = new Timer();
-    this->camera = new Camera();
-    this->mesher = new ChunkMeshManager(this->world);
+    MouseHandler* mouse = new MouseHandler();
+    KeyHandler* keyboard = new KeyHandler();
+    Timer* timer = new Timer();
+    Camera* camera = new Camera(shader, mouse, keyboard, timer);
     
-    this->atlas = new TextureAtlas("assets/atlas.png");
-    this->atlas->Bind();
-    display.SetShader(shader);
-    display.SuggestDimensions();
+    TextureAtlas* atlas = new TextureAtlas("assets/atlas.png");
+    atlas->Bind();
+    Display::GetInstance().SetShader(shader);
+    Display::GetInstance().SuggestDimensions();
 
-    this->world = new ChunkManager(this->mesher);
-    this->renderer = new WorldRenderer();
-    this->collision_handler = new WorldCollisionHandler();
+    ChunkManager* world = new ChunkManager(player);
+    WorldRenderer* renderer = new WorldRenderer(world, shader);
+    WorldCollisionHandler* collision_handler = new WorldCollisionHandler(world, camera, mouse);
+
+    this->modules.push_back(world);
+    this->modules.push_back(renderer);
+    this->modules.push_back(collision_handler);
+    this->modules.push_back(camera);
+    this->modules.push_back(timer);
+    this->modules.push_back(mouse);
+    this->modules.push_back(keyboard);
 
     this->Main();
     glfwTerminate();

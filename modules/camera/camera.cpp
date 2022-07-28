@@ -6,35 +6,44 @@
 #include <input/key_handler.hpp>
 #include <generic/debug.hpp>
 
-Project::Camera::Camera() : yaw(0.f), pitch(0.f), sensitivity(INITIAL_SENSITIVITY), speed(INITIAL_SPEED), changed(false) {
+Project::Camera::Camera(Program* shader, MouseHandler* mouse, KeyHandler* keyboard, Timer* timer) : timer(timer), shader(shader), mouse(mouse), keyboard(keyboard), yaw(0.f), pitch(0.f), sensitivity(INITIAL_SENSITIVITY), speed(INITIAL_SPEED), changed(false) {
     this->position = glm::vec3(-15.f, 10.f, 15.f);
 }
 
-void Project::Camera::PushMatrix(Program& shader) {
+void Project::Camera::MainThreadWork() {
+    this->UpdateMovement();
+    this->UpdatePanning();
+}
+
+void Project::Camera::ThreadWork() {
+    
+}
+
+void Project::Camera::PushMatrix() {
     std::shared_lock lock{this->mutex};
-    shader.UniformMatrix("view_matrix", this->matrix);
+    this->shader->UniformMatrix("view_matrix", this->matrix);
 }
 
-void Project::Camera::UpdateMovement(KeyHandler& keyboard, Timer& t) {
+void Project::Camera::UpdateMovement() {
     std::scoped_lock lock{this->mutex};
-    if (keyboard.GetKeyState(GLFW_KEY_W, 1)) {
-        this->position += this->forward * (float)t.GetDeltaTime() * speed;
+    if (keyboard->GetKeyState(GLFW_KEY_W, 1)) {
+        this->position += this->forward * (float)timer->GetDeltaTime() * speed;
     }
-    if (keyboard.GetKeyState(GLFW_KEY_A, 1)) {
-        this->position += this->right * (float)t.GetDeltaTime() * -speed;
+    if (keyboard->GetKeyState(GLFW_KEY_A, 1)) {
+        this->position += this->right * (float)timer->GetDeltaTime() * -speed;
     }
-    if (keyboard.GetKeyState(GLFW_KEY_S, 1)) {
-        this->position += this->forward * (float)t.GetDeltaTime() * -speed;
+    if (keyboard->GetKeyState(GLFW_KEY_S, 1)) {
+        this->position += this->forward * (float)timer->GetDeltaTime() * -speed;
     }
-    if (keyboard.GetKeyState(GLFW_KEY_D, 1)) {
-        this->position += this->right * (float)t.GetDeltaTime() * speed;
+    if (keyboard->GetKeyState(GLFW_KEY_D, 1)) {
+        this->position += this->right * (float)timer->GetDeltaTime() * speed;
     }
 }
 
-void Project::Camera::UpdatePanning(MouseHandler& m, Timer& t) {
-    int dx = m.MouseDX();
-    int dy = m.MouseDY();
-    float dt = static_cast<float>(t.GetDeltaTime());
+void Project::Camera::UpdatePanning() {
+    int dx = mouse->MouseDX();
+    int dy = mouse->MouseDY();
+    float dt = static_cast<float>(timer->GetDeltaTime());
     float mult = dt * this->sensitivity;
     this->yaw += static_cast<float>(dx) * mult;
     this->pitch -= static_cast<float>(dy) * mult;

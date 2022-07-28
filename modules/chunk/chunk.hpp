@@ -15,11 +15,13 @@ namespace Project {
     private:
         std::vector<Block*> data;
         unsigned int vbo_id, vao_id;
-        std::atomic<bool> empty, ready;
+        std::atomic<bool> empty, chunk_ready, needs_pushing, mesh_ready;
+        std::atomic<bool> gl_inited;
         std::shared_mutex mutex;
         std::vector<unsigned int> mesh;
         unsigned short counter;
         std::atomic<bool> needs_remeshing;
+        int row, col;
 
         /**
          * @brief fill the data with nullptrs
@@ -38,6 +40,12 @@ namespace Project {
          */
         Block*& operator()(const int x, const int y, const int z);
 
+        /**
+         * @brief upload the vertexes to the buffer vbo
+         * 
+         */
+        void PushMeshData();
+
     public:
         static const int CHUNK_SIZE = 16;
         static const int CHUNK_DEPTH = 128;
@@ -48,13 +56,13 @@ namespace Project {
          * @brief Construct a new Chunk object with the size of the 3d object given by the static dimensions
          * 
          */
-        Chunk();
+        Chunk(const int row, const int col);
 
         /**
-         * @brief init gl for this chunk
+         * @brief call gldrawarrays
          * 
          */
-        void GLInit();
+        void Render();
 
         /**
          * @brief world gen the chunk
@@ -62,15 +70,9 @@ namespace Project {
          * @param r 
          * @param c 
          */
-        void Generate(const int r, const int c);
+        void Generate();
 
-        /**
-         * @brief Bind the mesh VAO, such that it is ready to be rendered.
-         * 
-         */
-        void PushMesh();
-
-        bool IsReady();
+        bool IsFinishedGenerating();
 
         /**
          * @brief delete and replace the block at x y z with b
@@ -114,17 +116,7 @@ namespace Project {
 
         void ResetNeedsMeshing();
 
-        /**
-         * @brief upload the vertexes to the buffer vbo
-         * 
-         */
-        void PushMeshData();
-
-        unsigned int GetVAOID();
-
-        unsigned int GetVBOID();
-
-        unsigned short GetCounter();
+        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)());
 
         /**
          * @brief return whether or not this mesh is ready for rendering
@@ -132,6 +124,6 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        bool GetReady();
+        bool IsMeshReady();
     };
 }

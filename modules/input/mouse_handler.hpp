@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include <atomic>
+#include <generic/workable.hpp>
 
 extern std::atomic<bool> key_state[6];
 
@@ -24,7 +25,7 @@ namespace Project {
      * @brief A mouse input handler that provides input information about the mouse
      * 
      */
-    class MouseHandler {
+    class MouseHandler : public Workable {
     public:
         enum class MouseEnum {
             LMB_DOWN = 0, RMB_DOWN, LMB_HELD, RMB_HELD, LMB_UP, RMB_UP
@@ -34,13 +35,20 @@ namespace Project {
         std::atomic<int> mousex = 0, mousey = 0, dx = 0, dy = 0;
         std::atomic<int> lx = 0, ly = 0;
 
+        /**
+         * @brief update the mouse states
+         * 
+         * @param display the active display that you want to get the mouse position and states for.
+         */
+        void Update();
+
     public:
         /**
          * @brief Construct a new Mouse object and add a callback for mouse input to the glfw window.
          * 
          * @param display the display that you want to add the mouse handler to.
          */
-        MouseHandler(Display& display);
+        MouseHandler();
         
         /**
          * @brief Get the mouse _state of the given button
@@ -51,12 +59,9 @@ namespace Project {
          */
         bool GetMouseState(MouseEnum enumer);
 
-        /**
-         * @brief update the mouse states
-         * 
-         * @param display the active display that you want to get the mouse position and states for.
-         */
-        void Update(Display& display);
+        virtual void MainThreadWork() override;
+
+        virtual void ThreadWork() override;
 
         int MouseX();
 

@@ -11,20 +11,11 @@
 #include <block/dirt_block.hpp>
 #include <glm/gtc/noise.hpp>
 
-Project::Chunk::Chunk() : ready(false), counter(0), needs_remeshing(false) {
+Project::Chunk::Chunk(const int row, const int col) : gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
     this->empty = false;
     this->data = std::vector<Block*>();
     this->SuggestReMesh();
     FillNullData();
-}
-
-void Project::Chunk::GLInit() {
-    glGenVertexArrays(1, &this->vao_id);
-    glBindVertexArray(this->vao_id);
-    glGenBuffers(1, &this->vbo_id);
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
-    glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
-    glEnableVertexAttribArray(1);
 }
 
 void Project::Chunk::FillNullData() {
@@ -37,7 +28,7 @@ void Project::Chunk::FillNullData() {
     }
 }
 
-void Project::Chunk::Generate(const int row, const int col) {
+void Project::Chunk::Generate() {
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
             int voxel_x = r + row * Chunk::CHUNK_SIZE;
@@ -53,7 +44,8 @@ void Project::Chunk::Generate(const int row, const int col) {
             }
         }
     }
-    this->ready = true;
+    this->chunk_ready = true;
+    this->SuggestReMesh();
 }
 
 void Project::Chunk::RequestReplacement(const int x, const int y, const int z, Block* b) {
@@ -61,31 +53,20 @@ void Project::Chunk::RequestReplacement(const int x, const int y, const int z, B
     this->operator()(x, y, z) = b;
 }
 
-unsigned int Project::Chunk::GetVAO() {
-    return this->vao_id;
-}
-
-unsigned int Project::Chunk::GetVBO() {
-    return this->vbo_id;
-}
-
-bool Project::Chunk::Contains(const int x, const int y, const int z) {
-    return !(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z >= CHUNK_VOLUME);
+bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
+    std::shared_lock lock{this->mutex};
+    return (*this->operator()(x, y, z).*prop)();
 }
 
 Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
 }
 
-bool Project::Chunk::IsReady() {
-    return this->ready;
-}
-
 void Project::Chunk::ReMesh() {
-    if (!this->IsReady()) {
+    if (!this->chunk_ready) {
         return;
     }
-    this->ready = false;
+    this->mesh_ready = false;
     static const std::vector<std::vector<unsigned int>> indices = {
         { 0, 2, 1, 2, 3, 1 }, // 0
         { 0, 5, 4, 0, 1, 5 }, // 1
@@ -98,15 +79,15 @@ void Project::Chunk::ReMesh() {
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
             for (int y{0}; y < Chunk::CHUNK_DEPTH; y++) {
-                if (this->chunk->AskBlockProperty(r, y, c, &Block::SkipRender)) {
+                if (this->operator()(r, y, c)->SkipRender()) {
                     continue;
                 }
                 auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
                     if (row < 0 || col < 0 || depth < 0 ||
                     row >= Chunk::CHUNK_SIZE || col >= Chunk::CHUNK_SIZE ||
-                    depth >= Chunk::CHUNK_DEPTH || !this->chunk->AskBlockProperty(row, depth, col, &Block::IsOpaque)) {
+                    depth >= Chunk::CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
                         unsigned int pos = (r << 12) + (y) + (c << 8);
-                        unsigned int texture_index = static_cast<unsigned int>(this->chunk->AskBlockID(r, y, c));
+                        unsigned int texture_index = static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
                         texture_index *= 3U;
                         if (face == 3U) {
                             texture_index += 2U;
@@ -199,12 +180,56 @@ void Project::Chunk::ReMesh() {
             }
         }
     }
-    this->PushMeshData();
-    this->ready = true;
+    this->needs_pushing = true;
+    this->mesh_ready = true;
     this->needs_remeshing = false;
 }
 
-void Project::ChunkMesh::PushMeshData() {
+void Project::Chunk::PushMeshData() {
+    if (!this->mesh_ready) {
+        return;
+    }
+    if (!this->gl_inited) {
+        glGenVertexArrays(1, &this->vao_id);
+        glBindVertexArray(this->vao_id);
+        glGenBuffers(1, &this->vbo_id);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
+        glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
+        glEnableVertexAttribArray(1);
+        this->gl_inited = true;
+    }
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
     glBufferData(GL_ARRAY_BUFFER, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0), GL_DYNAMIC_DRAW);
+}
+
+void Project::Chunk::Render() {
+    if (!this->mesh_ready) {
+        return;
+    }
+    if (this->needs_pushing) {
+        this->PushMeshData();
+        this->needs_pushing = false;
+    }
+    glBindVertexArray(this->vao_id);
+    glDrawArrays(GL_TRIANGLES, 0, this->counter);
+}
+
+void Project::Chunk::SuggestReMesh() {
+    this->needs_remeshing = true;
+}
+
+bool Project::Chunk::NeedsRemeshing() {
+    return this->needs_remeshing;
+}
+
+void Project::Chunk::ResetNeedsMeshing() {
+    this->needs_remeshing = false;
+}
+
+bool Project::Chunk::IsFinishedGenerating() {
+    return this->chunk_ready;
+}
+
+bool Project::Chunk::IsMeshReady() {
+    return this->mesh_ready;
 }
