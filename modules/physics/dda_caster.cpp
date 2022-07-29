@@ -12,8 +12,8 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
     std::sqrtf(1.f + sqr(direction.x / direction.y) + sqr(direction.z / direction.y)),
     std::sqrtf(1.f + sqr(direction.x / direction.z) + sqr(direction.y / direction.z))};
     glm::ivec3 map_check = ray_start;
-    glm::vec3 ray_length;
-    glm::ivec3 step;
+    glm::vec3 ray_length(0.f);
+    glm::ivec3 step(0);
     if (direction.x < 0) {
         step.x = -1;
         ray_length.x = (ray_start.x - static_cast<float>(map_check.x)) * ray_unit_step_size.x;

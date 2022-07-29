@@ -20,7 +20,7 @@ void Project::Display::Init(const int width, const int height, const char* title
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
     this->pointer = glfwCreateWindow(width, height, title, NULL, NULL);
-    if (this->pointer== nullptr) {
+    if (this->pointer == nullptr) {
         throw std::runtime_error("Cannot initialize window");
     }
     glfwMakeContextCurrent(this->pointer);

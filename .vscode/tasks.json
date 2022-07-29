@@ -39,7 +39,7 @@
 				"${file}",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}",
-				//"-fsanitize=address,undefined",
+				"-fsanitize=address,undefined",
 				//"-fsanitize=thread,undefined",
 			],
 			"options": {

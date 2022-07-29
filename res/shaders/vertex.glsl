@@ -1,5 +1,6 @@
 #version 330 core
 
+layout(location = 0) in vec3 test_vertex;
 layout(location = 1) in uint block_data;
 
 uniform mat4 projection_matrix;
@@ -46,5 +47,7 @@ void main() {
     z_pos += chunk_offset_z;
     //gl_Position = projection_matrix * view_matrix * (vec4(x_pos, y_pos, z_pos, 1.f) + vec4(vertices[index], 1.f));
     vec3 vertex_base = vertices[index];
+    //gl_Position = projection_matrix * view_matrix * vec4(test_vertex, 1.f);
+    //gl_Position = vec4(vertex_base, 1.f);
     gl_Position = projection_matrix * view_matrix * vec4(vertex_base.x + x_pos, vertex_base.y + y_pos, vertex_base.z + z_pos , 1.f);
 }

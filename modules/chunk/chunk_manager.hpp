@@ -33,16 +33,9 @@ namespace Project {
         std::shared_mutex mutex;
 
         ntd::ThreadQueue<ntd::Quadlet<int, int, int, Block*>> block_creation_queue;
-        ntd::ThreadQueue<std::pair<int, int>> mesh_creation_queue;
         ntd::ThreadQueue<std::pair<int, int>> remeshing_queue;
 
         int radius;
-
-        /**
-         * @brief generate meshes
-         * 
-         */
-        void GenerateQueuedMeshes();
 
         /**
          * @brief 

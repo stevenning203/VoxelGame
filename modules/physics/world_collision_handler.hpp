@@ -18,6 +18,7 @@ namespace Project {
         ChunkManager* chunk_manager;
         Camera* camera;
         MouseHandler* mouse;
+        Player* player;
 
         /**
          * @brief enforce player and voxel collisions
@@ -27,12 +28,18 @@ namespace Project {
          */
         void EnforcePlayerVoxelCollision();
 
+        /**
+         * @brief move the camera to the player (right now it will be vice versa for now...)
+         * 
+         */
+        void UpdatePlayerCamera();
+
     public:
         /**
          * @brief Construct a new World Collision Handler objectdefault
          * 
          */
-        WorldCollisionHandler(ChunkManager* chunk_manager, Camera* camera, MouseHandler* mouse);
+        WorldCollisionHandler(ChunkManager* chunk_manager, Camera* camera, MouseHandler* mouse, Player* player);
 
         virtual void MainThreadWork() override;
 

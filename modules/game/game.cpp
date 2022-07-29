@@ -16,6 +16,9 @@
 #include <generic/workable.hpp>
 #include <player/player.hpp>
 
+unsigned int vao;
+bool flag = true;
+
 void Project::Game::GameLogicLoop() {
     while (!Display::GetInstance().ShouldClose()) {
         for (Workable* worker : this->modules) {
@@ -38,7 +41,7 @@ void Project::Game::RenderLoop() {
 }
 
 void Project::Game::Main() {
-    std::thread logic_thread_loop([this](){this->GameLogicLoop(); });
+    std::thread logic_thread_loop([this](){ this->GameLogicLoop(); });
     RenderLoop();
     logic_thread_loop.join();
 }
@@ -62,7 +65,7 @@ Project::Game::Game() {
 
     ChunkManager* world = new ChunkManager(player);
     WorldRenderer* renderer = new WorldRenderer(world, shader);
-    WorldCollisionHandler* collision_handler = new WorldCollisionHandler(world, camera, mouse);
+    WorldCollisionHandler* collision_handler = new WorldCollisionHandler(world, camera, mouse, player);
 
     this->modules.push_back(world);
     this->modules.push_back(renderer);
@@ -71,7 +74,7 @@ Project::Game::Game() {
     this->modules.push_back(timer);
     this->modules.push_back(mouse);
     this->modules.push_back(keyboard);
-
+    
     this->Main();
     glfwTerminate();
 }

@@ -17,7 +17,7 @@ namespace Project {
      * 
      */
     class Camera : public Workable {
-        static constexpr float INITIAL_SENSITIVITY = 7.5f;
+        static constexpr float INITIAL_SENSITIVITY = 14.f;
         static constexpr float INITIAL_SPEED = 7.75f;
         float yaw;
         float pitch;

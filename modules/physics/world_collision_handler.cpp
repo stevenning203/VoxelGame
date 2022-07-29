@@ -13,7 +13,11 @@ void Project::WorldCollisionHandler::EnforcePlayerVoxelCollision() {
     
 }
 
-Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* c, MouseHandler* mouse) : chunk_manager(cm), camera(c), mouse(mouse) {
+Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* c, MouseHandler* mouse, Player* player) : player(player), chunk_manager(cm), camera(c), mouse(mouse) {
+    
+}
+
+void Project::WorldCollisionHandler::UpdatePlayerCamera() {
     
 }
 

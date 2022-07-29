@@ -13,8 +13,6 @@
 
 Project::Chunk::Chunk(const int row, const int col) : gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
     this->empty = false;
-    this->data = std::vector<Block*>();
-    this->SuggestReMesh();
     FillNullData();
 }
 
@@ -82,13 +80,13 @@ void Project::Chunk::ReMesh() {
                 if (this->operator()(r, y, c)->SkipRender()) {
                     continue;
                 }
+                unsigned int texture_index_start = 3U * static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
+                unsigned int pos = (r << 12) + (y) + (c << 8);
                 auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
                     if (row < 0 || col < 0 || depth < 0 ||
                     row >= Chunk::CHUNK_SIZE || col >= Chunk::CHUNK_SIZE ||
                     depth >= Chunk::CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
-                        unsigned int pos = (r << 12) + (y) + (c << 8);
-                        unsigned int texture_index = static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
-                        texture_index *= 3U;
+                        unsigned int texture_index = texture_index_start;
                         if (face == 3U) {
                             texture_index += 2U;
                         } else if (face != 1U) {
@@ -206,12 +204,30 @@ void Project::Chunk::Render() {
     if (!this->mesh_ready) {
         return;
     }
-    if (this->needs_pushing) {
+    if (this->needs_pushing || !this->gl_inited) {
         this->PushMeshData();
         this->needs_pushing = false;
     }
     glBindVertexArray(this->vao_id);
     glDrawArrays(GL_TRIANGLES, 0, this->counter);
+    // if (this->needs_pushing) {
+    //     static constexpr float vertices[] = {
+    //         -50.f, -50.f, 0.0f,
+    //         50.f, -50.f, 0.0f,
+    //         0.0f,  50.f, 0.0f
+    //     };  
+    //     glGenVertexArrays(1, &this->vao_id);
+    //     glBindVertexArray(this->vao_id);
+    //     unsigned int vbo;
+    //     glGenBuffers(1, &vbo);
+    //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    //     glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, (void*)0);
+    //     glEnableVertexAttribArray(0);
+    //     this->needs_pushing = false;
+    // }
+    // glBindVertexArray(this->vao_id);
+    // glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void Project::Chunk::SuggestReMesh() {

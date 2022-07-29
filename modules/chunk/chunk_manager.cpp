@@ -19,22 +19,13 @@ Project::ChunkManager::ChunkManager(Player* p) : player(p), radius(5) {
 }
 
 void Project::ChunkManager::MainThreadWork() {
-    this->GenerateQueuedMeshes();
+    
 }
 
 void Project::ChunkManager::ThreadWork() {
     this->ReMeshQueuedMeshes();
     this->NextInBlockCreationQueue();
     this->UpdatePlayerVisibleChunks();
-}
-
-void Project::ChunkManager::GenerateQueuedMeshes() {
-    if (this->mesh_creation_queue.Empty()) {
-        return;
-    }
-    std::pair<int, int> top = this->mesh_creation_queue.Front();
-    //this->chunks[{top}]->GLInit();
-    this->mesh_creation_queue.Pop();
 }
 
 void Project::ChunkManager::ReMeshQueuedMeshes() {
@@ -92,7 +83,6 @@ void Project::ChunkManager::NextInChunkQueue() {
     int z = this->chunk_generation_queue.front().second;
     this->chunk_generation_queue.pop();
     GenerateChunk(x, z);
-    this->mesh_creation_queue.Emplace(x, z);
 }
 
 void Project::ChunkManager::GenerateChunk(const int row, const int col) {
