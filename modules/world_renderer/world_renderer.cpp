@@ -7,7 +7,7 @@
 #include <chunk/chunk_manager.hpp>
 
 void Project::WorldRenderer::RenderChunkManager() {
-    this->chunk_manager->ForEachMut(std::bind([](std::pair<const std::pair<int, int>, Chunk*>& pair, Program* shader){
+    static auto func = [](std::pair<const std::pair<int, int>, Chunk*>& pair, Program* shader) {
         if (!pair.second->IsMeshReady()) {
             return;
         }
@@ -16,7 +16,8 @@ void Project::WorldRenderer::RenderChunkManager() {
         shader->UniformFloat("chunk_offset_x", static_cast<float>(x * Chunk::CHUNK_SIZE));
         shader->UniformFloat("chunk_offset_z", static_cast<float>(z * Chunk::CHUNK_SIZE));
         pair.second->Render();
-    }, std::placeholders::_1, this->shader));
+    };
+    this->chunk_manager->ForEachMut(func, this->shader);
 }
 
 Project::WorldRenderer::WorldRenderer(ChunkManager* cm, Program* shader) : shader(shader), chunk_manager(cm) {

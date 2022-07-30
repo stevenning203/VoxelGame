@@ -19,12 +19,16 @@ double Project::Timer::GetDeltaTime() {
     return this->delta_time;
 }
 
-void Project::Timer::Sleep(int ms) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+void Project::Timer::Sleep(int us) {
+    std::this_thread::sleep_for(std::chrono::nanoseconds(us));
 }
 
 void Project::Timer::HighResolutionMeasureFirst() {
     this->point = std::chrono::high_resolution_clock::now();
+}
+
+void Project::Timer::FPSSleep() {
+
 }
 
 void Project::Timer::HighResolutionMeasureSecond() {
@@ -42,6 +46,7 @@ int Project::Timer::GetDeltaHighResolution() {
 
 void Project::Timer::MainThreadWork() {
     this->Update();
+    this->FPSSleep();
 }
 
 void Project::Timer::ThreadWork() {

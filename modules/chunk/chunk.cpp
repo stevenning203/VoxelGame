@@ -11,7 +11,7 @@
 #include <block/dirt_block.hpp>
 #include <glm/gtc/noise.hpp>
 
-Project::Chunk::Chunk(const int row, const int col) : gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
+Project::Chunk::Chunk(const int row, const int col) : last_counter{0}, gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
     this->empty = false;
     FillNullData();
 }
@@ -197,7 +197,11 @@ void Project::Chunk::PushMeshData() {
         this->gl_inited = true;
     }
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0), GL_DYNAMIC_DRAW);
+    if (this->counter > this->last_counter) {
+        glBufferData(GL_ARRAY_BUFFER, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0), GL_STREAM_DRAW);
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0));
+    }
 }
 
 void Project::Chunk::Render() {
@@ -210,24 +214,6 @@ void Project::Chunk::Render() {
     }
     glBindVertexArray(this->vao_id);
     glDrawArrays(GL_TRIANGLES, 0, this->counter);
-    // if (this->needs_pushing) {
-    //     static constexpr float vertices[] = {
-    //         -50.f, -50.f, 0.0f,
-    //         50.f, -50.f, 0.0f,
-    //         0.0f,  50.f, 0.0f
-    //     };  
-    //     glGenVertexArrays(1, &this->vao_id);
-    //     glBindVertexArray(this->vao_id);
-    //     unsigned int vbo;
-    //     glGenBuffers(1, &vbo);
-    //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    //     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    //     glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, (void*)0);
-    //     glEnableVertexAttribArray(0);
-    //     this->needs_pushing = false;
-    // }
-    // glBindVertexArray(this->vao_id);
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void Project::Chunk::SuggestReMesh() {

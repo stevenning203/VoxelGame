@@ -135,9 +135,9 @@ void Project::ChunkManager::EnablePlayerBlockDestruction() {
     this->QueueBlockCreation(r, y, c, new AirBlock());
 }
 
-void Project::ChunkManager::ForEachMut(const std::function<void(std::pair<const std::pair<int, int>, Chunk*>&)>& func) {
-    std::shared_lock lock(this->mutex);
+void Project::ChunkManager::ForEachMut(void(*func)(std::pair<const std::pair<int, int>, Chunk*>&, Program*), Program* shader) {
+    //std::shared_lock lock(this->mutex);
     for (std::pair<const std::pair<int, int>, Chunk*>& it : this->chunks) {
-        func(it);
+        func(it, shader);
     }
 }

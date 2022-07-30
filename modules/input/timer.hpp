@@ -24,6 +24,12 @@ namespace Project {
          * 
          */
         void Update();
+
+        /**
+         * @brief sleep for perfect time to maintain fps in Display::
+         * 
+         */
+        void FPSSleep();
     public:
         Timer();
         
@@ -36,9 +42,10 @@ namespace Project {
         /**
          * @brief sleep this thread
          * 
-         * @param ms milliseconds
+         * @param ms nanoseconds
          */
         void Sleep(int ms);
+
 
         /**
          * @brief first high resolution begin

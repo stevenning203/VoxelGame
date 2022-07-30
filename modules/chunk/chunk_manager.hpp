@@ -19,6 +19,7 @@ namespace Project {
     class Block;
     class Player;
     class DDACaster;
+    class Program;
 
     /**
      * @brief Manager for chunks
@@ -115,6 +116,6 @@ namespace Project {
          * 
          * @param func the function that takes a Chunk*
          */
-        void ForEachMut(const std::function<void(std::pair<const std::pair<int, int>, Chunk*>&)>& func);
+        void ForEachMut(void(*)(std::pair<const std::pair<int, int>, Chunk*>&, Program*), Program*);
     };
 }

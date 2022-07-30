@@ -20,6 +20,7 @@ namespace Project {
         std::shared_mutex mutex;
         std::vector<unsigned int> mesh;
         unsigned short counter;
+        unsigned short last_counter;
         std::atomic<bool> needs_remeshing;
         int row, col;
 

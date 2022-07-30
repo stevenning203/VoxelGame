@@ -4,6 +4,7 @@
 
 namespace Project {
     class Workable;
+    class Timer;
 
     /**
      * @brief The game class that holds all the game logic.
@@ -11,6 +12,7 @@ namespace Project {
      */
     class Game {
         std::vector<Workable*> modules;
+        Timer* timer;
 
         /**
          * @brief the main loop

@@ -26,6 +26,7 @@ namespace Project {
         Display();
         
     public:
+        static constexpr int INITIAL_FPS = 144;
         
         static Display& GetInstance();
 

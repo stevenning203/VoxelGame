@@ -9,7 +9,8 @@ namespace Project {
      */
     class Positionable {
     protected:
-        glm::vec3 position, direction;
+        glm::vec3 position{0};
+        glm::vec3 direction{1.f};
     public:
         /**
          * @brief Get the Position object
