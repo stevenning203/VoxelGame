@@ -13,6 +13,7 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
     std::sqrtf(1.f + sqr(direction.x / direction.y) + sqr(direction.z / direction.y)),
     std::sqrtf(1.f + sqr(direction.x / direction.z) + sqr(direction.y / direction.z))};
     glm::ivec3 map_check = glm::floor(ray_start);
+    glm::ivec3 begin_compare = map_check;
     glm::vec3 ray_length{0.f};
     glm::ivec3 step{0};
     if (direction.x < 0) {
@@ -39,6 +40,26 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
     float current_distance = 0.0f;
     int last_op = -1;
     while (current_distance < distance) {
+        if (world.BlockExists(map_check.x, map_check.y, map_check.z) && world.AskBlockProperty(map_check.x, map_check.y, map_check.z, &Block::IsSelectable)) {
+            write_to_row_collision = map_check.x;
+            write_to_col_collision = map_check.z;
+            write_to_y_collision = map_check.y;
+            if (last_op >= 0 && map_check != begin_compare) {
+                glm::ivec3 delta{0};
+                if (last_op == 0) {
+                    delta.x -= step.x;
+                } else if (last_op == 1) {
+                    delta.y -= step.y;
+                } else if (last_op == 2) {
+                    delta.z -= step.z;
+                }
+                glm::ivec3 x = map_check + delta;
+                write_to_col_backtrack = x.z;
+                write_to_row_backtrack = x.x;
+                write_to_y_backtrack = x.y;
+            }
+            return true;
+        }
         if (ray_length.x < ray_length.y && ray_length.x < ray_length.z) {
             map_check.x += step.x;
             current_distance = ray_length.x;
@@ -54,15 +75,6 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
             current_distance = ray_length.z;
             ray_length.z += ray_unit_step_size.z; 
             last_op = 2;
-        }
-        if (world.BlockExists(map_check.x, map_check.y, map_check.z) && world.AskBlockProperty(map_check.x, map_check.y, map_check.z, &Block::IsSelectable)) {
-            write_to_row_collision = map_check.x;
-            write_to_col_collision = map_check.z;
-            write_to_y_collision = map_check.y;
-            if (last_op >= 0) {
-                
-            }
-            return true;
         }
     }
     return false;

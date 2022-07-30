@@ -14,6 +14,7 @@
 #include <physics/dda_caster.hpp>
 #include <physics/world_collision_handler.hpp>
 #include <input/mouse_handler.hpp>
+#include <block/stone.hpp>
 
 Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse) : mouse(mouse), player(p), radius(5) {
     this->ray_caster = new DDACaster();
@@ -126,17 +127,24 @@ bool Project::ChunkManager::AskBlockProperty(const int x, const int y, const int
 }
 
 void Project::ChunkManager::EnablePlayerBlockDestruction() {
-    if (!mouse->GetMouseState(MouseHandler::MouseEnum::LMB_HELD)) {
+    bool left = mouse->GetMouseState(MouseHandler::MouseEnum::LMB_HELD);
+    bool right = mouse->GetMouseState(MouseHandler::MouseEnum::RMB_HELD);
+    if (!left && !right) {
         return;
     }
     int r, c, y;
-    int pr, pc, py;
+    int pr, pc, py = -1;
     bool collide = this->ray_caster->Cast(this->player->GetPosition(), this->player->GetDirection(), PLAYER_REACH, *this, r, c, y, pr, pc, py);
     if (!collide) {
         return;
     }
+    if (py != -1 && right) {
+        this->QueueBlockCreation(pr, py, pc, new Stone());
+    }
     // drop blocks here?
-    this->QueueBlockCreation(r, y, c, new AirBlock());
+    if (left) {
+        this->QueueBlockCreation(r, y, c, new AirBlock());
+    }
 }
 
 void Project::ChunkManager::ForEachMut(void(*func)(std::pair<const std::pair<int, int>, Chunk*>&, Program*), Program* shader) {
