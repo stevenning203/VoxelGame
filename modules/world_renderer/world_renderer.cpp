@@ -8,9 +8,6 @@
 
 void Project::WorldRenderer::RenderChunkManager() {
     static auto func = [](std::pair<const std::pair<int, int>, Chunk*>& pair, Program* shader) {
-        if (!pair.second->IsMeshReady()) {
-            return;
-        }
         int x = pair.first.first;
         int z = pair.first.second;
         shader->UniformFloat("chunk_offset_x", static_cast<float>(x * Chunk::CHUNK_SIZE));

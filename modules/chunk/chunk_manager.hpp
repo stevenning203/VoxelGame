@@ -20,6 +20,7 @@ namespace Project {
     class Player;
     class DDACaster;
     class Program;
+    class MouseHandler;
 
     /**
      * @brief Manager for chunks
@@ -29,6 +30,7 @@ namespace Project {
         constexpr static float PLAYER_REACH = 5.f;
         DDACaster* ray_caster;
         Player* player;
+        MouseHandler* mouse;
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
         std::shared_mutex mutex;
@@ -109,7 +111,7 @@ namespace Project {
          * @brief Construct a new Chunk Manager object
          * 
          */
-        ChunkManager(Player* p);
+        ChunkManager(Player* p, MouseHandler* m);
 
         /**
          * @brief mutex lock, indicating that chunks inside are being operated on. iterate and apply to each chunk.

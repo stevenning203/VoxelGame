@@ -24,11 +24,17 @@ namespace Project {
         std::atomic<bool> should_close;
 
         Display();
+
+        ~Display() = default;
+
+        Display(const Display&) = delete;
+
+        Display& operator=(const Display&) = delete;
         
     public:
-        static constexpr int INITIAL_FPS = 144;
-        
         static Display& GetInstance();
+
+        static constexpr int INITIAL_FPS = 144;
 
         /**
          * @brief Construct a new Display object and initialize glfw and glad.

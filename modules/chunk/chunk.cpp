@@ -12,7 +12,7 @@
 #include <glm/gtc/noise.hpp>
 #include <block/stone.hpp>
 
-Project::Chunk::Chunk(const int row, const int col) : last_counter{0}, gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
+Project::Chunk::Chunk(const int row, const int col) : render_counter{0}, last_counter{0}, gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
     this->empty = false;
     FillNullData();
 }
@@ -183,6 +183,7 @@ void Project::Chunk::ReMesh() {
             }
         }
     }
+    this->render_counter = counter;
     this->needs_pushing = true;
     this->mesh_ready = true;
     this->needs_remeshing = false;
@@ -210,15 +211,15 @@ void Project::Chunk::PushMeshData() {
 }
 
 void Project::Chunk::Render() {
-    if (!this->mesh_ready) {
+    if (this->render_counter == 0) {
         return;
     }
-    if (this->needs_pushing || !this->gl_inited) {
+    if (this->mesh_ready && (this->needs_pushing || !this->gl_inited)) {
         this->PushMeshData();
         this->needs_pushing = false;
     }
     glBindVertexArray(this->vao_id);
-    glDrawArrays(GL_TRIANGLES, 0, this->counter);
+    glDrawArrays(GL_TRIANGLES, 0, this->render_counter);
 }
 
 void Project::Chunk::SuggestReMesh() {

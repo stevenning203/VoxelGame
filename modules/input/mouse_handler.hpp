@@ -43,13 +43,13 @@ namespace Project {
         void Update();
 
     public:
+
         /**
          * @brief Construct a new Mouse object and add a callback for mouse input to the glfw window.
          * 
-         * @param display the display that you want to add the mouse handler to.
          */
         MouseHandler();
-        
+
         /**
          * @brief Get the mouse _state of the given button
          * 

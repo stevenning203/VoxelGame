@@ -45,9 +45,10 @@ void Project::MouseHandler::Update() {
     this->dy = this->mousey - this->ly;
     this->lx.store(this->mousex.load());
     this->ly.store(this->mousey.load());
-    for (int i{0}; i < 6; i++) {
-        key_state[i] = false;
-    }
+    key_state[0] = false;
+    key_state[1] = false;
+    key_state[4] = false;
+    key_state[5] = false;
 }
 
 void Project::MouseHandler::MainThreadWork() {

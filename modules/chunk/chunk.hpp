@@ -29,6 +29,7 @@ namespace Project {
         std::vector<unsigned int> mesh;
         unsigned short counter;
         unsigned short last_counter;
+        unsigned short render_counter; 
         std::atomic<bool> needs_remeshing;
         int row, col;
 

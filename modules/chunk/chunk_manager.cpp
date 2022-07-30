@@ -13,8 +13,9 @@
 #include <player/player.hpp>
 #include <physics/dda_caster.hpp>
 #include <physics/world_collision_handler.hpp>
+#include <input/mouse_handler.hpp>
 
-Project::ChunkManager::ChunkManager(Player* p) : player(p), radius(5) {
+Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse) : mouse(mouse), player(p), radius(5) {
     this->ray_caster = new DDACaster();
 }
 
@@ -125,6 +126,9 @@ bool Project::ChunkManager::AskBlockProperty(const int x, const int y, const int
 }
 
 void Project::ChunkManager::EnablePlayerBlockDestruction() {
+    if (!mouse->GetMouseState(MouseHandler::MouseEnum::LMB_HELD)) {
+        return;
+    }
     int r, c, y;
     int pr, pc, py;
     bool collide = this->ray_caster->Cast(this->player->GetPosition(), this->player->GetDirection(), PLAYER_REACH, *this, r, c, y, pr, pc, py);

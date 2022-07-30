@@ -64,7 +64,7 @@ Project::Game::Game() {
     Display::GetInstance().SetShader(shader);
     Display::GetInstance().SuggestDimensions();
 
-    ChunkManager* world = new ChunkManager(player);
+    ChunkManager* world = new ChunkManager(player, mouse);
     WorldRenderer* renderer = new WorldRenderer(world, shader);
     WorldCollisionHandler* collision_handler = new WorldCollisionHandler(world, camera, mouse, player);
 
