@@ -29,7 +29,7 @@ const vec2 tcs[4] = vec2[](
     vec2(1.f, 0.f)
 );
 
-const float n_atlas_count = 9.f;
+const float n_atlas_count = 12.f;
 
 void main() {
     uint index = (block_data & uint(983040)) >> 16;

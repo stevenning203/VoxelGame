@@ -13,6 +13,14 @@ namespace Project {
      */
     class Chunk {
     private:
+        /**
+         * @brief generation struct for generating chunks
+         * 
+         */
+        class GenerationStruct {
+            
+        };
+
         std::vector<Block*> data;
         unsigned int vbo_id, vao_id;
         std::atomic<bool> empty, chunk_ready, needs_pushing, mesh_ready;

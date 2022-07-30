@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <block/dirt_block.hpp>
 #include <glm/gtc/noise.hpp>
+#include <block/stone.hpp>
 
 Project::Chunk::Chunk(const int row, const int col) : last_counter{0}, gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
     this->empty = false;
@@ -33,7 +34,10 @@ void Project::Chunk::Generate() {
             int voxel_z = c + col * Chunk::CHUNK_SIZE;
             float noise = glm::simplex(glm::vec2(voxel_x / 20.f, voxel_z / 20.f));
             int h = static_cast<int>(5.f * (noise + 1.f)) + 15;
-            for (int y{0}; y < h; y++) {
+            for (int y{0}; y < h - 5; y++) {
+                this->operator()(r, y, c) = new Stone();
+            }
+            for (int y{h - 5}; y < h; y++) {
                 this->operator()(r, y, c) = new DirtBlock();
             }
             this->operator()(r, h, c) = new GrassBlock();

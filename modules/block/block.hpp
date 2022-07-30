@@ -15,7 +15,7 @@ namespace Project {
          * @return true this block is opaque so and blocks that it obscures should not have that face rendered.
          * @return false this block has transparency so blocks it obscures should still be rendered.
          */
-        virtual bool IsOpaque() = 0;
+        virtual bool IsOpaque();
 
         /**
          * @brief Return whether or not this block should be skipped when rendering
@@ -24,7 +24,7 @@ namespace Project {
          * @return true yes, skip
          * @return false no, please render
          */
-        virtual bool SkipRender() = 0;
+        virtual bool SkipRender();
 
         /**
          * @brief indicate whether or not this block is passable by entities
@@ -32,7 +32,7 @@ namespace Project {
          * @return true solid, do not pass through
          * @return false unsolid, entities will pass through
          */
-        virtual bool IsSolid() = 0;
+        virtual bool IsSolid();
 
         /**
          * @brief if a block is selectable (by the player)

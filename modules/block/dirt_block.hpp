@@ -10,12 +10,6 @@ namespace Project {
     public:
         DirtBlock();
         
-        virtual bool IsOpaque() override;
-
-        virtual bool SkipRender() override;
-
         virtual int GetID() override;
-
-        virtual bool IsSolid() override;
     };
 }

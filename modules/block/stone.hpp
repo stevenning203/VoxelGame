@@ -1,14 +1,15 @@
 #pragma once
+
 #include "block.hpp"
 
 namespace Project {
     /**
-     * @brief grass block in the game
+     * @brief stone block
      * 
      */
-    class GrassBlock : public Block {
+    class Stone : public Block {
     public:
-        GrassBlock();
+        Stone() = default;
         
         virtual int GetID() override;
     };
