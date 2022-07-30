@@ -49,6 +49,7 @@ void Project::Chunk::Generate() {
 void Project::Chunk::RequestReplacement(const int x, const int y, const int z, Block* b) {
     delete this->operator()(x, y, z);
     this->operator()(x, y, z) = b;
+    this->SuggestReMesh();
 }
 
 bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {

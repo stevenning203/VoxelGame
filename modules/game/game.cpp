@@ -17,9 +17,6 @@
 #include <player/player.hpp>
 #include <generic/debug.hpp>
 
-unsigned int vao;
-bool flag = true;
-
 void Project::Game::GameLogicLoop() {
     while (!Display::GetInstance().ShouldClose()) {
         for (Workable* worker : this->modules) {
@@ -30,7 +27,6 @@ void Project::Game::GameLogicLoop() {
 
 void Project::Game::RenderLoop() {
     while (!Display::GetInstance().ShouldClose()) {
-        ntd::tp tp = ntd::Now();
         this->timer->HighResolutionMeasureFirst();
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -42,10 +38,6 @@ void Project::Game::RenderLoop() {
         Display::GetInstance().SwapBuffers();
         this->timer->HighResolutionMeasureSecond();
         this->timer->Sleep(std::max(0, 1000000000 / Display::INITIAL_FPS - this->timer->GetDeltaHighResolution()));
-        int delta = ntd::DurCast(ntd::Now() - tp);
-        if (delta >= 9000000) {
-            std::cout << delta << std::endl;
-        }
     }
 }
 

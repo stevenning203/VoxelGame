@@ -21,7 +21,7 @@ namespace ntd {
          * 
          * @param x obj
          */
-        void Push(T& x) {
+        void Push(const T& x) {
             std::scoped_lock lock{this->mutex};
             internal.push(x);
         }

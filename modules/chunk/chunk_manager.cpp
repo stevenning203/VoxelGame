@@ -26,10 +26,11 @@ void Project::ChunkManager::ThreadWork() {
     this->ReMeshQueuedMeshes();
     this->NextInBlockCreationQueue();
     this->UpdatePlayerVisibleChunks();
+    this->EnablePlayerBlockDestruction();
 }
 
 void Project::ChunkManager::ReMeshQueuedMeshes() {
-    for (std::pair<std::pair<int, int>, Chunk*> pair : this->chunks) {
+    for (std::pair<const std::pair<int, int>, Chunk*>& pair : this->chunks) {
         Chunk* chunk = pair.second;
         if (chunk->NeedsRemeshing()) {
             this->remeshing_queue.Push(pair.first);
@@ -116,7 +117,6 @@ Project::Chunk* Project::ChunkManager::operator()(const int r, const int c) {
 }
 
 bool Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
-    std::shared_lock lock(this->mutex);
     int row = FloorDiv(x, Chunk::CHUNK_SIZE);
     int col = FloorDiv(z, Chunk::CHUNK_SIZE);
     int modx = Mod(x, Chunk::CHUNK_SIZE);

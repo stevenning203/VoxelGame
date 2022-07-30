@@ -4,6 +4,7 @@
 #include <cmath>
 #include <block/block.hpp>
 #include <iostream>
+#include <generic/debug.hpp>
 
 bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& direction, float distance, ChunkManager& world, int& write_to_row_collision, int& write_to_col_collision, int& write_to_y_collision, int& write_to_row_backtrack, int& write_to_col_backtrack, int& write_to_y_backtrack) {
     glm::vec3 ray_start = origin;
@@ -11,9 +12,9 @@ bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& directio
     glm::vec3 ray_unit_step_size{std::sqrtf(1.f + sqr(direction.y / direction.x) + sqr(direction.z / direction.x)),
     std::sqrtf(1.f + sqr(direction.x / direction.y) + sqr(direction.z / direction.y)),
     std::sqrtf(1.f + sqr(direction.x / direction.z) + sqr(direction.y / direction.z))};
-    glm::ivec3 map_check = ray_start;
-    glm::vec3 ray_length(0.f);
-    glm::ivec3 step(0);
+    glm::ivec3 map_check = glm::floor(ray_start);
+    glm::vec3 ray_length{0.f};
+    glm::ivec3 step{0};
     if (direction.x < 0) {
         step.x = -1;
         ray_length.x = (ray_start.x - static_cast<float>(map_check.x)) * ray_unit_step_size.x;

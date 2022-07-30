@@ -7,7 +7,7 @@
 #include <generic/debug.hpp>
 
 Project::Camera::Camera(Program* shader, MouseHandler* mouse, KeyHandler* keyboard, Timer* timer) : timer(timer), shader(shader), mouse(mouse), keyboard(keyboard), yaw(0.f), pitch(0.f), sensitivity(INITIAL_SENSITIVITY), speed(INITIAL_SPEED), changed(false) {
-    this->position = glm::vec3(0.f);
+    this->position = glm::vec3{-15.f, 15.f, 15.f};
 }
 
 void Project::Camera::MainThreadWork() {
