@@ -6,12 +6,15 @@
 
 namespace Project {
     class Camera;
+    class Item;
 
     /**
      * @brief Player class
      * 
      */
     class Player : public Entity {
+    private:
+        Item* in_hand;
 
     public:
         Player() = default;
@@ -23,5 +26,12 @@ namespace Project {
         void SetDirection(const float x, const float y, const float z);
 
         void SetDirection(const glm::vec3& vec);
+
+        /**
+         * @brief return the item that the player has in their hand, may be nullptr(none)
+         * 
+         * @return Item* 
+         */
+        Item* InHand();
     };
 }

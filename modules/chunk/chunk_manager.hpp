@@ -12,6 +12,7 @@
 #include <generic/triple.hpp>
 #include <shared_mutex>
 #include <generic/workable.hpp>
+#include <item/item.hpp>
 
 namespace Project {
     class Chunk;
@@ -28,6 +29,7 @@ namespace Project {
      */
     class ChunkManager : public Workable {
         constexpr static float PLAYER_REACH = 5.f;
+        constexpr static float BLOCK_BREAKING_THRESHOLD = 10000.f;
         DDACaster* ray_caster;
         Player* player;
         MouseHandler* mouse;
@@ -36,9 +38,13 @@ namespace Project {
         std::shared_mutex mutex;
 
         ntd::ThreadQueue<ntd::Quadlet<int, int, int, Block*>> block_creation_queue;
-        ntd::ThreadQueue<std::pair<int, int>> remeshing_queue;
-
+        std::queue<std::pair<int, int>> remeshing_queue;
+        std::queue<std::pair<int, int>> deletion_queue;
         int radius;
+
+        glm::ivec3 block_breaking_location;
+        float block_breaking_progress;
+        float prev_hardness;
 
         /**
          * @brief 
@@ -53,10 +59,23 @@ namespace Project {
         void GenerateChunk(const int row, const int col);
 
         /**
+         * @brief world generaation for chunk at pair
+         * 
+         * @param pair 
+         */
+        void GenerateChunk(const std::pair<int, int>& pair);
+
+        /**
          * @brief accept the next chunk in the generation queue.
          * 
          */
         void NextInChunkQueue();
+
+        /**
+         * @brief accept the next chunk in the deletion
+         * 
+         */
+        void NextInDeletionQueue();
 
         /**
          * @brief accept and create the next block in the block creation queue
@@ -98,12 +117,78 @@ namespace Project {
          * @param reach 
          */
         void EnablePlayerBlockDestruction();
+
+        /**
+         * @brief convert world coordinates to local chunk coordinates
+         * 
+         * @param x 
+         * @param z 
+         * @return glm::ivec2 
+         */
+        static glm::ivec2 WorldCoordinatesToChunkCoordinates(const int x, const int z);
+
+        /**
+         * @brief convert world coordinates to local chunk coordinates
+         * 
+         * @param v 
+         * @return glm::ivec2 
+         */
+        static glm::ivec2 WorldCoordinatesToChunkCoordinates(glm::ivec2 v);
+
+        /**
+         * @brief convert world coordinates to chunk indices for the chunk manager
+         * 
+         * @param x 
+         * @param z 
+         * @return glm::ivec2 
+         */
+        static glm::ivec2 WorldCoordinatesToChunkIndices(const int x, const int z);
+
+        /**
+         * @brief convert world coordinates to chunk indices for the chunk manager
+         * 
+         * @param v 
+         * @return glm::ivec2 
+         */
+        static glm::ivec2 WorldCoordinatesToChunkIndices(glm::ivec2 v);
     public:
         virtual void MainThreadWork() override;
 
         virtual void ThreadWork() override;
 
+        /**
+         * @brief ask for a block boolean property
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param Block:: pointer to the block function
+         * @return true 
+         * @return false 
+         */
         bool AskBlockProperty(const int x, const int y, const int z, bool(Block::*)());
+
+        /**
+         * @brief ask for a block property...
+         * 
+         * @param x x
+         * @param y y
+         * @param z z
+         * @param Block:: pointer to the function
+         * @return Item::ToolTypeEnum the tool type
+         */
+        Item::ToolTypeEnum AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::*)());
+
+        /**
+         * @brief ask for a block property...
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param Block:: pointer to the function
+         * @return float 
+         */
+        float AskBlockProperty(const int x, const int y, const int z, float(Block::*)());
         
         bool BlockExists(const int x, const int y, const int z);
 

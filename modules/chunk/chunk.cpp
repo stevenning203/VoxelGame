@@ -11,10 +11,29 @@
 #include <block/dirt_block.hpp>
 #include <glm/gtc/noise.hpp>
 #include <block/stone.hpp>
+#include <item/item.hpp>
+
+Project::Item::ToolTypeEnum Project::Chunk::AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)()) {
+    std::shared_lock lock{this->mutex};
+    return (*this->operator()(x, y, z).*prop)();
+}
+
+float Project::Chunk::AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)()) {
+    std::shared_lock lock{this->mutex};
+    return (*this->operator()(x, y, z).*prop)();
+}
 
 Project::Chunk::Chunk(const int row, const int col) : render_counter{0}, last_counter{0}, gl_inited(false), row(row), col(col), chunk_ready(false), mesh_ready(false), counter(0), needs_remeshing(false), needs_pushing(false) {
     this->empty = false;
     FillNullData();
+}
+
+Project::Chunk::Chunk(Chunk* chunk, const int row, const int col) {
+    this->data.swap(chunk->data);
+    this->empty = false;
+    this->vao_id = chunk->vao_id;
+    this->vbo_id = chunk->vbo_id;
+    this->gl_inited = true;
 }
 
 void Project::Chunk::FillNullData() {
@@ -70,13 +89,21 @@ void Project::Chunk::ReMesh() {
         return;
     }
     this->mesh_ready = false;
-    static const std::vector<std::vector<unsigned int>> indices = {
+    static const unsigned int indices[6][6] = {
         { 0, 2, 1, 2, 3, 1 }, // 0
         { 0, 5, 4, 0, 1, 5 }, // 1
         { 1, 3, 7, 1, 7, 5 }, // 2
         { 2, 7, 3, 2, 6, 7 }, // 3
         { 0, 6, 2, 0, 4, 6 }, // 4
         { 4, 5, 6, 6, 5, 7 }  // 5
+    };
+    static constexpr unsigned int uv_index_lookup[6][8] = {
+        { 0, 1, 2, 3, 0, 0, 0, 0 },
+        { 2, 3, 0, 0, 0, 1, 0, 0 },
+        { 0, 0, 0, 2, 0, 1, 0, 3 },
+        { 0, 0, 3, 2, 0, 0, 1, 0 },
+        { 1, 0, 3, 0, 0, 0, 2, 0 },
+        { 0, 0, 0, 0, 1, 0, 3, 2 }
     };
     this->counter = 0;
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
@@ -102,69 +129,8 @@ void Project::Chunk::ReMesh() {
                             ("The texture index is too large for bitwise manipulation. Fix by adding another integer in the vertex information");
                         }
                         for (int i = 0; i < 6; i++) {
-                            unsigned int uv_index = 0;
-                            unsigned int vertex_index = indices.at(face).at(i);
-                            if (face == 0U) {
-                                if (vertex_index == 0U) {
-                                    uv_index = 0;
-                                } else if (vertex_index == 1U) {
-                                    uv_index = 1U;
-                                } else if (vertex_index == 2U) {
-                                    uv_index = 2U;
-                                } else if (vertex_index == 3U) {
-                                    uv_index = 3U;
-                                }
-                            } else if (face == 1U) {
-                                if (vertex_index == 0U) {
-                                    uv_index = 2U;
-                                } else if (vertex_index == 5U) {
-                                    uv_index = 1U;
-                                } else if (vertex_index == 4U) {
-                                    uv_index = 0U;
-                                } else if (vertex_index == 1U) {
-                                    uv_index = 3U;
-                                }
-                            } else if (face == 2U) {
-                                if (vertex_index == 1U) {
-                                    uv_index = 0U;
-                                } else if (vertex_index == 3U) {
-                                    uv_index = 2U;
-                                } else if (vertex_index == 7U) {
-                                    uv_index = 3U;
-                                } else if (vertex_index == 5U) {
-                                    uv_index = 1U;
-                                }
-                            } else if (face == 3U) {
-                                if (vertex_index == 2U) {
-                                    uv_index = 3U;
-                                } else if (vertex_index == 3U) {
-                                    uv_index = 2U;
-                                } else if (vertex_index == 7U) {
-                                    uv_index = 0U;
-                                } else if (vertex_index == 6U) {
-                                    uv_index = 1U;
-                                }
-                            } else if (face == 4U) {
-                                if (vertex_index == 0U) {
-                                    uv_index = 1U;
-                                } else if (vertex_index == 6U) {
-                                    uv_index = 2U;
-                                } else if (vertex_index == 2U) {
-                                    uv_index = 3U;
-                                } else if (vertex_index == 4U) {
-                                    uv_index = 0U;
-                                }
-                            } else if (face == 5U) {
-                                if (vertex_index == 4U) {
-                                    uv_index = 1U;
-                                } else if (vertex_index == 6U) {
-                                    uv_index = 3U;
-                                } else if (vertex_index == 5U) {
-                                    uv_index = 0U;
-                                } else if (vertex_index == 7U) {
-                                    uv_index = 2U;
-                                }
-                            }
+                            unsigned int vertex_index = indices[face][i];
+                            unsigned int uv_index = uv_index_lookup[face][vertex_index];
                             if (this->counter >= this->mesh.size()) {
                                 this->mesh.push_back(0);
                             }

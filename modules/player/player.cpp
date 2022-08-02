@@ -19,3 +19,7 @@ void Project::Player::SetDirection(const float x, const float y, const float z) 
 void Project::Player::SetDirection(const glm::vec3& v) {
     this->direction.operator=(v);
 }
+
+Project::Item* Project::Player::InHand() {
+    return this->in_hand;
+}

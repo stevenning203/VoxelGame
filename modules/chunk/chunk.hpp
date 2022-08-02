@@ -4,9 +4,11 @@
 #include <memory>
 #include <atomic>
 #include <shared_mutex>
+#include <item/item.hpp>
 
 namespace Project {
     class Block;
+
     /**
      * @brief A chunk composed of some set number of blocks.
      * 
@@ -69,6 +71,15 @@ namespace Project {
         Chunk(const int row, const int col);
 
         /**
+         * @brief steal a chunks buffers
+         * 
+         * @param chunk 
+         * @param row 
+         * @param col 
+         */
+        Chunk(Chunk* chunk, const int row, const int col);
+
+        /**
          * @brief call gldrawarrays
          * 
          */
@@ -126,7 +137,39 @@ namespace Project {
 
         void ResetNeedsMeshing();
 
+        /**
+         * @brief ask for a block property
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param prop 
+         * @return true 
+         * @return false 
+         */
         bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)());
+
+        /**
+         * @brief ask for a block property
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param prop 
+         * @return Item::ToolTypeEnum 
+         */
+        Item::ToolTypeEnum AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)());
+
+        /**
+         * @brief ask for a block property
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @param prop 
+         * @return float 
+         */
+        float AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)());
 
         /**
          * @brief return whether or not this mesh is ready for rendering

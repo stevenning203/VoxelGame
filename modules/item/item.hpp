@@ -12,10 +12,18 @@ namespace Project {
      */
     class Item {
     public:
+        enum class ToolTypeEnum {
+            NONE
+        };
+
         virtual void Use(Game& game);
 
         virtual int GetID() = 0;
 
         virtual ~Item() = default;
+
+        virtual float BreakingPower();
+
+        virtual ToolTypeEnum ToolType();
     };
 }

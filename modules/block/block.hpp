@@ -41,5 +41,19 @@ namespace Project {
          * @return false 
          */
         virtual bool IsSelectable();
+
+        /**
+         * @brief return the required tool to break the given block quickly
+         * 
+         * @return Item::ToolTypeEnum 
+         */
+        virtual Item::ToolTypeEnum RequiredTool();
+
+        /**
+         * @brief return the block hardness; the modifier to how long it takes to break it.
+         * 
+         * @return float 
+         */
+        virtual float Hardness();
     };
 }
