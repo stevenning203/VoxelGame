@@ -69,9 +69,9 @@ Project::Game::Game() {
     WorldRenderer* renderer = new WorldRenderer(world, shader);
     WorldCollisionHandler* collision_handler = new WorldCollisionHandler(world, camera, mouse, player);
 
-    this->modules.push_back(world);
     this->modules.push_back(camera);
     this->modules.push_back(renderer);
+    this->modules.push_back(world);
     this->modules.push_back(collision_handler);
     this->modules.push_back(timer);
     this->modules.push_back(mouse);

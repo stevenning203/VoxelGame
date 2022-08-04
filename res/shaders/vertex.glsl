@@ -11,6 +11,8 @@ uniform float chunk_offset_z;
 
 out vec2 texture_coordinate;
 
+const float BLEEDING_CONSTANT = 0.0001f;
+
 const vec3 vertices[8] = vec3[](
     vec3(0.f, 1.f, 1.f), 
     vec3(1.f, 1.f, 1.f), 
@@ -23,10 +25,10 @@ const vec3 vertices[8] = vec3[](
 );
 
 const vec2 tcs[4] = vec2[](
-    vec2(0.f, 1.f),
-    vec2(1.f, 1.f),
-    vec2(0.f, 0.f),
-    vec2(1.f, 0.f)
+    vec2(BLEEDING_CONSTANT, 1.f - BLEEDING_CONSTANT),
+    vec2(1.f - BLEEDING_CONSTANT, 1.f - BLEEDING_CONSTANT),
+    vec2(BLEEDING_CONSTANT, BLEEDING_CONSTANT),
+    vec2(1.f - BLEEDING_CONSTANT, BLEEDING_CONSTANT)
 );
 
 const float n_atlas_count = 12.f;

@@ -51,8 +51,8 @@ void Project::Chunk::Generate() {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
             int voxel_x = r + row * Chunk::CHUNK_SIZE;
             int voxel_z = c + col * Chunk::CHUNK_SIZE;
-            float noise0 = glm::simplex(glm::vec2(voxel_x / 20.f, voxel_z / 20.f));
-            float noise1 = glm::perlin(glm::vec2(voxel_x / 18.f, voxel_z / 18.f));
+            float noise0 = glm::simplex(glm::vec2(voxel_x / 40.f, voxel_z / 40.f));
+            float noise1 = glm::perlin(glm::vec2(voxel_x / 36.f, voxel_z / 36.f));
             float noise = noise0 + noise1;
             int h = static_cast<int>(5.f * (noise + 1.f)) + 15;
             for (int y{0}; y < h - 5; y++) {

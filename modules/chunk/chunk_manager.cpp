@@ -43,19 +43,17 @@ void Project::ChunkManager::RenderSelectionBox() {
         0, 0, 0, 0, 0, 0, 0, 0
     };
     constexpr static unsigned int verts[] = {
-        0, 2, 1, 2, 3, 1,
-        0, 5, 4, 0, 1, 5,
-        1, 3, 7, 1, 7, 5,
-        2, 7, 3, 2, 6, 7,
-        0, 6, 2, 0, 4, 6,
-        4, 5, 6, 6, 5, 7
+        4, 0, 1, 5, 4,
+        6, 2, 0, 2, 3,
+        1, 3, 7, 5, 7,
+        6, 4,
     };
     if (!selection_box_first) {
         glGenVertexArrays(1, &this->selection_box_vao_id);
         glBindVertexArray(this->selection_box_vao_id);
         glGenBuffers(1, &this->selection_box_vbo_id);
         glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
-        glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(unsigned int), verts, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
         glEnableVertexAttribArray(1);
         glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
         selection_box_first = true;
@@ -67,16 +65,18 @@ void Project::ChunkManager::RenderSelectionBox() {
     unsigned int x = ChunkMod(this->block_breaking_location[0]);
     unsigned int z = ChunkMod(this->block_breaking_location[2]);
     unsigned int pos = (x << 12) + (z << 8) + y;
-    for (int i{0}; i < 36; i++) {
+    for (int i{0}; i < sizeof(verts) / sizeof(unsigned int); i++) {
         this->selection_box_vertices[i] = (verts[i] << 16) + pos;
     }
     glBindVertexArray(this->selection_box_vao_id);
     glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, 36 * sizeof(unsigned int), &this->selection_box_vertices[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), &this->selection_box_vertices[0]);
     glm::ivec2 indices = WorldCoordinatesToChunkIndices({this->block_breaking_location[0], this->block_breaking_location[2]});
-    this->shader->UniformFloat("chunk_offset_x", indices[0] * Chunk::CHUNK_SIZE);
-    this->shader->UniformFloat("chunk_offset_z", indices[1] * Chunk::CHUNK_SIZE);
-    glDrawArrays(GL_LINE_LOOP, 0, 36);
+    this->shader->UniformFloat("chunk_offset_x", static_cast<float>(indices[0] * Chunk::CHUNK_SIZE));
+    this->shader->UniformFloat("chunk_offset_z", static_cast<float>(indices[1] * Chunk::CHUNK_SIZE));
+    glDepthFunc(GL_ALWAYS);
+    glDrawArrays(GL_LINE_STRIP, 0, sizeof(verts) / sizeof(unsigned int));
+    glDepthFunc(GL_LESS);
 }
 
 void Project::ChunkManager::ReMeshQueuedMeshes() {

@@ -78,7 +78,7 @@ void Project::Display::SuggestDimensions() {
     int w, h;
     glfwGetFramebufferSize(this->pointer, &w, &h);
     glViewport(0, 0, w, h);
-    this->projection_matrix = glm::perspective(INITIAL_FOV, (float)w / (float)h, 0.1f, 100.f);
+    this->projection_matrix = glm::perspective(INITIAL_FOV, (float)w / (float)h, 0.1f, 500.f);
     this->orthographic_matrix = glm::ortho(0.f, (float)w, (float)h, 0.f, -1.f, 1.f);
     PushMatrix();
     PushOrtho();
