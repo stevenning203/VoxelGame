@@ -75,6 +75,16 @@ void Project::Chunk::RequestReplacement(const int x, const int y, const int z, B
     delete this->operator()(x, y, z);
     this->operator()(x, y, z) = b;
     this->SuggestReMesh();
+    if (x == 0) {
+        this->negative_x->SuggestReMesh();
+    } else if (x == 15) {
+        this->positive_x->SuggestReMesh();
+    }
+    if (z == 0) {
+        this->negative_z->SuggestReMesh();
+    } else if (z == 15) {
+        this->positive_z->SuggestReMesh();
+    }
 }
 
 bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
@@ -178,7 +188,7 @@ void Project::Chunk::ReMesh() {
                 if (!dont_care_ligthing_data) {
                     light_data = new unsigned int[8];
                     for (int i{0}; i < 8; i++) {
-                        glm::ivec3 start = vertex_ao_lookup[i];
+                        glm::ivec3 start = vertex_ao_lookup[i] + glm::ivec3(r, y, c);
                         unsigned int count = 0U;
                         for (int n{0}; n < 8; n++) {
                             glm::ivec3 end = start + ao_offset_iter[n];

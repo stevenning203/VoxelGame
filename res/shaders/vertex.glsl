@@ -39,7 +39,7 @@ void main() {
     uint vertex_data = block_data.y;
     uint vertex_supplement = block_data.x;
     uint ambient_occlusion = vertex_supplement & uint(15);
-    color_ambient_occlusion_offset = float(ambient_occlusion) / 64.f;
+    color_ambient_occlusion_offset = float(ambient_occlusion) / 28.f;
     uint index = (vertex_data & uint(983040)) >> 16;
     uint pos = vertex_data & uint(65535);
     uint x = (pos & uint(61440)) >> 12;
