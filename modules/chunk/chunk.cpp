@@ -83,26 +83,40 @@ bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, boo
 }
 
 Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
-    if (x < 0) {
+    if (x < 0 && z < 0) {
+        return this->diag_neg_neg_xz->operator()(x + CHUNK_SIZE, y, z + CHUNK_SIZE);
+    } else if (x >= CHUNK_SIZE && z >= CHUNK_SIZE) {
+        return this->diag_pos_pos_xz->operator()(x - CHUNK_SIZE, y, z - CHUNK_SIZE);
+    } else if (x < 0 && z >= CHUNK_SIZE) {
+        return this->diag_neg_pos_xz->operator()(x + CHUNK_SIZE, y, z - CHUNK_SIZE);
+    } else if (x >= CHUNK_SIZE && z < 0) {
+        return this->diag_pos_neg_xz->operator()(x - CHUNK_SIZE, y, z + CHUNK_SIZE);
+    } else if (x < 0) {
         return this->negative_x->operator()(x + CHUNK_SIZE, y, z);
-    }
-    if (z < 0) {
+    } else if (z < 0) {
         return this->negative_z->operator()(x, y, z + CHUNK_SIZE);
-    }
-    if (x >= 16) {
+    } else if (x >= CHUNK_SIZE) {
         return this->positive_x->operator()(x - CHUNK_SIZE, y, z);
-    }
-    if (z >= 16) {
+    } else if (z >= CHUNK_SIZE) {
         return this->positive_z->operator()(x, y, z - CHUNK_SIZE);
     }
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
 }
 
-void Project::Chunk::SetNeighbours(Chunk* top, Chunk* right, Chunk* bottom, Chunk* left) {
+Project::Block*& Project::Chunk::operator()(const glm::ivec3& v) {
+    int x = v.x, y = v.y, z = v.z;
+    return this->operator()(x, y, z);
+}
+
+void Project::Chunk::SetNeighbours(Chunk* top, Chunk* right, Chunk* bottom, Chunk* left, Chunk* top_right, Chunk* bot_right, Chunk* bot_left, Chunk* top_left) {
     this->negative_z = top;
     this->positive_z = bottom;
     this->positive_x = right;
     this->negative_x = left;
+    this->diag_pos_neg_xz = top_right;
+    this->diag_pos_pos_xz = bot_right;
+    this->diag_neg_pos_xz = bot_left;
+    this->diag_neg_neg_xz = top_left;
 }
 
 void Project::Chunk::ReMesh() {
@@ -126,6 +140,26 @@ void Project::Chunk::ReMesh() {
         { 1, 0, 3, 0, 0, 0, 2, 0 },
         { 0, 0, 0, 0, 1, 0, 3, 2 }
     };
+    static constexpr glm::ivec3 vertex_ao_lookup[] = {
+        { -1, 1, 1 },
+        { 0, 1, 1 },
+        { -1, 0, 1 },
+        { 0, 0, 1 },
+        { -1, 1, 0 },
+        { 0, 1, 0 },
+        { -1, 0, 0 },
+        { 0, 0, 0 }
+    };
+    static constexpr glm::ivec3 ao_offset_iter[] = {
+        { 0, 0, 0 },
+        { 0, 0, -1 },
+        { 1, 0, -1 },
+        { 1, 0, 0 },
+        { 0, -1, 0 },
+        { 0, -1, -1 },
+        { 1, -1, -1 },
+        { 1, -1, 0 },
+    };
     this->counter = 0;
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
         for (int c{0}; c < Chunk::CHUNK_SIZE; c++) {
@@ -133,9 +167,31 @@ void Project::Chunk::ReMesh() {
                 if (this->operator()(r, y, c)->SkipRender()) {
                     continue;
                 }
+                bool top = y + 1 >= CHUNK_DEPTH || !this->operator()(r, y + 1, c)->IsOpaque();
+                bool bot = y - 1 < 0 || !this->operator()(r, y + 1, c)->IsOpaque();
+                bool rit = !this->operator()(r + 1, y, c)->IsOpaque();
+                bool let = !this->operator()(r - 1, y, c)->IsOpaque();
+                bool fro = !this->operator()(r, y, c - 1)->IsOpaque();
+                bool beh = !this->operator()(r, y, c + 1)->IsOpaque();
+                bool dont_care_ligthing_data = !(top || bot || rit || let || fro || beh);
+                unsigned int * light_data;
+                if (!dont_care_ligthing_data) {
+                    light_data = new unsigned int[8];
+                    for (int i{0}; i < 8; i++) {
+                        glm::ivec3 start = vertex_ao_lookup[i];
+                        unsigned int count = 0U;
+                        for (int n{0}; n < 8; n++) {
+                            glm::ivec3 end = start + ao_offset_iter[n];
+                            if (end.y >= 0 && end.y < CHUNK_DEPTH && this->operator()(end)->IsOpaque()) {
+                                count++;
+                            }
+                        }
+                        light_data[i] = count - 1UL;
+                    }
+                }
                 unsigned int texture_index_start = 3U * static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
                 unsigned int pos = (r << 12) + (y) + (c << 8);
-                auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
+                auto FaceLambda = [&](const int row, const int col, const int depth, unsigned int face){
                     if (depth < 0 || depth >= CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
                         unsigned int texture_index = texture_index_start;
                         if (face == 3U) {
@@ -152,19 +208,35 @@ void Project::Chunk::ReMesh() {
                             unsigned int uv_index = uv_index_lookup[face][vertex_index];
                             if (this->counter >= this->mesh.size()) {
                                 this->mesh.push_back(0);
+                                this->mesh.push_back(0);
                             }
-                            int vertex = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
-                            this->mesh.at(this->counter) = vertex;
+                            unsigned int vertex = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
+                            unsigned int vertex_long = light_data[vertex_index];
+                            this->mesh[this->counter] = vertex_long;
+                            this->counter++;
+                            this->mesh[this->counter] = vertex;
                             this->counter++;
                         }
                     }
                 };
-                lambda(r + 1, c, y, 2);
-                lambda(r - 1, c, y, 4);
-                lambda(r, c + 1, y, 0);
-                lambda(r, c - 1, y, 5);
-                lambda(r, c, y - 1, 3);
-                lambda(r, c, y + 1, 1);
+                if (rit) {
+                    FaceLambda(r + 1, c, y, 2);
+                }
+                if (let) {
+                    FaceLambda(r - 1, c, y, 4);
+                }
+                if (top) {
+                    FaceLambda(r, c, y + 1, 1);
+                }
+                if (bot) {
+                    FaceLambda(r, c, y - 1, 3);
+                }
+                if (fro) {
+                    FaceLambda(r, c - 1, y, 5);
+                }
+                if (beh) {
+                    FaceLambda(r, c + 1, y, 0);
+                }
             }
         }
     }
@@ -183,7 +255,7 @@ void Project::Chunk::PushMeshData() {
         glBindVertexArray(this->vao_id);
         glGenBuffers(1, &this->vbo_id);
         glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
-        glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
+        glVertexAttribIPointer(1, 2, GL_UNSIGNED_INT, 0, (void*)0);
         glEnableVertexAttribArray(1);
         this->gl_inited = true;
     }
@@ -204,7 +276,8 @@ void Project::Chunk::Render() {
         this->needs_pushing = false;
     }
     glBindVertexArray(this->vao_id);
-    glDrawArrays(GL_TRIANGLES, 0, this->render_counter);
+    // important: need to draw wtih half the counter or else we will be doing way too many draws
+    glDrawArrays(GL_TRIANGLES, 0, this->render_counter / 2);
 }
 
 void Project::Chunk::SuggestReMesh() {

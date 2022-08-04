@@ -1,7 +1,7 @@
 #version 330 core
 
 layout(location = 0) in vec3 test_vertex;
-layout(location = 1) in uint block_data;
+layout(location = 1) in uvec2 block_data;
 
 uniform mat4 projection_matrix;
 uniform mat4 mvp_matrix;
@@ -10,6 +10,7 @@ uniform float chunk_offset_x;
 uniform float chunk_offset_z;
 
 out vec2 texture_coordinate;
+out float color_ambient_occlusion_offset;
 
 const float BLEEDING_CONSTANT = 0.0001f;
 
@@ -35,13 +36,17 @@ const float n_atlas_count = 12.f;
 const float n_atlas_vert = 1.f;
 
 void main() {
-    uint index = (block_data & uint(983040)) >> 16;
-    uint pos = block_data & uint(65535);
+    uint vertex_data = block_data.y;
+    uint vertex_supplement = block_data.x;
+    uint ambient_occlusion = vertex_supplement & uint(15);
+    color_ambient_occlusion_offset = float(ambient_occlusion) / 64.f;
+    uint index = (vertex_data & uint(983040)) >> 16;
+    uint pos = vertex_data & uint(65535);
     uint x = (pos & uint(61440)) >> 12;
     uint y = pos & uint(255);
     uint z = (pos & uint(3840)) >> 8;
-    uint tc_index = (block_data & uint(4026531840)) >> 28;
-    uint block_id = (block_data & uint(267386880)) >> 20;
+    uint tc_index = (vertex_data & uint(4026531840)) >> 28;
+    uint block_id = (vertex_data & uint(267386880)) >> 20;
     texture_coordinate = vec2(tcs[tc_index].x / n_atlas_count, tcs[tc_index].y) + vec2(float(block_id) / n_atlas_count, 0.f);
     float x_pos = float(x);
     float y_pos = float(y);

@@ -47,6 +47,11 @@ void Project::ChunkManager::RenderSelectionBox() {
         6, 2, 0, 2, 3,
         1, 3, 7, 5, 7,
         6, 4,
+
+        4, 0, 1, 5, 4,
+        6, 2, 0, 2, 3,
+        1, 3, 7, 5, 7,
+        6, 4, 0, 0,
     };
     if (!selection_box_first) {
         glGenVertexArrays(1, &this->selection_box_vao_id);
@@ -55,7 +60,7 @@ void Project::ChunkManager::RenderSelectionBox() {
         glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
         glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
         glEnableVertexAttribArray(1);
-        glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
+        glVertexAttribIPointer(1, 2, GL_UNSIGNED_INT, 0, (void*)0);
         selection_box_first = true;
     }
     if (this->block_breaking_location[1] <= -1) {
@@ -65,8 +70,9 @@ void Project::ChunkManager::RenderSelectionBox() {
     unsigned int x = ChunkMod(this->block_breaking_location[0]);
     unsigned int z = ChunkMod(this->block_breaking_location[2]);
     unsigned int pos = (x << 12) + (z << 8) + y;
-    for (int i{0}; i < sizeof(verts) / sizeof(unsigned int); i++) {
-        this->selection_box_vertices[i] = (verts[i] << 16) + pos;
+    for (int i{0}; i < 17; i++) {
+        this->selection_box_vertices[i * 2] = 0;
+        this->selection_box_vertices[i * 2 + 1] = (verts[i] << 16) + pos;
     }
     glBindVertexArray(this->selection_box_vao_id);
     glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
@@ -75,7 +81,7 @@ void Project::ChunkManager::RenderSelectionBox() {
     this->shader->UniformFloat("chunk_offset_x", static_cast<float>(indices[0] * Chunk::CHUNK_SIZE));
     this->shader->UniformFloat("chunk_offset_z", static_cast<float>(indices[1] * Chunk::CHUNK_SIZE));
     glDepthFunc(GL_ALWAYS);
-    glDrawArrays(GL_LINE_STRIP, 0, sizeof(verts) / sizeof(unsigned int));
+    glDrawArrays(GL_LINE_STRIP, 0, 17);
     glDepthFunc(GL_LESS);
 }
 
@@ -90,13 +96,21 @@ void Project::ChunkManager::ReMeshQueuedMeshes() {
             if (!lambda({indices.first + 1, indices.second}) || 
                 !lambda({indices.first - 1, indices.second}) || 
                 !lambda({indices.first, indices.second + 1}) || 
-                !lambda({indices.first, indices.second - 1})) {
+                !lambda({indices.first, indices.second - 1}) ||
+                !lambda({indices.first - 1, indices.second - 1}) || 
+                !lambda({indices.first + 1, indices.second - 1}) ||
+                !lambda({indices.first - 1, indices.second + 1}) || 
+                !lambda({indices.first + 1, indices.second + 1})) {
                 
             } else {
                 chunk->SetNeighbours(this->chunks[{indices.first, indices.second - 1}],
                     this->chunks[{indices.first + 1, indices.second}],
                     this->chunks[{indices.first, indices.second + 1}],
-                    this->chunks[{indices.first - 1, indices.second}]);
+                    this->chunks[{indices.first - 1, indices.second}],
+                    this->chunks[{indices.first + 1, indices.second - 1}],
+                    this->chunks[{indices.first + 1, indices.second + 1}],
+                    this->chunks[{indices.first - 1, indices.second + 1}],
+                    this->chunks[{indices.first - 1, indices.second - 1}]);
                 this->remeshing_queue.push(pair.first);
                 chunk->ResetNeedsMeshing();
             }

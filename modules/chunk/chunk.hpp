@@ -5,6 +5,7 @@
 #include <atomic>
 #include <shared_mutex>
 #include <item/item.hpp>
+#include <glm/vec3.hpp>
 
 namespace Project {
     class Block;
@@ -39,6 +40,11 @@ namespace Project {
         Chunk* negative_x;
         Chunk* positive_x;
 
+        Chunk* diag_pos_neg_xz;
+        Chunk* diag_pos_pos_xz;
+        Chunk* diag_neg_pos_xz;
+        Chunk* diag_neg_neg_xz;
+
         /**
          * @brief fill the data with nullptrs
          * 
@@ -52,9 +58,17 @@ namespace Project {
          * @param x x
          * @param y y
          * @param z z
-         * @return Block* the reference to pointer to the block desired.
+         * @return Block*& the reference to pointer to the block desired.
          */
         inline Block*& operator()(const int x, const int y, const int z);
+
+        /**
+         * @brief access the blcok given at the xyz of v
+         * 
+         * @param v ivec3
+         * @return Block*& the reference to the pointer at the block
+         */
+        inline Block*& operator()(const glm::ivec3& v);
 
         /**
          * @brief upload the vertexes to the buffer vbo
@@ -112,10 +126,11 @@ namespace Project {
         /**
          * @brief completely remesh the entire chunk. the generated mesh is stored, but not pushed.
          * 
-         * The format of the unsigned int used to store vertex information is as follows:
+         * The format of the unsigned int used to store vertex information is as follows:|||
          * 
-         * 0bTTTT_BBBB_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
+         * 0b0000_0000_0000_0000_0000_0000_0000_LLLL_TTTT_BBBB_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
          * 
+         * L -> Lighting data
          * T -> UV Index
          * 0 -> unused
          * B -> block id numeric
@@ -150,7 +165,7 @@ namespace Project {
          * @brief Set the Neighbours objects
          * 
          */
-        void SetNeighbours(Chunk* front, Chunk* right, Chunk* bottom, Chunk* left);
+        void SetNeighbours(Chunk* front, Chunk* right, Chunk* bottom, Chunk* left, Chunk*, Chunk*, Chunk*, Chunk*);
 
         /**
          * @brief ask for a block property
