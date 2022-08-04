@@ -17,7 +17,7 @@
 #include <block/stone.hpp>
 #include <shader/program.hpp>
 
-Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse, Program* shader) : shader(shader), selection_box_first(0), block_breaking_progress(0.f), block_breaking_location{-1, -1, -1}, mouse(mouse), player(p), radius(5) {
+Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse, Program* shader) : shader(shader), selection_box_first(0), block_breaking_progress(0.f), block_breaking_location{-1, -1, -1}, mouse(mouse), player(p), radius(8) {
     this->ray_caster = new DDACaster();
     this->selection_box_vertices.resize(36);
 }
