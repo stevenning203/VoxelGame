@@ -81,7 +81,26 @@ bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, boo
 }
 
 Project::Block*& Project::Chunk::operator()(const int x, const int y, const int z) {
+    if (x < 0) {
+        return this->negative_x->operator()(x + CHUNK_SIZE, y, z);
+    }
+    if (z < 0) {
+        return this->negative_z->operator()(x, y, z + CHUNK_SIZE);
+    }
+    if (x >= 16) {
+        return this->positive_x->operator()(x - CHUNK_SIZE, y, z);
+    }
+    if (z >= 16) {
+        return this->positive_z->operator()(x, y, z - CHUNK_SIZE);
+    }
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
+}
+
+void Project::Chunk::SetNeighbours(Chunk* top, Chunk* right, Chunk* bottom, Chunk* left) {
+    this->negative_z = top;
+    this->positive_z = bottom;
+    this->positive_x = right;
+    this->negative_x = left;
 }
 
 void Project::Chunk::ReMesh() {
@@ -115,9 +134,7 @@ void Project::Chunk::ReMesh() {
                 unsigned int texture_index_start = 3U * static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
                 unsigned int pos = (r << 12) + (y) + (c << 8);
                 auto lambda = [&](const int row, const int col, const int depth, unsigned int face){
-                    if (row < 0 || col < 0 || depth < 0 ||
-                    row >= Chunk::CHUNK_SIZE || col >= Chunk::CHUNK_SIZE ||
-                    depth >= Chunk::CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
+                    if (depth < 0 || depth >= CHUNK_DEPTH || !this->operator()(row, depth, col)->IsOpaque()) {
                         unsigned int texture_index = texture_index_start;
                         if (face == 3U) {
                             texture_index += 2U;

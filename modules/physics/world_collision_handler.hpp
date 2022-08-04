@@ -21,14 +21,6 @@ namespace Project {
         Player* player;
 
         /**
-         * @brief enforce player and voxel collisions
-         * 
-         * @param cm 
-         * @param p 
-         */
-        void EnforcePlayerVoxelCollision();
-
-        /**
          * @brief move the camera to the player (right now it will be vice versa for now...)
          * 
          */

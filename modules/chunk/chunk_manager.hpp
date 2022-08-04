@@ -32,6 +32,7 @@ namespace Project {
         constexpr static float BLOCK_BREAKING_THRESHOLD = 10000.f;
         DDACaster* ray_caster;
         Player* player;
+        Program* shader;
         MouseHandler* mouse;
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
@@ -41,6 +42,9 @@ namespace Project {
         std::queue<std::pair<int, int>> remeshing_queue;
         std::queue<std::pair<int, int>> deletion_queue;
         int radius;
+        unsigned int selection_box_vao_id, selection_box_vbo_id;
+        std::vector<unsigned int> selection_box_vertices;
+        bool selection_box_first;
 
         glm::ivec3 block_breaking_location;
         float block_breaking_progress;
@@ -95,7 +99,6 @@ namespace Project {
         /**
          * @brief Remove out of vision chunks and add chunks that should be in viewable distance
          * 
-         * @param position the position with which we want to update respect to
          */
         void UpdatePlayerVisibleChunks();
 
@@ -151,6 +154,20 @@ namespace Project {
          * @return glm::ivec2 
          */
         static glm::ivec2 WorldCoordinatesToChunkIndices(glm::ivec2 v);
+
+        /**
+         * @brief enforce player and voxel collisions
+         * 
+         * @param cm 
+         * @param p 
+         */
+        void EnforcePlayerVoxelCollision();
+
+        /**
+         * @brief draw a box around the selected block
+         * 
+         */
+        void RenderSelectionBox();
     public:
         virtual void MainThreadWork() override;
 
@@ -190,13 +207,22 @@ namespace Project {
          */
         float AskBlockProperty(const int x, const int y, const int z, float(Block::*)());
         
+        /**
+         * @brief answer if the block exists
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @return true 
+         * @return false 
+         */
         bool BlockExists(const int x, const int y, const int z);
 
         /**
          * @brief Construct a new Chunk Manager object
          * 
          */
-        ChunkManager(Player* p, MouseHandler* m);
+        ChunkManager(Player* p, MouseHandler* m, Program* shader);
 
         /**
          * @brief mutex lock, indicating that chunks inside are being operated on. iterate and apply to each chunk.

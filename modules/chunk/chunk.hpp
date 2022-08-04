@@ -34,6 +34,10 @@ namespace Project {
         unsigned short render_counter; 
         std::atomic<bool> needs_remeshing;
         int row, col;
+        Chunk* negative_z;
+        Chunk* positive_z;
+        Chunk* negative_x;
+        Chunk* positive_x;
 
         /**
          * @brief fill the data with nullptrs
@@ -50,7 +54,7 @@ namespace Project {
          * @param z z
          * @return Block* the reference to pointer to the block desired.
          */
-        Block*& operator()(const int x, const int y, const int z);
+        inline Block*& operator()(const int x, const int y, const int z);
 
         /**
          * @brief upload the vertexes to the buffer vbo
@@ -110,8 +114,9 @@ namespace Project {
          * 
          * The format of the unsigned int used to store vertex information is as follows:
          * 
-         * 0b0000_00000_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
+         * 0bTTTT_BBBB_BBBB_VVVV_XXXX_ZZZZ_YYYY_YYYY
          * 
+         * T -> UV Index
          * 0 -> unused
          * B -> block id numeric
          * X -> x offset
@@ -135,7 +140,17 @@ namespace Project {
          */
         bool NeedsRemeshing();
 
+        /**
+         * @brief tell the chunk that it has been remeshed / it no longer needs to be remeshed
+         * 
+         */
         void ResetNeedsMeshing();
+
+        /**
+         * @brief Set the Neighbours objects
+         * 
+         */
+        void SetNeighbours(Chunk* front, Chunk* right, Chunk* bottom, Chunk* left);
 
         /**
          * @brief ask for a block property

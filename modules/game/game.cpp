@@ -27,9 +27,11 @@ void Project::Game::GameLogicLoop() {
 
 void Project::Game::RenderLoop() {
     while (!Display::GetInstance().ShouldClose()) {
+        this->timer->Sleep(std::max(0, 1000000000 / Display::INITIAL_FPS - this->timer->GetDeltaHighResolution()));
         this->timer->HighResolutionMeasureFirst();
-        glfwPollEvents();
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwPollEvents();
 
         for (Workable* worker : this->modules) {
             worker->MainThreadWork();
@@ -37,7 +39,6 @@ void Project::Game::RenderLoop() {
 
         Display::GetInstance().SwapBuffers();
         this->timer->HighResolutionMeasureSecond();
-        this->timer->Sleep(std::max(0, 1000000000 / Display::INITIAL_FPS - this->timer->GetDeltaHighResolution()));
     }
 }
 
@@ -64,14 +65,14 @@ Project::Game::Game() {
     Display::GetInstance().SetShader(shader);
     Display::GetInstance().SuggestDimensions();
 
-    ChunkManager* world = new ChunkManager(player, mouse);
+    ChunkManager* world = new ChunkManager(player, mouse, shader);
     WorldRenderer* renderer = new WorldRenderer(world, shader);
     WorldCollisionHandler* collision_handler = new WorldCollisionHandler(world, camera, mouse, player);
 
     this->modules.push_back(world);
+    this->modules.push_back(camera);
     this->modules.push_back(renderer);
     this->modules.push_back(collision_handler);
-    this->modules.push_back(camera);
     this->modules.push_back(timer);
     this->modules.push_back(mouse);
     this->modules.push_back(keyboard);

@@ -31,9 +31,11 @@ void Project::Display::Init(const int width, const int height, const char* title
     glfwSetFramebufferSizeCallback(this->pointer, _FRAMEBUFFER_CALLBACK);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glfwSetInputMode(Display::GetInstance().GetWindowPointer(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(0);
-    glClearColor(0.8f, 0.9f, 0.8f, 1.0f);
+    glClearColor(0.53f, 0.81f, 0.92f, 1.0f);
     stbi_set_flip_vertically_on_load(1);
 }
 

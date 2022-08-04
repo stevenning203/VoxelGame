@@ -6,10 +6,6 @@
 #include <mutex>
 #include <generic/workable.hpp>
 
-extern std::unordered_map<int, int> keyboard_state;
-extern std::queue<int> key_reset_queue;
-extern std::mutex key_mutex;
-
 namespace Project {
     class Display;
 

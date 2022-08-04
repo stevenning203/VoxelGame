@@ -24,6 +24,12 @@ namespace Project {
          * @param p program
          */
         void RenderChunkManager();
+
+        /**
+         * @brief draw the hud with all the components
+         * 
+         */
+        void RenderHUD();
     public:
 
         /**

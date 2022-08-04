@@ -9,10 +9,6 @@
 #include <chunk/chunk.hpp>
 #include <input/mouse_handler.hpp>
 
-void Project::WorldCollisionHandler::EnforcePlayerVoxelCollision() {
-    
-}
-
 Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* c, MouseHandler* mouse, Player* player) : player(player), chunk_manager(cm), camera(c), mouse(mouse) {
     
 }

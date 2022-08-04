@@ -12,5 +12,7 @@ namespace Project {
         Stone() = default;
         
         virtual int GetID() override;
+
+        virtual float Hardness() override;
     };
 }

@@ -15,13 +15,15 @@
 #include <physics/world_collision_handler.hpp>
 #include <input/mouse_handler.hpp>
 #include <block/stone.hpp>
+#include <shader/program.hpp>
 
-Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse) : block_breaking_progress(0.f), block_breaking_location{-1, -1, -1}, mouse(mouse), player(p), radius(5) {
+Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse, Program* shader) : shader(shader), selection_box_first(0), block_breaking_progress(0.f), block_breaking_location{-1, -1, -1}, mouse(mouse), player(p), radius(5) {
     this->ray_caster = new DDACaster();
+    this->selection_box_vertices.resize(36);
 }
 
 void Project::ChunkManager::MainThreadWork() {
-    
+    this->RenderSelectionBox();
 }
 
 void Project::ChunkManager::ThreadWork() {
@@ -29,14 +31,75 @@ void Project::ChunkManager::ThreadWork() {
     this->NextInBlockCreationQueue();
     this->UpdatePlayerVisibleChunks();
     this->EnablePlayerBlockDestruction();
+    this->EnforcePlayerVoxelCollision();
+}
+
+void Project::ChunkManager::EnforcePlayerVoxelCollision() {
+    
+}
+
+void Project::ChunkManager::RenderSelectionBox() {
+    constexpr static unsigned int starter[] = {
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+    constexpr static unsigned int verts[] = {
+        0, 2, 1, 2, 3, 1,
+        0, 5, 4, 0, 1, 5,
+        1, 3, 7, 1, 7, 5,
+        2, 7, 3, 2, 6, 7,
+        0, 6, 2, 0, 4, 6,
+        4, 5, 6, 6, 5, 7
+    };
+    if (!selection_box_first) {
+        glGenVertexArrays(1, &this->selection_box_vao_id);
+        glBindVertexArray(this->selection_box_vao_id);
+        glGenBuffers(1, &this->selection_box_vbo_id);
+        glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
+        glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(unsigned int), verts, GL_STREAM_DRAW);
+        glEnableVertexAttribArray(1);
+        glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, (void*)0);
+        selection_box_first = true;
+    }
+    if (this->block_breaking_location[1] <= -1) {
+        return;
+    }
+    unsigned int y = this->block_breaking_location[1];
+    unsigned int x = ChunkMod(this->block_breaking_location[0]);
+    unsigned int z = ChunkMod(this->block_breaking_location[2]);
+    unsigned int pos = (x << 12) + (z << 8) + y;
+    for (int i{0}; i < 36; i++) {
+        this->selection_box_vertices[i] = (verts[i] << 16) + pos;
+    }
+    glBindVertexArray(this->selection_box_vao_id);
+    glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, 36 * sizeof(unsigned int), &this->selection_box_vertices[0]);
+    glm::ivec2 indices = WorldCoordinatesToChunkIndices({this->block_breaking_location[0], this->block_breaking_location[2]});
+    this->shader->UniformFloat("chunk_offset_x", indices[0] * Chunk::CHUNK_SIZE);
+    this->shader->UniformFloat("chunk_offset_z", indices[1] * Chunk::CHUNK_SIZE);
+    glDrawArrays(GL_LINE_LOOP, 0, 36);
 }
 
 void Project::ChunkManager::ReMeshQueuedMeshes() {
     for (std::pair<const std::pair<int, int>, Chunk*>& pair : this->chunks) {
         Chunk* chunk = pair.second;
+        const std::pair<int, int>& indices = pair.first;
+        static auto lambda = [this](const std::pair<int, int>& pair) {
+            return this->chunks.count(pair) && this->chunks[pair]->IsFinishedGenerating();
+        };
         if (chunk->NeedsRemeshing()) {
-            this->remeshing_queue.push(pair.first);
-            chunk->ResetNeedsMeshing();
+            if (!lambda({indices.first + 1, indices.second}) || 
+                !lambda({indices.first - 1, indices.second}) || 
+                !lambda({indices.first, indices.second + 1}) || 
+                !lambda({indices.first, indices.second - 1})) {
+                
+            } else {
+                chunk->SetNeighbours(this->chunks[{indices.first, indices.second - 1}],
+                    this->chunks[{indices.first + 1, indices.second}],
+                    this->chunks[{indices.first, indices.second + 1}],
+                    this->chunks[{indices.first - 1, indices.second}]);
+                this->remeshing_queue.push(pair.first);
+                chunk->ResetNeedsMeshing();
+            }
         }
     }
     if (this->remeshing_queue.empty()) {
@@ -148,13 +211,6 @@ Project::Item::ToolTypeEnum Project::ChunkManager::AskBlockProperty(const int x,
 void Project::ChunkManager::EnablePlayerBlockDestruction() {
     bool left = mouse->GetMouseState(MouseHandler::MouseEnum::LMB_HELD);
     bool right = mouse->GetMouseState(MouseHandler::MouseEnum::RMB_HELD);
-    if (!left) {
-        this->block_breaking_progress = 0.f;
-        this->block_breaking_location[1] = -1.f;
-        if (!right) {
-            return;
-        }
-    }
     int r, c, y;
     int pr, pc, py = -1;
     bool collide = this->ray_caster->Cast(this->player->GetPosition(), this->player->GetDirection(), PLAYER_REACH, *this, r, c, y, pr, pc, py);
@@ -166,7 +222,6 @@ void Project::ChunkManager::EnablePlayerBlockDestruction() {
     if (py != -1 && right) {
         this->QueueBlockCreation(pr, py, pc, new Stone());
     }
-    std::cout << this->block_breaking_progress << std::endl;
     if (left) {
         if (this->block_breaking_location == glm::ivec3{r, y, c}) {
             if (this->player->InHand() == nullptr) {
@@ -176,17 +231,18 @@ void Project::ChunkManager::EnablePlayerBlockDestruction() {
             }
         } else {
             this->block_breaking_progress = 0.f;
-            this->prev_hardness = this->AskBlockProperty(r, y, c, &Block::Hardness);
         }
-        if (this->block_breaking_progress >= BLOCK_BREAKING_THRESHOLD * prev_hardness) {
+        if (this->block_breaking_progress >= BLOCK_BREAKING_THRESHOLD * this->AskBlockProperty(r, y, c, &Block::Hardness)) {
             // drop blocks here?
             this->QueueBlockCreation(r, y, c, new AirBlock());
             this->block_breaking_progress = 0.f;
         }
-        this->block_breaking_location.x = r;
-        this->block_breaking_location.y = y;
-        this->block_breaking_location.z = c;
+    } else {
+        this->block_breaking_progress = 0.f;
     }
+    this->block_breaking_location.x = r;
+    this->block_breaking_location.y = y;
+    this->block_breaking_location.z = c;
 }
 
 void Project::ChunkManager::ForEachMut(void(*func)(std::pair<const std::pair<int, int>, Chunk*>&, Program*), Program* shader) {
