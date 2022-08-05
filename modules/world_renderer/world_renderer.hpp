@@ -18,7 +18,7 @@ namespace Project {
         TextureAtlas* block_atlas;
         Program* shader;
         ChunkManager* chunk_manager;
-        std::vector<HudElement> hud_elements;
+        std::vector<HudElement*> hud_elements;
 
         /**
          * @brief Render the chunk manager with the given shaderprogram

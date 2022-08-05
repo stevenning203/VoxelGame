@@ -64,5 +64,5 @@ void main() {
     gl_Position = (render_2d == 0) ?
         projection_matrix * view_matrix * vec4(vertex_base.x + x_pos, vertex_base.y + y_pos, vertex_base.z + z_pos , 1.f)
         :
-        vec4(vertex_2d, 0.f, 1.f);
+        orthographic_matrix * pixel_scale_matrix * vec4(vertex_2d, 0.f, 1.f);
 }
