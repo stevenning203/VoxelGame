@@ -29,8 +29,8 @@ namespace Project {
      */
     class ChunkManager : public Workable {
         constexpr static float PLAYER_REACH = 5.f;
-        constexpr static float BLOCK_BREAKING_THRESHOLD = 10000.f;
-        constexpr static int BLOCK_PLACING_DELAY = 100;
+        constexpr static float BLOCK_BREAKING_THRESHOLD = 500.f; //10000.f;
+        constexpr static int BLOCK_PLACING_DELAY = 500;
         int block_placing_counter = 0;
         bool block_placing_flag = true;
         DDACaster* ray_caster;

@@ -160,15 +160,60 @@ void Project::Chunk::ReMesh() {
         { -1, -1, -1 },
         { 1, -1, -1 }
     };
-    static constexpr glm::ivec3 ao_offset_iter[][3] = {
-        {{ 0, 0, -1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 0 *
-        {{ 0, 0, -1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 1 *
-        {{ 0, 0, -1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 2
-        {{ 0, 0, -1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 3
-        {{ 0, 0, 1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 4
-        {{ 0, 0, 1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 5
-        {{ 0, 0, 1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 6
-        {{ 0, 0, 1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 7
+    static constexpr glm::ivec3 face_ao_offset_iter[6][8][3] = {
+        {
+            { { -1, 1, 1 }, { -1, 0, 1 }, { 0, 1, 1 } }, // vertex 0 face 0
+            { { 1, 1, 1 }, { 1, 0, 1 }, { 0, 1, 1 } }, // vertex 1 face 0
+            { { -1, -1, 1 }, { -1, 0, 1 }, { 0, -1, 1 } }, // vertex 2 face 0
+            { { 1, -1, 1 }, { 1, 0, 1 }, { 0, -1, 1 } }, // vertex 3 face 0
+        },
+        {
+            { { -1, 1, 1 }, { -1, 1, 0 }, { 0, 1, 1 } }, // vertex 0 face 1
+            { { 1, 1, 1 }, { 1, 1, 0 }, { 0, 1, 1 } }, // vertex 1 face 1
+            {},
+            {},
+            { { -1, 1, -1 }, { -1, 1, 0 }, { 0, 1, -1 } }, // vertex 4 face 1
+            { { 1, 1, -1 }, { 1, 1, 0 }, { 0, 1, -1 } }, // vertex 5 face 1
+        },
+        {
+            {},
+            { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 0 } }, // vertex 1 face 2
+            {},
+            { { 1, -1, -1 }, { 1, 0, 1 }, { 1, -1, 0 } }, // vertex 3 face 2
+            {},
+            { { 1, 1, -1 }, { 1, 0, -1 }, { 0, 1, -1 } }, // vertex 5 face 2
+            {},
+            { { 1, -1, -1 }, { 1, 0, -1 }, { 1, -1, 0 } }, // vertex 7 face 2
+        },
+        {
+            {},
+            {},
+            { { -1, -1, 1 }, { -1, -1, 0 }, { 0, -1, 1 } }, // vertex 2 face 3
+            { { 1, -1, -1 }, { 1, -1, 0 }, { 0, -1, 1 } }, // vertex 3 face 3
+            {},
+            {},
+            { { -1, -1, -1 }, { -1, -1, 0 }, { 0, -1, -1 } }, // vertex 6 face 3
+            { { 1, -1, -1 }, { 1, -1, 0 }, { 0, -1, -1 } }, // vertex 7 face 3
+        },
+        {
+            { { -1, 1, 1 }, { -1, 0, 1 }, { -1, 1, 0 } }, // vertex 0 face 2
+            {},
+            { { -1, -1, -1 }, { -1, 0, 1 }, { -1, -1, 0 } }, // vertex 2 face 2
+            {},
+            { { -1, 1, -1 }, { -1, 0, -1 }, { 0, 1, -1 } }, // vertex 4 face 2
+            {},
+            { { -1, -1, -1 }, { -1, 0, -1 }, { -1, -1, 0 } }, // vertex 6 face 2
+        },
+        {
+            {},
+            {},
+            {},
+            {},
+            { { -1, 1, -1 }, { -1, 0, -1 }, { 0, 1, -1 } }, // vertex 4 face 0
+            { { 1, 1, -1 }, { 1, 0, -1 }, { 0, 1, -1 } }, // vertex 5 face 0
+            { { -1, -1, -1 }, { -1, 0, -1 }, { 0, -1, -1 } }, // vertex 6 face 0
+            { { 1, -1, -1 }, { 1, 0, -1 }, { 0, -1, -1 } }, // vertex 7 face 0
+        },
     };
     this->counter = 0;
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
@@ -177,26 +222,7 @@ void Project::Chunk::ReMesh() {
                 if (this->operator()(r, y, c)->SkipRender()) {
                     continue;
                 }
-                bool top = y + 1 >= CHUNK_DEPTH || !this->operator()(r, y + 1, c)->IsOpaque();
-                bool bot = y - 1 < 0 || !this->operator()(r, y - 1, c)->IsOpaque();
-                bool rit = !this->operator()(r + 1, y, c)->IsOpaque();
-                bool let = !this->operator()(r - 1, y, c)->IsOpaque();
-                bool fro = !this->operator()(r, y, c - 1)->IsOpaque();
-                bool beh = !this->operator()(r, y, c + 1)->IsOpaque();
-                bool dont_care_ligthing_data = !(top || bot || rit || let || fro || beh);
-                unsigned int * light_data;
-                if (!dont_care_ligthing_data) {
-                    light_data = new unsigned int[8];
-                    for (int i{0}; i < 8; i++) {
-                        glm::ivec3 start = vertex_ao_lookup[i] + glm::ivec3(r, y, c);
-                        unsigned int count = 0U;
-                        bool side1 = start.y < 0 || start.y >= CHUNK_DEPTH || this->operator()(start + ao_offset_iter[i][0])->IsOpaque();
-                        bool side2 = start.y < 0 || start.y >= CHUNK_DEPTH || this->operator()(start + ao_offset_iter[i][1])->IsOpaque();
-                        bool corner = start.y < 0 || start.y >= CHUNK_DEPTH || this->operator()(start + ao_offset_iter[i][2])->IsOpaque();
-                        unsigned int light = (side1 && side2) ? 0 : (3 - side1 - side2 - corner);
-                        light_data[i] = 3U - light;
-                    }
-                }
+                glm::ivec3 start(r, y, c);
                 unsigned int texture_index_start = 3U * static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
                 unsigned int pos = (r << 12) + (y) + (c << 8);
                 auto FaceLambda = [&](const int row, const int col, const int depth, unsigned int face){
@@ -218,8 +244,14 @@ void Project::Chunk::ReMesh() {
                                 this->mesh.push_back(0);
                                 this->mesh.push_back(0);
                             }
+                            glm::ivec3 corner_vec = start + face_ao_offset_iter[face][vertex_index][0];
+                            glm::ivec3 side1_vec = start + face_ao_offset_iter[face][vertex_index][1];
+                            glm::ivec3 side2_vec = start + face_ao_offset_iter[face][vertex_index][2];
+                            bool corner = corner_vec.y < 0 || corner_vec.y >= CHUNK_DEPTH || this->operator()(corner_vec)->IsOpaque();
+                            bool side1 = side1_vec.y < 0 || side1_vec.y >= CHUNK_DEPTH || this->operator()(side1_vec)->IsOpaque();
+                            bool side2 = side2_vec.y < 0 || side2_vec.y >= CHUNK_DEPTH || this->operator()(side2_vec)->IsOpaque();
                             unsigned int vertex = pos | (vertex_index << 16) | (texture_index << 20) | (uv_index << 28);
-                            unsigned int vertex_long = light_data[vertex_index];
+                            unsigned int vertex_long = 3U - ((side1 && side2) ? 0 : (3U - side1 - corner - side2));
                             this->mesh[this->counter] = vertex_long;
                             this->counter++;
                             this->mesh[this->counter] = vertex;
@@ -227,24 +259,12 @@ void Project::Chunk::ReMesh() {
                         }
                     }
                 };
-                if (rit) {
-                    FaceLambda(r + 1, c, y, 2);
-                }
-                if (let) {
-                    FaceLambda(r - 1, c, y, 4);
-                }
-                if (top) {
-                    FaceLambda(r, c, y + 1, 1);
-                }
-                if (bot) {
-                    FaceLambda(r, c, y - 1, 3);
-                }
-                if (fro) {
-                    FaceLambda(r, c - 1, y, 5);
-                }
-                if (beh) {
-                    FaceLambda(r, c + 1, y, 0);
-                }
+                FaceLambda(r + 1, c, y, 2);
+                FaceLambda(r - 1, c, y, 4);
+                FaceLambda(r, c, y + 1, 1);
+                FaceLambda(r, c, y - 1, 3);
+                FaceLambda(r, c - 1, y, 5);
+                FaceLambda(r, c + 1, y, 0);
             }
         }
     }
