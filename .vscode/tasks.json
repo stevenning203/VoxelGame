@@ -19,6 +19,7 @@
 				"${workspaceFolder}/modules/shader/*.cpp",
 				"${workspaceFolder}/modules/camera/*.cpp",
 				"${workspaceFolder}/modules/player/*.cpp",
+				"${workspaceFolder}/modules/hud/*.cpp",
 				"${workspaceFolder}/modules/display/*.cpp",
 				"${workspaceFolder}/modules/physics/*.cpp",
 				"${workspaceFolder}/modules/texture_atlas/*.cpp",

@@ -5,6 +5,7 @@
 #include <shader/program.hpp>
 #include <texture_atlas/texture_atlas.hpp>
 #include <chunk/chunk_manager.hpp>
+#include <hud/hud_element.hpp>
 
 void Project::WorldRenderer::RenderChunkManager() {
     static auto func = [](std::pair<const std::pair<int, int>, Chunk*>& pair, Program* shader) {
@@ -23,8 +24,15 @@ Project::WorldRenderer::WorldRenderer(ChunkManager* cm, Program* shader) : shade
 
 void Project::WorldRenderer::MainThreadWork() {
     this->RenderChunkManager();
+    this->RenderHUD();
 }
 
 void Project::WorldRenderer::ThreadWork() {
 
+}
+
+void Project::WorldRenderer::RenderHUD() {
+    for (HudElement& hud_element : this->hud_elements) {
+        hud_element.Render(this->shader);
+    }
 }

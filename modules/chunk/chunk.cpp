@@ -152,23 +152,23 @@ void Project::Chunk::ReMesh() {
     };
     static constexpr glm::ivec3 vertex_ao_lookup[] = {
         { -1, 1, 1 },
-        { 0, 1, 1 },
-        { -1, 0, 1 },
-        { 0, 0, 1 },
-        { -1, 1, 0 },
-        { 0, 1, 0 },
-        { -1, 0, 0 },
-        { 0, 0, 0 }
+        { 1, 1, 1 },
+        { -1, -1, 1 },
+        { 1, -1, 1 },
+        { -1, 1, -1 },
+        { 1, 1, -1 },
+        { -1, -1, -1 },
+        { 1, -1, -1 }
     };
-    static constexpr glm::ivec3 ao_offset_iter[] = {
-        { 0, 0, 0 },
-        { 0, 0, -1 },
-        { 1, 0, -1 },
-        { 1, 0, 0 },
-        { 0, -1, 0 },
-        { 0, -1, -1 },
-        { 1, -1, -1 },
-        { 1, -1, 0 },
+    static constexpr glm::ivec3 ao_offset_iter[][3] = {
+        {{ 0, 0, -1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 0 *
+        {{ 0, 0, -1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 1 *
+        {{ 0, 0, -1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 2
+        {{ 0, 0, -1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 3
+        {{ 0, 0, 1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 4
+        {{ 0, 0, 1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 5
+        {{ 0, 0, 1 }, { 1, 0, 0 }, { 0, 0, 0 }}, // 6
+        {{ 0, 0, 1 }, { -1, 0, 0 }, { 0, 0, 0 }}, // 7
     };
     this->counter = 0;
     for (int r{0}; r < Chunk::CHUNK_SIZE; r++) {
@@ -178,7 +178,7 @@ void Project::Chunk::ReMesh() {
                     continue;
                 }
                 bool top = y + 1 >= CHUNK_DEPTH || !this->operator()(r, y + 1, c)->IsOpaque();
-                bool bot = y - 1 < 0 || !this->operator()(r, y + 1, c)->IsOpaque();
+                bool bot = y - 1 < 0 || !this->operator()(r, y - 1, c)->IsOpaque();
                 bool rit = !this->operator()(r + 1, y, c)->IsOpaque();
                 bool let = !this->operator()(r - 1, y, c)->IsOpaque();
                 bool fro = !this->operator()(r, y, c - 1)->IsOpaque();
@@ -190,13 +190,11 @@ void Project::Chunk::ReMesh() {
                     for (int i{0}; i < 8; i++) {
                         glm::ivec3 start = vertex_ao_lookup[i] + glm::ivec3(r, y, c);
                         unsigned int count = 0U;
-                        for (int n{0}; n < 8; n++) {
-                            glm::ivec3 end = start + ao_offset_iter[n];
-                            if (end.y >= 0 && end.y < CHUNK_DEPTH && this->operator()(end)->IsOpaque()) {
-                                count++;
-                            }
-                        }
-                        light_data[i] = count - 1UL;
+                        bool side1 = start.y < 0 || start.y >= CHUNK_DEPTH || this->operator()(start + ao_offset_iter[i][0])->IsOpaque();
+                        bool side2 = start.y < 0 || start.y >= CHUNK_DEPTH || this->operator()(start + ao_offset_iter[i][1])->IsOpaque();
+                        bool corner = start.y < 0 || start.y >= CHUNK_DEPTH || this->operator()(start + ao_offset_iter[i][2])->IsOpaque();
+                        unsigned int light = (side1 && side2) ? 0 : (3 - side1 - side2 - corner);
+                        light_data[i] = 3U - light;
                     }
                 }
                 unsigned int texture_index_start = 3U * static_cast<unsigned int>(this->operator()(r, y, c)->GetID());
@@ -271,7 +269,7 @@ void Project::Chunk::PushMeshData() {
     }
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo_id);
     if (this->counter > this->last_counter) {
-        glBufferData(GL_ARRAY_BUFFER, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0), GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0), GL_DYNAMIC_DRAW);
     } else {
         glBufferSubData(GL_ARRAY_BUFFER, 0, (int)this->counter * sizeof(unsigned int), &this->mesh.at(0));
     }

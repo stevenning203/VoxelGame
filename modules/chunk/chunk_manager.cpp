@@ -32,6 +32,15 @@ void Project::ChunkManager::ThreadWork() {
     this->UpdatePlayerVisibleChunks();
     this->EnablePlayerBlockDestruction();
     this->EnforcePlayerVoxelCollision();
+    this->IncrementPlacingCounter();
+}
+
+void Project::ChunkManager::IncrementPlacingCounter() {
+    this->block_placing_counter++;
+    if (this->block_placing_counter >= BLOCK_PLACING_DELAY) {
+        this->block_placing_flag = true;
+        this->block_placing_counter = 0;
+    }
 }
 
 void Project::ChunkManager::EnforcePlayerVoxelCollision() {
@@ -58,7 +67,7 @@ void Project::ChunkManager::RenderSelectionBox() {
         glBindVertexArray(this->selection_box_vao_id);
         glGenBuffers(1, &this->selection_box_vbo_id);
         glBindBuffer(GL_ARRAY_BUFFER, this->selection_box_vbo_id);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_DYNAMIC_DRAW);
         glEnableVertexAttribArray(1);
         glVertexAttribIPointer(1, 2, GL_UNSIGNED_INT, 0, (void*)0);
         selection_box_first = true;
@@ -234,7 +243,11 @@ void Project::ChunkManager::EnablePlayerBlockDestruction() {
         return;
     }
     if (py != -1 && right) {
-        this->QueueBlockCreation(pr, py, pc, new Stone());
+        if (block_placing_flag) {
+            this->QueueBlockCreation(pr, py, pc, new Stone());
+            this->block_placing_counter = 0;
+            this->block_placing_flag = false;
+        }
     }
     if (left) {
         if (this->block_breaking_location == glm::ivec3{r, y, c}) {

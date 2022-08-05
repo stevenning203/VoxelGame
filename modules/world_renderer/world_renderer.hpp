@@ -1,11 +1,13 @@
 #pragma once
 
 #include <generic/workable.hpp>
+#include <vector>
 
 namespace Project {
     class ChunkManager;
     class Program;
     class TextureAtlas;
+    class HudElement;
 
     /**
      * @brief Renderer for the world
@@ -16,6 +18,7 @@ namespace Project {
         TextureAtlas* block_atlas;
         Program* shader;
         ChunkManager* chunk_manager;
+        std::vector<HudElement> hud_elements;
 
         /**
          * @brief Render the chunk manager with the given shaderprogram
@@ -30,6 +33,12 @@ namespace Project {
          * 
          */
         void RenderHUD();
+
+        /**
+         * @brief draw the crosshair in the center of the screen
+         * 
+         */
+        void RenderCrosshair();
     public:
 
         /**

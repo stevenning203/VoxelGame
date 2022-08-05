@@ -30,6 +30,9 @@ namespace Project {
     class ChunkManager : public Workable {
         constexpr static float PLAYER_REACH = 5.f;
         constexpr static float BLOCK_BREAKING_THRESHOLD = 10000.f;
+        constexpr static int BLOCK_PLACING_DELAY = 100;
+        int block_placing_counter = 0;
+        bool block_placing_flag = true;
         DDACaster* ray_caster;
         Player* player;
         Program* shader;
@@ -49,6 +52,12 @@ namespace Project {
         glm::ivec3 block_breaking_location;
         float block_breaking_progress;
         float prev_hardness;
+
+        /**
+         * @brief increment the placing counter and flag when a block can be placed
+         * 
+         */
+        void IncrementPlacingCounter();
 
         /**
          * @brief 

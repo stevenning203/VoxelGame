@@ -86,6 +86,14 @@ namespace Project {
         void UniformBool(const char * name, const bool data);
 
         /**
+         * @brief pass the given int to the uniform location specified by the name
+         * 
+         * @param name 
+         * @param data 
+         */
+        void UniformInt(const char * name, const int data);
+
+        /**
          * @brief pass the given vec3 to the uniform location specified by the name
          * 
          * @param name 

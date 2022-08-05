@@ -59,6 +59,11 @@ void Project::Program::UniformFloat(const char * name, const float data) {
     glUniform1f(location, data);
 }
 
+void Project::Program::UniformInt(const char * name, const int data) {
+    int location = GetUniformLocation(name);
+    glUniform1i(location, data);
+}
+
 void Project::Program::UniformVec3(const char * name, const glm::vec3& data) {
     int location = GetUniformLocation(name);
     glUniform3fv(location, 1, &data[0]);
