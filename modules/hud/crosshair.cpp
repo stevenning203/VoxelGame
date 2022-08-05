@@ -13,7 +13,6 @@ void Project::Crosshair::Render(Program* shader) {
         1.f, 0.f,
         0.f, 0.f,
     };
-    glm::mat4 scale_trans_matrix = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(Display::GetInstance().GetWidth() / 2 - WIDTH / 2, Display::GetInstance().GetHeight() / 2 - WIDTH / 2, 0.f)), glm::vec3(WIDTH, WIDTH, 1.f));
     if (first) {
         glGenVertexArrays(1, &this->vao_id);
         glBindVertexArray(this->vao_id);
@@ -23,6 +22,11 @@ void Project::Crosshair::Render(Program* shader) {
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
         glEnableVertexAttribArray(2);
         first = false;
+    }
+    if (this->current_width != Display::GetInstance().GetWidth() || this->current_height != Display::GetInstance().GetHeight()) {
+        this->scale_trans_matrix = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(Display::GetInstance().GetWidth() / 2 - WIDTH / 2, Display::GetInstance().GetHeight() / 2 - WIDTH / 2, 0.f)), glm::vec3(WIDTH, WIDTH, 1.f));
+        this->current_height = Display::GetInstance().GetHeight();
+        this->current_width = Display::GetInstance().GetWidth();
     }
     shader->UniformMatrix("pixel_scale_matrix", scale_trans_matrix);
     shader->UniformInt("render_2d", 1);
