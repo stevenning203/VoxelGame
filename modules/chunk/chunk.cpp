@@ -119,6 +119,7 @@ Project::Block*& Project::Chunk::operator()(const glm::ivec3& v) {
 }
 
 void Project::Chunk::SetNeighbours(Chunk* top, Chunk* right, Chunk* bottom, Chunk* left, Chunk* top_right, Chunk* bot_right, Chunk* bot_left, Chunk* top_left) {
+    // the chunks neighbours from a bird's eye view (looking down into negative y axis)
     this->negative_z = top;
     this->positive_z = bottom;
     this->positive_x = right;
@@ -179,9 +180,9 @@ void Project::Chunk::ReMesh() {
             {},
             { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 0 } }, // vertex 1 face 2
             {},
-            { { 1, -1, -1 }, { 1, 0, 1 }, { 1, -1, 0 } }, // vertex 3 face 2
+            { { 1, -1, 1 }, { 1, 0, 1 }, { 1, -1, 0 } }, // vertex 3 face 2
             {},
-            { { 1, 1, -1 }, { 1, 0, -1 }, { 0, 1, -1 } }, // vertex 5 face 2
+            { { 1, 1, -1 }, { 1, 0, -1 }, { 1, 1, 0 } }, // vertex 5 face 2
             {},
             { { 1, -1, -1 }, { 1, 0, -1 }, { 1, -1, 0 } }, // vertex 7 face 2
         },
