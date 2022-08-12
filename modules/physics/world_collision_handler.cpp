@@ -15,7 +15,7 @@ Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* 
 
 void Project::WorldCollisionHandler::UpdatePlayerCamera() {
     this->player->SetPosition(this->camera->GetPosition());
-    this->player->SetDirection(this->camera->GetForward());
+    this->player->SetDirection(this->camera->GetForward()); 
 }
 
 void Project::WorldCollisionHandler::ThreadWork() {
@@ -23,5 +23,5 @@ void Project::WorldCollisionHandler::ThreadWork() {
 }
 
 void Project::WorldCollisionHandler::MainThreadWork() {
-
+    
 }

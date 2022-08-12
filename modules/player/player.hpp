@@ -17,6 +17,9 @@ namespace Project {
         Item* in_hand;
 
     public:
+        constexpr static float PLAYER_HEIGHT = 1.8f;
+        constexpr static float PLAYER_WIDTH = 0.25f;
+
         Player() = default;
 
         void SetPosition(const float x, const float y, const float z);

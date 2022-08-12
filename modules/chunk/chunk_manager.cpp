@@ -44,13 +44,71 @@ void Project::ChunkManager::IncrementPlacingCounter() {
 }
 
 void Project::ChunkManager::EnforcePlayerVoxelCollision() {
-    
+    /**
+     * @brief the min coordinates, floored
+     * 
+     */
+    glm::ivec3 min = static_cast<glm::ivec3>(glm::floor(this->player->GetPosition()));
+    /**
+     * @brief the max coordinates, plus one to account for player width
+     * 
+     */
+    glm::ivec3 max = static_cast<glm::ivec3>(glm::ceil(this->player->GetPosition())) + 1;
+
+    /**
+     * @brief using AABB, check if there is a collison between the player and the given voxel at x y z. Sweep from the min to the max coordinate, checking every single voxel for a collision using (swept?) AABB. Uses the player width and player height constants defined
+     * in the namespace Player::.
+     * 
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param z z coordinate
+     * 
+     * @return true yes, there is a collision
+     * @return false no, there is not a collision
+     */
+    static auto AABBLambda = [this](const int x, const int y, const int z) -> bool {
+        const glm::vec3& player_position = this->player->GetPosition();
+        if(this->BlockExists(x, y, z) && !this->AskBlockProperty(x, y, z, &Block::IsSolid)) {
+            return false;
+        }
+
+        float amax_x = static_cast<float>(x + 1);
+        float amin_x = static_cast<float>(x);
+
+        float amax_y = static_cast<float>(y + 1);
+        float amin_y = static_cast<float>(y);
+
+        float amax_z = static_cast<float>(z + 1);
+        float amin_z = static_cast<float>(z);
+
+        float bmax_x = player_position.x + Player::PLAYER_WIDTH;
+        float bmin_x = player_position.x;
+
+        float bmax_y = player_position.y;
+        float bmin_y = player_position.y - Player::PLAYER_HEIGHT;
+
+        float bmax_z = player_position.z;
+        float bmin_z = player_position.z + Player::PLAYER_WIDTH;
+
+        return
+            (amin_x <= bmax_x && amax_x >= bmin_x) &&
+            (amin_y <= bmax_y && amax_y >= bmin_y) &&
+            (amin_z <= bmax_z && amax_z >= bmin_z);
+    };
+
+    for (int x{min.x}; x < max.x; x++) {
+        for (int z{min.z}; z < max.z; z++) {
+            for (int y{min.y}; y < max.y; y++) {
+                // check intersection of voxel with player
+                if (AABBLambda(x, y, z)) {
+                    
+                }
+            }
+        }
+    }
 }
 
 void Project::ChunkManager::RenderSelectionBox() {
-    constexpr static unsigned int starter[] = {
-        0, 0, 0, 0, 0, 0, 0, 0
-    };
     constexpr static unsigned int verts[] = {
         4, 0, 1, 5, 4,
         6, 2, 0, 2, 3,
