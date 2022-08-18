@@ -15,6 +15,7 @@ namespace Project {
     class Player : public Entity {
     private:
         Item* in_hand;
+        bool flying_enabled = true;
 
     public:
         constexpr static float PLAYER_HEIGHT = 1.8f;

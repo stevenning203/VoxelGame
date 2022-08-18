@@ -4,6 +4,6 @@ Project::GrassBlock::GrassBlock() {
     
 }
 
-int Project::GrassBlock::GetID() {
+int Project::GrassBlock::GetID() const {
     return 1;
 }

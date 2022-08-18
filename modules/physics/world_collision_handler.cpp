@@ -10,7 +10,7 @@
 #include <input/mouse_handler.hpp>
 
 Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* c, MouseHandler* mouse, Player* player) : player(player), chunk_manager(cm), camera(c), mouse(mouse) {
-    
+    this->caster = new DDACaster();
 }
 
 void Project::WorldCollisionHandler::UpdatePlayerCamera() {
@@ -24,4 +24,10 @@ void Project::WorldCollisionHandler::ThreadWork() {
 
 void Project::WorldCollisionHandler::MainThreadWork() {
     
+}
+
+void Project::WorldCollisionHandler::UpdatePlayerPosition() {
+    int hitx, hity, hitz;
+    int garbage0, garbage1, garbage2;
+    this->caster->Cast(this->player->GetPosition(), glm::normalize(this->player->GetVelocity()), glm::length(this->player->GetVelocity()) + 2.f, *this->chunk_manager, hitz, hitz, hity, garbage0, garbage1, garbage2);
 }

@@ -28,7 +28,7 @@ void Project::Display::Init(const int width, const int height, const char* title
     {
         throw std::runtime_error("Cannot initialize GLAD");
     }
-    glfwSetFramebufferSizeCallback(this->pointer, _FRAMEBUFFER_CALLBACK);
+    glfwSetFramebufferSizeCallback(this->pointer, FrameBufferCallback);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
@@ -86,7 +86,7 @@ void Project::Display::SuggestDimensions() {
     PushOrtho();
 }
 
-void Project::_FRAMEBUFFER_CALLBACK(GLFWwindow* w, int width, int height) {
+void Project::FrameBufferCallback(GLFWwindow* w, int width, int height) {
     Display::GetInstance().SuggestDimensions();
 }
 

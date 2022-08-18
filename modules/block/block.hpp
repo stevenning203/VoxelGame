@@ -15,7 +15,7 @@ namespace Project {
          * @return true this block is opaque so and blocks that it obscures should not have that face rendered.
          * @return false this block has transparency so blocks it obscures should still be rendered.
          */
-        virtual bool IsOpaque();
+        virtual bool IsOpaque() const;
 
         /**
          * @brief Return whether or not this block should be skipped when rendering
@@ -24,7 +24,7 @@ namespace Project {
          * @return true yes, skip
          * @return false no, please render
          */
-        virtual bool SkipRender();
+        virtual bool SkipRender() const;
 
         /**
          * @brief indicate whether or not this block is passable by entities
@@ -32,7 +32,7 @@ namespace Project {
          * @return true solid, do not pass through
          * @return false unsolid, entities will pass through
          */
-        virtual bool IsSolid();
+        virtual bool IsSolid() const;
 
         /**
          * @brief if a block is selectable (by the player)
@@ -40,20 +40,20 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        virtual bool IsSelectable();
+        virtual bool IsSelectable() const;
 
         /**
          * @brief return the required tool to break the given block quickly
          * 
          * @return Item::ToolTypeEnum 
          */
-        virtual Item::ToolTypeEnum RequiredTool();
+        virtual Item::ToolTypeEnum RequiredTool() const;
 
         /**
          * @brief return the block hardness; the modifier to how long it takes to break it.
          * 
          * @return float 
          */
-        virtual float Hardness();
+        virtual float Hardness() const;
     };
 }

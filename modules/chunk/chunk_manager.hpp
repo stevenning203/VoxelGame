@@ -39,7 +39,7 @@ namespace Project {
         MouseHandler* mouse;
         std::unordered_map<std::pair<int, int>, Chunk*, CustomChunkPairHasher> chunks;
         std::queue<std::pair<int, int>> chunk_generation_queue;
-        std::shared_mutex mutex;
+        mutable std::shared_mutex mutex;
 
         ntd::ThreadQueue<ntd::Quadlet<int, int, int, Block*>> block_creation_queue;
         std::queue<std::pair<int, int>> remeshing_queue;
@@ -95,6 +95,15 @@ namespace Project {
          * 
          */
         void NextInBlockCreationQueue();
+
+        /**
+         * @brief get the chunk at r,c
+         * 
+         * @param r 
+         * @param c 
+         * @return Chunk* 
+         */
+        const Chunk* operator()(const int r, const int c) const;
 
         /**
          * @brief get the chunk at r,c
@@ -192,7 +201,7 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::*)());
+        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::*)() const) const;
 
         /**
          * @brief ask for a block property...
@@ -203,7 +212,7 @@ namespace Project {
          * @param Block:: pointer to the function
          * @return Item::ToolTypeEnum the tool type
          */
-        Item::ToolTypeEnum AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::*)());
+        Item::ToolTypeEnum AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::*)() const) const;
 
         /**
          * @brief ask for a block property...
@@ -214,7 +223,7 @@ namespace Project {
          * @param Block:: pointer to the function
          * @return float 
          */
-        float AskBlockProperty(const int x, const int y, const int z, float(Block::*)());
+        float AskBlockProperty(const int x, const int y, const int z, float(Block::*)() const) const;
         
         /**
          * @brief answer if the block exists
@@ -225,7 +234,7 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        bool BlockExists(const int x, const int y, const int z);
+        bool BlockExists(const int x, const int y, const int z) const;
 
         /**
          * @brief Construct a new Chunk Manager object

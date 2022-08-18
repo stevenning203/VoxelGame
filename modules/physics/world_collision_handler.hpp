@@ -19,12 +19,20 @@ namespace Project {
         Camera* camera;
         MouseHandler* mouse;
         Player* player;
+        DDACaster* caster;
 
         /**
          * @brief move the camera to the player (right now it will be vice versa for now...)
          * 
          */
         void UpdatePlayerCamera();
+
+        /**
+         * @brief update the player position so that the player will have moved according to their velocity. If
+         * the player hits a wall, they will stop and slide.
+         * 
+         */
+        void UpdatePlayerPosition();
 
     public:
         /**

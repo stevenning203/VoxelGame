@@ -4,6 +4,6 @@ Project::DirtBlock::DirtBlock() {
     
 }
 
-int Project::DirtBlock::GetID() {
+int Project::DirtBlock::GetID() const {
     return 2;
 }

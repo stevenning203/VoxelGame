@@ -7,7 +7,7 @@
 namespace Project {
     class Program;
     
-    void _FRAMEBUFFER_CALLBACK(GLFWwindow* w, int width, int height);
+    void FrameBufferCallback(GLFWwindow* w, int width, int height);
     /**
      * @brief A display for the project. Initializes with a given window width and window height.
      * Calls window hints and suggests a version of 330. If the system is defined by __APPLE__ then it

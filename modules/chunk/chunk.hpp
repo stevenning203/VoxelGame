@@ -28,7 +28,7 @@ namespace Project {
         unsigned int vbo_id, vao_id;
         std::atomic<bool> empty, chunk_ready, needs_pushing, mesh_ready;
         std::atomic<bool> gl_inited;
-        std::shared_mutex mutex;
+        mutable std::shared_mutex mutex;
         std::vector<unsigned int> mesh;
         unsigned short counter;
         unsigned short last_counter;
@@ -69,6 +69,25 @@ namespace Project {
          * @return Block*& the reference to the pointer at the block
          */
         inline Block*& operator()(const glm::ivec3& v);
+
+        /**
+         * @brief Access the block given at the x y z coordiate a b c
+         * NOT THREAD SAFE.
+         * 
+         * @param x x
+         * @param y y
+         * @param z z
+         * @return Block*& the reference to pointer to the block desired.
+         */
+        inline const Block* operator()(const int x, const int y, const int z) const;
+
+        /**
+         * @brief access the blcok given at the xyz of v
+         * 
+         * @param v ivec3
+         * @return Block*& the reference to the pointer at the block
+         */
+        inline const Block* operator()(const glm::ivec3& v) const;
 
         /**
          * @brief upload the vertexes to the buffer vbo
@@ -153,7 +172,7 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        bool NeedsRemeshing();
+        bool NeedsRemeshing() const;
 
         /**
          * @brief tell the chunk that it has been remeshed / it no longer needs to be remeshed
@@ -177,7 +196,7 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)());
+        bool AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)() const) const;
 
         /**
          * @brief ask for a block property
@@ -188,7 +207,7 @@ namespace Project {
          * @param prop 
          * @return Item::ToolTypeEnum 
          */
-        Item::ToolTypeEnum AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)());
+        Item::ToolTypeEnum AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)() const) const;
 
         /**
          * @brief ask for a block property
@@ -199,7 +218,7 @@ namespace Project {
          * @param prop 
          * @return float 
          */
-        float AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)());
+        float AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)() const) const;
 
         /**
          * @brief return whether or not this mesh is ready for rendering
@@ -207,6 +226,6 @@ namespace Project {
          * @return true 
          * @return false 
          */
-        bool IsMeshReady();
+        bool IsMeshReady() const;
     };
 }

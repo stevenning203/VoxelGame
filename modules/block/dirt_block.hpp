@@ -10,6 +10,6 @@ namespace Project {
     public:
         DirtBlock();
         
-        virtual int GetID() override;
+        virtual int GetID() const override;
     };
 }

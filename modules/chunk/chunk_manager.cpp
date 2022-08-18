@@ -53,7 +53,8 @@ void Project::ChunkManager::EnforcePlayerVoxelCollision() {
      * @brief the max coordinates, plus one to account for player width
      * 
      */
-    glm::ivec3 max = static_cast<glm::ivec3>(glm::ceil(this->player->GetPosition())) + 1;
+    glm::ivec3 max = static_cast<glm::ivec3>(glm::ceil(this->player->GetPosition())) + 1 +
+        glm::ivec3(0, static_cast<int>(glm::ceil(Player::PLAYER_HEIGHT)), 0);
 
     /**
      * @brief using AABB, check if there is a collison between the player and the given voxel at x y z. Sweep from the min to the max coordinate, checking every single voxel for a collision using (swept?) AABB. Uses the player width and player height constants defined
@@ -74,7 +75,7 @@ void Project::ChunkManager::EnforcePlayerVoxelCollision() {
 
         float amax_x = static_cast<float>(x + 1);
         float amin_x = static_cast<float>(x);
-
+        
         float amax_y = static_cast<float>(y + 1);
         float amin_y = static_cast<float>(y);
 
@@ -225,7 +226,7 @@ void Project::ChunkManager::NextInBlockCreationQueue() {
     this->block_creation_queue.Pop();
 }
 
-float Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)()) {
+float Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)() const) const {
     glm::ivec2 modxz = WorldCoordinatesToChunkCoordinates(x, z);
     glm::ivec2 rowcol = WorldCoordinatesToChunkIndices(x, z);
     return this->operator()(rowcol[0], rowcol[1])->AskBlockProperty(modxz[0], y, modxz[1], prop);
@@ -257,33 +258,33 @@ void Project::ChunkManager::QueueBlockCreation(const int x, const int y, const i
     this->block_creation_queue.Emplace(x, y, z, b);
 }
 
-bool Project::ChunkManager::BlockExists(const int a, const int b, const int c) {
+bool Project::ChunkManager::BlockExists(const int a, const int b, const int c) const {
     if (b < 0) {
         return false;
     }
     glm::ivec2 rowcol = WorldCoordinatesToChunkIndices(a, c);
     std::shared_lock lock(this->mutex);
-    if (!this->chunks.count({rowcol[0], rowcol[1]}) || !this->chunks[{rowcol[0], rowcol[1]}]->IsFinishedGenerating()) {
+    if (!this->chunks.count({rowcol[0], rowcol[1]}) || !this->chunks.at({rowcol[0], rowcol[1]})->IsFinishedGenerating()) {
         return false;
     }
     glm::ivec2 modxz = WorldCoordinatesToChunkCoordinates(a, c);
     return !(modxz.x * Chunk::CHUNK_SIZE * Chunk::CHUNK_DEPTH + b * Chunk::CHUNK_SIZE + modxz[1] >= Chunk::CHUNK_VOLUME);
 }
 
-Project::Chunk* Project::ChunkManager::operator()(const int r, const int c) {
+const Project::Chunk* Project::ChunkManager::operator()(const int r, const int c) const {
     if (!this->chunks.count({r, c})) {
         throw std::runtime_error("chunk manager did not contain");
     }
-    return this->chunks[{r, c}];
+    return this->chunks.at({r, c});
 }
 
-bool Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
+bool Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)() const) const {
     glm::ivec2 modxz = WorldCoordinatesToChunkCoordinates(x, z);
     glm::ivec2 rowcol = WorldCoordinatesToChunkIndices(x, z);
     return this->operator()(rowcol[0], rowcol[1])->AskBlockProperty(modxz[0], y, modxz[1], prop);
 }
 
-Project::Item::ToolTypeEnum Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)()) {
+Project::Item::ToolTypeEnum Project::ChunkManager::AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)() const) const {
     glm::ivec2 modxz = WorldCoordinatesToChunkCoordinates(x, z);
     glm::ivec2 rowcol = WorldCoordinatesToChunkIndices(x, z);
     return this->operator()(rowcol[0], rowcol[1])->AskBlockProperty(modxz[0], y, modxz[1], prop);

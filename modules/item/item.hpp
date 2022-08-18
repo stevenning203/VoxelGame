@@ -18,12 +18,12 @@ namespace Project {
 
         virtual void Use(Game& game);
 
-        virtual int GetID() = 0;
+        virtual int GetID() const = 0;
 
         virtual ~Item() = default;
 
-        virtual float BreakingPower();
+        virtual float BreakingPower() const;
 
-        virtual ToolTypeEnum ToolType();
+        virtual ToolTypeEnum ToolType() const;
     };
 }

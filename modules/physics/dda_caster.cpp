@@ -6,7 +6,7 @@
 #include <iostream>
 #include <generic/debug.hpp>
 
-bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& direction, float distance, ChunkManager& world, int& write_to_row_collision, int& write_to_col_collision, int& write_to_y_collision, int& write_to_row_backtrack, int& write_to_col_backtrack, int& write_to_y_backtrack) {
+bool Project::DDACaster::Cast(const glm::vec3& origin, const glm::vec3& direction, float distance, const ChunkManager& world, int& write_to_row_collision, int& write_to_col_collision, int& write_to_y_collision, int& write_to_row_backtrack, int& write_to_col_backtrack, int& write_to_y_backtrack) {
     glm::vec3 ray_start = origin;
     auto sqr = [](float x) -> float { return x*x; };
     glm::vec3 ray_unit_step_size{std::sqrtf(1.f + sqr(direction.y / direction.x) + sqr(direction.z / direction.x)),

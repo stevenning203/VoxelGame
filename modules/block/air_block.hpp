@@ -10,14 +10,14 @@ namespace Project {
     public:
         AirBlock();
         
-        virtual bool IsOpaque() override;
+        virtual bool IsOpaque() const override;
 
-        virtual bool SkipRender() override;
+        virtual bool SkipRender() const override;
 
-        virtual int GetID() override;
+        virtual int GetID() const override;
 
-        virtual bool IsSolid() override;
+        virtual bool IsSolid() const override;
 
-        virtual bool IsSelectable() override;
+        virtual bool IsSelectable() const override;
     };
 }

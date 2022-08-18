@@ -13,12 +13,12 @@
 #include <block/stone.hpp>
 #include <item/item.hpp>
 
-Project::Item::ToolTypeEnum Project::Chunk::AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)()) {
+Project::Item::ToolTypeEnum Project::Chunk::AskBlockProperty(const int x, const int y, const int z, Item::ToolTypeEnum(Block::* prop)() const) const {
     std::shared_lock lock{this->mutex};
     return (*this->operator()(x, y, z).*prop)();
 }
 
-float Project::Chunk::AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)()) {
+float Project::Chunk::AskBlockProperty(const int x, const int y, const int z, float(Block::* prop)() const) const {
     std::shared_lock lock{this->mutex};
     return (*this->operator()(x, y, z).*prop)();
 }
@@ -87,7 +87,7 @@ void Project::Chunk::RequestReplacement(const int x, const int y, const int z, B
     }
 }
 
-bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* prop)()) {
+bool Project::Chunk::AskBlockProperty(const int x, const int y, const int z, bool(Block::* const prop)() const) const {
     std::shared_lock lock{this->mutex};
     return (*this->operator()(x, y, z).*prop)();
 }
@@ -113,7 +113,41 @@ Project::Block*& Project::Chunk::operator()(const int x, const int y, const int 
     return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
 }
 
+const Project::Block* Project::Chunk::operator()(const int x, const int y, const int z) const {
+    if (x < 0 && z < 0) {
+        const Chunk* pointer = this->diag_neg_neg_xz;
+        return pointer->operator()(x + CHUNK_SIZE, y, z + CHUNK_SIZE);
+    } else if (x >= CHUNK_SIZE && z >= CHUNK_SIZE) {
+        const Chunk* pointer = this->diag_pos_pos_xz;
+        return pointer->operator()(x - CHUNK_SIZE, y, z - CHUNK_SIZE);
+    } else if (x < 0 && z >= CHUNK_SIZE) {
+        const Chunk* pointer = this->diag_neg_pos_xz;
+        return pointer->operator()(x + CHUNK_SIZE, y, z - CHUNK_SIZE);
+    } else if (x >= CHUNK_SIZE && z < 0) {
+        const Chunk* pointer = this->diag_pos_neg_xz;
+        return pointer->operator()(x - CHUNK_SIZE, y, z + CHUNK_SIZE);
+    } else if (x < 0) {
+        const Chunk* pointer = this->negative_x;
+        return pointer->operator()(x + CHUNK_SIZE, y, z);
+    } else if (z < 0) {
+        const Chunk* pointer = this->negative_z;
+        return pointer->operator()(x, y, z + CHUNK_SIZE);
+    } else if (x >= CHUNK_SIZE) {
+        const Chunk* pointer = this->positive_x;
+        return pointer->operator()(x - CHUNK_SIZE, y, z);
+    } else if (z >= CHUNK_SIZE) {
+        const Chunk* pointer = this->positive_z;
+        return pointer->operator()(x, y, z - CHUNK_SIZE);
+    }
+    return data.at(x * CHUNK_SIZE * CHUNK_DEPTH + y * CHUNK_SIZE + z);
+}
+
 Project::Block*& Project::Chunk::operator()(const glm::ivec3& v) {
+    int x = v.x, y = v.y, z = v.z;
+    return this->operator()(x, y, z);
+}
+
+const Project::Block* Project::Chunk::operator()(const glm::ivec3& v) const {
     int x = v.x, y = v.y, z = v.z;
     return this->operator()(x, y, z);
 }
@@ -313,7 +347,7 @@ void Project::Chunk::SuggestReMesh() {
     this->needs_remeshing = true;
 }
 
-bool Project::Chunk::NeedsRemeshing() {
+bool Project::Chunk::NeedsRemeshing() const {
     return this->needs_remeshing;
 }
 
@@ -325,6 +359,6 @@ bool Project::Chunk::IsFinishedGenerating() {
     return this->chunk_ready;
 }
 
-bool Project::Chunk::IsMeshReady() {
+bool Project::Chunk::IsMeshReady() const {
     return this->mesh_ready;
 }

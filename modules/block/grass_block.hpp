@@ -10,6 +10,6 @@ namespace Project {
     public:
         GrassBlock();
         
-        virtual int GetID() override;
+        virtual int GetID() const override;
     };
 }
