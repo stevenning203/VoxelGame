@@ -12,3 +12,7 @@ const glm::vec3& Project::Positionable::GetDirection() const {
 const glm::vec3& Project::Positionable::GetVelocity() const {
     return this->velocity;
 }
+
+void Project::Positionable::AddVelocity() {
+    this->position += this->velocity;
+}

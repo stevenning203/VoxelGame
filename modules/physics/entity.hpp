@@ -7,6 +7,7 @@ namespace Project {
      * 
      */
     class Entity : public Positionable {
-        
+    public:
+        virtual const glm::vec3& GetDimensions() const = 0;
     };
 }

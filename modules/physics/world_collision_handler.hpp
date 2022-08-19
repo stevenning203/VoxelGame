@@ -1,6 +1,7 @@
 #pragma once
 
 #include <generic/workable.hpp>
+#include <glm/vec3.hpp>
 
 namespace Project {
     class ChunkManager;
@@ -8,6 +9,7 @@ namespace Project {
     class DDACaster;
     class Camera;
     class MouseHandler;
+    class Entity;
     
     /**
      * @brief handle world collisions/physics
@@ -33,6 +35,17 @@ namespace Project {
          * 
          */
         void UpdatePlayerPosition();
+
+        /**
+         * @brief perform a swept AABB collision detection
+         * 
+         * @param entity the entity that is moving
+         * @param x the world x of the block
+         * @param y world y
+         * @param z world z
+         * @return float the time it will take to collide (normalized between 0.f and 1.f, 1.f meaning that no collison occurs)
+         */
+        static float SweptAABB(const Entity& entity, const int x, const int y, const int z);
 
     public:
         /**

@@ -14,12 +14,11 @@ namespace Project {
      */
     class Player : public Entity {
     private:
+        constexpr static glm::vec3 PLAYER_DIMENSIONS{0.25f, 1.8f, 0.25f};
         Item* in_hand;
         bool flying_enabled = true;
 
     public:
-        constexpr static float PLAYER_HEIGHT = 1.8f;
-        constexpr static float PLAYER_WIDTH = 0.25f;
 
         Player() = default;
 
@@ -30,6 +29,12 @@ namespace Project {
         void SetDirection(const float x, const float y, const float z);
 
         void SetDirection(const glm::vec3& vec);
+
+        void SetVelocity(const float x, const float y, const float z);
+
+        void SetVelocity(const glm::vec3& vec);
+
+        virtual const glm::vec3& GetDimensions() const override;
 
         /**
          * @brief return the item that the player has in their hand, may be nullptr(none)

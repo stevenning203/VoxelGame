@@ -33,5 +33,11 @@ namespace Project {
          * @return const glm::vec3& 
          */
         virtual const glm::vec3& GetVelocity() const;
+
+        /**
+         * @brief add velocity to the position
+         * 
+         */
+        virtual void AddVelocity();
     };
 }
