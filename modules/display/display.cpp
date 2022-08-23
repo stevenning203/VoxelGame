@@ -97,3 +97,59 @@ int Project::Display::GetHeight() {
 int Project::Display::GetWidth() {
     return this->width;
 }
+
+void Project::MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m) {
+    Display::GetInstance().HintMouseInput(b, a, m);
+    // if (a == GLFW_PRESS) {
+    //     switch (b) {
+    //     case GLFW_MOUSE_BUTTON_LEFT:
+    //         key_state[0] = true;
+    //         key_state[2] = true;
+    //         break;
+    //     case GLFW_MOUSE_BUTTON_RIGHT:
+    //         key_state[1] = true;
+    //         key_state[3] = true;
+    //         break;
+    //     }
+    // } else if (a == GLFW_RELEASE) {
+    //     switch (b) {
+    //     case GLFW_MOUSE_BUTTON_LEFT:
+    //         key_state[4] = true;
+    //         key_state[2] = false;
+    //         break;
+    //     case GLFW_MOUSE_BUTTON_RIGHT:
+    //         key_state[5] = true;
+    //         key_state[3] = false;
+    //         break;
+    //     }
+    // }
+}
+
+void Project::KeyHandlerGLFWCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    Display::GetInstance().HintKeyboardInput(key, scancode, action, mods);
+    // std::scoped_lock lock(key_mutex);
+    // if (keyboard_state.count(key) == 0) {
+    //     keyboard_state[key] = 0;
+    // }
+    // int& c = keyboard_state[key];
+
+    // switch (action) {
+    //     case GLFW_PRESS:
+    //         c |= 0b101;
+    //         key_reset_queue.push(key);
+    //         break;
+    //     case GLFW_RELEASE:
+    //         c |= 0b010;
+    //         c &= 0b110;
+    //         key_reset_queue.push(key);
+    //         break;
+    // }
+}
+
+void Project::Display::HintKeyboardInput(const int key, const int scancode, const int action, const int mods) {
+    this->NotifyObservers(Input(Input::InputEnum::EVENT_KEYBOARD_STROKE, key, action));
+}
+
+void Project::Display::HintMouseInput(const int b, const int a, const int m) {
+    this->NotifyObservers(Input(Input::InputEnum::EVENT_MOUSE_BUTTON, b, a));
+}

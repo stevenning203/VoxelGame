@@ -66,12 +66,17 @@ void Project::Camera::UpdatePanning() {
     this->matrix = glm::lookAt(this->position, this->position + this->forward, this->up);
 }
 
-glm::vec3 Project::Camera::GetForward() {
+const glm::vec3& Project::Camera::GetForward() const {
     std::shared_lock lock{this->mutex};
     return this->forward;
 }
 
-glm::vec3 Project::Camera::GetPosition() {
+const glm::vec3& Project::Camera::GetPosition() const {
     std::shared_lock lock{this->mutex};
     return this->position;
+}
+
+const glm::vec3& Project::Camera::GetForward() const {
+    std::shared_lock lock(this->mutex);
+    return this->right;
 }

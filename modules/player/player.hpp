@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <physics/entity.hpp>
 #include <generic/workable.hpp>
+#include <generic/input_observer.hpp>
 
 namespace Project {
     class Camera;
@@ -12,11 +13,12 @@ namespace Project {
      * @brief Player class
      * 
      */
-    class Player : public Entity {
+    class Player : public Entity, public InputObserver {
     private:
         constexpr static glm::vec3 PLAYER_DIMENSIONS{0.25f, 1.8f, 0.25f};
         Item* in_hand;
         bool flying_enabled = true;
+        Camera* camera;
 
     public:
 
@@ -35,6 +37,8 @@ namespace Project {
         void SetVelocity(const glm::vec3& vec);
 
         virtual const glm::vec3& GetDimensions() const override;
+
+        virtual void Notify(const Input& input) override;
 
         /**
          * @brief return the item that the player has in their hand, may be nullptr(none)

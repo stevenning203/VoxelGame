@@ -3,17 +3,49 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <atomic>
+#include <generic/input_subject.hpp>
 
 namespace Project {
     class Program;
+    class KeyHandler;
+    class MouseHandler;
     
+    /**
+     * @brief a frame buffer callback that is called when the display is in some way modified
+     * 
+     * @param w 
+     * @param width 
+     * @param height 
+     */
     void FrameBufferCallback(GLFWwindow* w, int width, int height);
+
+    /**
+     * @brief mouse button callback for cpp
+     * 
+     * @param w window
+     * @param b button
+     * @param a action
+     * @param m mode
+     */
+    void MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m);
+
+    /**
+     * @brief keyboard callback
+     * 
+     * @param window
+     * @param key 
+     * @param scancode 
+     * @param action 
+     * @param mods 
+     */
+    void KeyHandlerGLFWCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
     /**
      * @brief A display for the project. Initializes with a given window width and window height.
      * Calls window hints and suggests a version of 330. If the system is defined by __APPLE__ then it
      * should suggest forward compatibility.
      */
-    class Display {
+    class Display : public InputSubject {
     private:
         static constexpr float INITIAL_FOV = 3.1415926f / 2.f;
         int width, height;
@@ -44,6 +76,39 @@ namespace Project {
          * @param title the title of the window; default is 'GLFW Window'
          */
         void Init(const int width, const int height, const char* title = "GLFW Window");
+
+        /**
+         * @brief attach the given mouse handler to this display
+         * 
+         * @param mouse 
+         */
+        void AttachMouseHandler(const MouseHandler& mouse);
+
+        /**
+         * @brief attach the given key handler to this display
+         * 
+         * @param keyboard 
+         */
+        void AttackKeyboardHandler(const KeyHandler& keyboard);
+
+        /**
+         * @brief hint a mouse input from the callback
+         * 
+         * @param b 
+         * @param a 
+         * @param m 
+         */
+        void HintMouseInput(const int b, const int a, const int m);
+
+        /**
+         * @brief hint a keyboard input from the callback
+         * 
+         * @param key 
+         * @param scancode 
+         * @param action 
+         * @param mods 
+         */
+        void HintKeyboardInput(const int key, const int scancode, const int action, const int mods);
 
         /**
          * @brief Set the Shader object

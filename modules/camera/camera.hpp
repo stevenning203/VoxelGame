@@ -67,8 +67,10 @@ namespace Project {
         
         virtual void ThreadWork() override;
 
-        glm::vec3 GetForward();
+        const glm::vec3& GetForward() const;
 
-        glm::vec3 GetPosition();
+        const glm::vec3& GetPosition() const;
+
+        const glm::vec3& GetRight() const;
     };
 }

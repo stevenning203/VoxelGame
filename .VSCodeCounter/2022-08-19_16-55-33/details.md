@@ -1,10 +1,10 @@
 # Details
 
-Date : 2022-08-18 18:14:29
+Date : 2022-08-19 16:55:33
 
 Directory /Users/stevenning/Desktop/Projects/ProjectF/modules
 
-Total : 67 files,  2255 codes, 873 comments, 486 blanks, all 3614 lines
+Total : 70 files,  2355 codes, 992 comments, 520 blanks, all 3867 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -29,8 +29,8 @@ Total : 67 files,  2255 codes, 873 comments, 486 blanks, all 3614 lines
 | [modules/chunk/chunk_manager.hpp](/modules/chunk/chunk_manager.hpp) | C++ | 74 | 148 | 30 | 252 |
 | [modules/chunk/custom_pair_hasher.cpp](/modules/chunk/custom_pair_hasher.cpp) | C++ | 7 | 0 | 1 | 8 |
 | [modules/chunk/custom_pair_hasher.hpp](/modules/chunk/custom_pair_hasher.hpp) | C++ | 8 | 0 | 2 | 10 |
-| [modules/display/display.cpp](/modules/display/display.cpp) | C++ | 84 | 0 | 15 | 99 |
-| [modules/display/display.hpp](/modules/display/display.hpp) | C++ | 37 | 43 | 19 | 99 |
+| [modules/display/display.cpp](/modules/display/display.cpp) | C++ | 96 | 39 | 20 | 155 |
+| [modules/display/display.hpp](/modules/display/display.hpp) | C++ | 46 | 92 | 26 | 164 |
 | [modules/game/game.cpp](/modules/game/game.cpp) | C++ | 71 | 0 | 11 | 82 |
 | [modules/game/game.hpp](/modules/game/game.hpp) | C++ | 15 | 20 | 7 | 42 |
 | [modules/generic/debug.cpp](/modules/generic/debug.cpp) | C++ | 14 | 0 | 4 | 18 |
@@ -39,6 +39,9 @@ Total : 67 files,  2255 codes, 873 comments, 486 blanks, all 3614 lines
 | [modules/generic/glm_helper.hpp](/modules/generic/glm_helper.hpp) | C++ | 5 | 0 | 2 | 7 |
 | [modules/generic/idable.cpp](/modules/generic/idable.cpp) | C++ | 1 | 0 | 0 | 1 |
 | [modules/generic/idable.hpp](/modules/generic/idable.hpp) | C++ | 12 | 5 | 2 | 19 |
+| [modules/generic/input_observer.hpp](/modules/generic/input_observer.hpp) | C++ | 8 | 9 | 2 | 19 |
+| [modules/generic/input_subject.cpp](/modules/generic/input_subject.cpp) | C++ | 27 | 0 | 9 | 36 |
+| [modules/generic/input_subject.hpp](/modules/generic/input_subject.hpp) | C++ | 32 | 31 | 13 | 76 |
 | [modules/generic/mod.cpp](/modules/generic/mod.cpp) | C++ | 14 | 0 | 4 | 18 |
 | [modules/generic/mod.hpp](/modules/generic/mod.hpp) | C++ | 5 | 26 | 4 | 35 |
 | [modules/generic/positionable.cpp](/modules/generic/positionable.cpp) | C++ | 14 | 0 | 4 | 18 |
@@ -50,10 +53,10 @@ Total : 67 files,  2255 codes, 873 comments, 486 blanks, all 3614 lines
 | [modules/hud/crosshair.hpp](/modules/hud/crosshair.hpp) | C++ | 17 | 0 | 3 | 20 |
 | [modules/hud/hud_element.cpp](/modules/hud/hud_element.cpp) | C++ | 1 | 0 | 0 | 1 |
 | [modules/hud/hud_element.hpp](/modules/hud/hud_element.hpp) | C++ | 12 | 9 | 3 | 24 |
-| [modules/input/key_handler.cpp](/modules/input/key_handler.cpp) | C++ | 51 | 0 | 9 | 60 |
-| [modules/input/key_handler.hpp](/modules/input/key_handler.hpp) | C++ | 19 | 21 | 8 | 48 |
-| [modules/input/mouse_handler.cpp](/modules/input/mouse_handler.cpp) | C++ | 71 | 0 | 15 | 86 |
-| [modules/input/mouse_handler.hpp](/modules/input/mouse_handler.hpp) | C++ | 29 | 28 | 17 | 74 |
+| [modules/input/key_handler.cpp](/modules/input/key_handler.cpp) | C++ | 33 | 0 | 7 | 40 |
+| [modules/input/key_handler.hpp](/modules/input/key_handler.hpp) | C++ | 18 | 21 | 7 | 46 |
+| [modules/input/mouse_handler.cpp](/modules/input/mouse_handler.cpp) | C++ | 46 | 0 | 14 | 60 |
+| [modules/input/mouse_handler.hpp](/modules/input/mouse_handler.hpp) | C++ | 28 | 20 | 16 | 64 |
 | [modules/input/timer.cpp](/modules/input/timer.cpp) | C++ | 41 | 0 | 13 | 54 |
 | [modules/input/timer.hpp](/modules/input/timer.hpp) | C++ | 26 | 30 | 13 | 69 |
 | [modules/item/backpack.cpp](/modules/item/backpack.cpp) | C++ | 1 | 0 | 2 | 3 |
@@ -65,9 +68,9 @@ Total : 67 files,  2255 codes, 873 comments, 486 blanks, all 3614 lines
 | [modules/physics/dda_caster.cpp](/modules/physics/dda_caster.cpp) | C++ | 80 | 0 | 1 | 81 |
 | [modules/physics/dda_caster.hpp](/modules/physics/dda_caster.hpp) | C++ | 17 | 24 | 4 | 45 |
 | [modules/physics/entity.cpp](/modules/physics/entity.cpp) | C++ | 1 | 0 | 0 | 1 |
-| [modules/physics/entity.hpp](/modules/physics/entity.hpp) | C++ | 7 | 4 | 1 | 12 |
-| [modules/physics/world_collision_handler.cpp](/modules/physics/world_collision_handler.cpp) | C++ | 49 | 1 | 8 | 58 |
-| [modules/physics/world_collision_handler.hpp](/modules/physics/world_collision_handler.hpp) | C++ | 26 | 27 | 9 | 62 |
+| [modules/physics/entity.hpp](/modules/physics/entity.hpp) | C++ | 8 | 4 | 1 | 13 |
+| [modules/physics/world_collision_handler.cpp](/modules/physics/world_collision_handler.cpp) | C++ | 105 | 1 | 11 | 117 |
+| [modules/physics/world_collision_handler.hpp](/modules/physics/world_collision_handler.hpp) | C++ | 26 | 26 | 9 | 61 |
 | [modules/player/player.cpp](/modules/player/player.cpp) | C++ | 31 | 0 | 9 | 40 |
 | [modules/player/player.hpp](/modules/player/player.hpp) | C++ | 24 | 9 | 13 | 46 |
 | [modules/shader/program.cpp](/modules/shader/program.cpp) | C++ | 68 | 0 | 11 | 79 |

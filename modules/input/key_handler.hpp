@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <mutex>
 #include <generic/workable.hpp>
+#include <generic/input_observer.hpp>
+#include <generic/input_subject.hpp>
 
 namespace Project {
     class Display;
@@ -13,7 +15,7 @@ namespace Project {
      * @brief A key handler that handles input.
      * 
      */
-    class KeyHandler : public Workable {
+    class KeyHandler : public Workable, public InputObserver, public InputSubject {
         /**
          * @brief release all held keys
          * 
@@ -27,6 +29,8 @@ namespace Project {
          * @param d the display that this listener will be added to
          */
         KeyHandler();
+
+        virtual void Notify(const Input& input) override;
 
         /**
          * @brief get the state of the given key
@@ -43,6 +47,4 @@ namespace Project {
         virtual void ThreadWork() override;
         
     };
-
-    void KeyHandlerGLFWCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 }

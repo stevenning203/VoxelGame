@@ -46,7 +46,6 @@ namespace Project {
          */
         void Sleep(int ms);
 
-
         /**
          * @brief first high resolution begin
          * 

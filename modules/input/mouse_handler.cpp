@@ -10,23 +10,23 @@
 
 std::atomic<bool> key_state[6]{false, false, false, false, false};
 
-bool Project::MouseHandler::GetMouseState(MouseEnum enumer) {
+bool Project::MouseHandler::GetMouseState(MouseEnum enumer) const {
     return key_state[static_cast<int>(enumer)];
 }
 
-int Project::MouseHandler::MouseX() {
+int Project::MouseHandler::MouseX() const {
     return this->mousex;
 }
 
-int Project::MouseHandler::MouseDX() {
+int Project::MouseHandler::MouseDX() const {
     return this->dx;
 }
 
-int Project::MouseHandler::MouseDY() {
+int Project::MouseHandler::MouseDY() const {
     return this->dy;
 }
 
-int Project::MouseHandler::MouseY() {
+int Project::MouseHandler::MouseY() const {
     return this->mousey;
 }
 
@@ -49,6 +49,7 @@ void Project::MouseHandler::Update() {
     key_state[1] = false;
     key_state[4] = false;
     key_state[5] = false;
+    this->NotifyObservers(Input(Input::InputEnum::EVENT_MOUSE_MOVE, 0, 0, static_cast<int>(a), static_cast<int>(b)));
 }
 
 void Project::MouseHandler::MainThreadWork() {
@@ -59,28 +60,9 @@ void Project::MouseHandler::ThreadWork() {
     
 }
 
-void Project::MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m) {
-    if (a == GLFW_PRESS) {
-        switch (b) {
-        case GLFW_MOUSE_BUTTON_LEFT:
-            key_state[0] = true;
-            key_state[2] = true;
-            break;
-        case GLFW_MOUSE_BUTTON_RIGHT:
-            key_state[1] = true;
-            key_state[3] = true;
-            break;
-        }
-    } else if (a == GLFW_RELEASE) {
-        switch (b) {
-        case GLFW_MOUSE_BUTTON_LEFT:
-            key_state[4] = true;
-            key_state[2] = false;
-            break;
-        case GLFW_MOUSE_BUTTON_RIGHT:
-            key_state[5] = true;
-            key_state[3] = false;
-            break;
-        }
+void Project::MouseHandler::Notify(const Input& input) {
+    if (input.GetType() == Input::InputEnum::EVENT_KEYBOARD_STROKE) {
+        return;
     }
+    this->NotifyObservers(input);
 }

@@ -5,6 +5,8 @@
 
 #include <atomic>
 #include <generic/workable.hpp>
+#include <generic/input_observer.hpp>
+#include <generic/input_subject.hpp>
 
 extern std::atomic<bool> key_state[6];
 
@@ -12,20 +14,10 @@ namespace Project {
     class Display;
 
     /**
-     * @brief mouse button callback for cpp
-     * 
-     * @param w 
-     * @param b 
-     * @param a 
-     * @param m 
-     */
-    void MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m);
-
-    /**
      * @brief A mouse input handler that provides input information about the mouse
      * 
      */
-    class MouseHandler : public Workable {
+    class MouseHandler : public Workable, public InputObserver, public InputSubject {
     public:
         enum class MouseEnum {
             LMB_DOWN = 0, RMB_DOWN, LMB_HELD, RMB_HELD, LMB_UP, RMB_UP
@@ -50,6 +42,8 @@ namespace Project {
          */
         MouseHandler();
 
+        virtual void Notify(const Input& input) override;
+
         /**
          * @brief Get the mouse _state of the given button
          * 
@@ -57,18 +51,18 @@ namespace Project {
          * @return true the button is true
          * @return false the _state is false
          */
-        bool GetMouseState(MouseEnum enumer);
+        bool GetMouseState(MouseEnum enumer) const;
 
         virtual void MainThreadWork() override;
 
         virtual void ThreadWork() override;
 
-        int MouseX();
+        int MouseX() const;
 
-        int MouseDX();
+        int MouseDX() const;
 
-        int MouseDY();
+        int MouseDY() const;
 
-        int MouseY();
+        int MouseY() const;
     };
 }
