@@ -19,7 +19,7 @@ bool Project::KeyHandler::GetKeyState(int key, int action) {
 }
 
 Project::KeyHandler::KeyHandler() {
-    glfwSetKeyCallback(Display::GetInstance().GetWindowPointer(), KeyHandlerGLFWCallback);
+    
 }
 
 void Project::KeyHandler::Update() {

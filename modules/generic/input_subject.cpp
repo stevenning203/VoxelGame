@@ -13,11 +13,13 @@ Project::Input::Input(InputEnum type, const int code, const int action, const in
     this->type = type;
     this->code = code;
     this->pos = {x, y};
+    this->action = action;
 }
 
 Project::Input::Input(InputEnum type, const int code, const int action) {
     this->type = type;
     this->code = code;
+    this->action = action;
 }
 
 void Project::InputSubject::NotifyObservers(const Input& input) {

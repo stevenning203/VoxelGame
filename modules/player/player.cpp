@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <camera/camera.hpp>
+#include <iostream>
+#include <input/timer.hpp>
 
 void Project::Player::SetPosition(const float x, const float y, const float z) {
     this->position.x = x;
@@ -47,13 +49,48 @@ void Project::Player::Notify(const Input& input) {
     if (input.GetType() != Input::InputEnum::EVENT_KEYBOARD_STROKE) {
         return;
     }
-    if (input.GetCode() == GLFW_KEY_W) {
-
-    } else if (input.GetCode() == GLFW_KEY_S) {
-
-    } else if (input.GetCode() == GLFW_KEY_D) {
-
-    } else if (input.GetCode() == GLFW_KEY_A) {
-        
+    this->velocity[0] = 0.f;
+    this->velocity[1] = 0.f;
+    this->velocity[2] = 0.f;
+    if (input.GetAction() == GLFW_PRESS) {
+        if (input.GetCode() == GLFW_KEY_W) {
+            this->forward = true;
+        } else if (input.GetCode() == GLFW_KEY_S) {
+            this->back = true;
+        } else if (input.GetCode() == GLFW_KEY_D) {
+            this->right = true;
+        } else if (input.GetCode() == GLFW_KEY_A) {
+            this->left = true;
+        } else if (input.GetCode() == GLFW_KEY_SPACE) {
+            // jump
+        }
+    } else if (input.GetAction() == GLFW_RELEASE) {
+        if (input.GetCode() == GLFW_KEY_W) {
+            this->forward = false;
+        } else if (input.GetCode() == GLFW_KEY_S) {
+            this->back = false;
+        } else if (input.GetCode() == GLFW_KEY_D) {
+            this->right = false;
+        } else if (input.GetCode() == GLFW_KEY_A) {
+            this->left = false;
+        }
     }
+    float constant = 1.25f;
+    if (this->forward) {
+        this->velocity += this->camera->GetForward() * constant;
+    }
+    if (this->back) {
+        this->velocity -= this->camera->GetForward() * constant;
+    }
+    if (this->right) {
+        this->velocity += this->camera->GetRight() * constant;
+    }
+    if (this->left) {
+        this->velocity -= this->camera->GetRight() * constant;
+    }
+}
+
+Project::Player::Player(Camera* camera) {
+    this->camera = camera;
+    this->position = {0.f, 23.f, 0.f};
 }

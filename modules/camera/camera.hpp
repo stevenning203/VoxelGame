@@ -28,11 +28,26 @@ namespace Project {
         glm::vec3 up;
         glm::vec3 right;
         bool changed;
-        std::shared_mutex mutex;
+        mutable std::shared_mutex mutex;
         Program* shader;
         MouseHandler* mouse;
         KeyHandler* keyboard;
         Timer* timer;
+
+    public:
+        /**
+         * @brief Construct a new Camera object
+         * 
+         */
+        Camera(Program* shader, MouseHandler* mouse, KeyHandler* kb, Timer* timer);
+
+        const glm::vec3& GetForward() const;
+
+        const glm::vec3& GetPosition() const;
+
+        void SetPosition(const glm::vec3& vec);
+
+        const glm::vec3& GetRight() const;
 
         /**
          * @brief update the camera based on the mouse dx and dy
@@ -56,21 +71,9 @@ namespace Project {
          * @param shader the shader to be uniformed
          */
         void PushMatrix();
-    public:
-        /**
-         * @brief Construct a new Camera object
-         * 
-         */
-        Camera(Program* shader, MouseHandler* mouse, KeyHandler* kb, Timer* timer);
 
-        virtual void MainThreadWork() override;
-        
         virtual void ThreadWork() override;
 
-        const glm::vec3& GetForward() const;
-
-        const glm::vec3& GetPosition() const;
-
-        const glm::vec3& GetRight() const;
+        virtual void MainThreadWork() override;
     };
 }

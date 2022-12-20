@@ -11,7 +11,7 @@ namespace Project {
     protected:
         glm::vec3 position{0};
         glm::vec3 direction{1.f};
-        glm::vec3 velocity;
+        glm::vec3 velocity{0.f};
     public:
         /**
          * @brief Get the Position object
@@ -39,5 +39,12 @@ namespace Project {
          * 
          */
         virtual void AddVelocity();
+
+        /**
+         * @brief add velocity, multipilied by the given number
+         * 
+         * @param mul 
+         */
+        virtual void AddVelocity(const float mul);
     };
 }

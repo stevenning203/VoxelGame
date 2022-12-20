@@ -16,6 +16,7 @@
 #include <input/mouse_handler.hpp>
 #include <block/stone.hpp>
 #include <shader/program.hpp>
+#include <input/timer.hpp>
 
 Project::ChunkManager::ChunkManager(Player* p, MouseHandler* mouse, Program* shader) : shader(shader), selection_box_first(0), block_breaking_progress(0.f), block_breaking_location{-1, -1, -1}, mouse(mouse), player(p), radius(8) {
     this->ray_caster = new DDACaster();
@@ -27,12 +28,15 @@ void Project::ChunkManager::MainThreadWork() {
 }
 
 void Project::ChunkManager::ThreadWork() {
-    this->ReMeshQueuedMeshes();
     this->NextInBlockCreationQueue();
-    this->UpdatePlayerVisibleChunks();
     this->EnablePlayerBlockDestruction();
     this->EnforcePlayerVoxelCollision();
     this->IncrementPlacingCounter();
+}
+
+void Project::ChunkManager::ExpensiveThreadWork() {
+    this->UpdatePlayerVisibleChunks();
+    this->ReMeshQueuedMeshes();
 }
 
 void Project::ChunkManager::IncrementPlacingCounter() {
@@ -290,9 +294,26 @@ Project::Item::ToolTypeEnum Project::ChunkManager::AskBlockProperty(const int x,
     return this->operator()(rowcol[0], rowcol[1])->AskBlockProperty(modxz[0], y, modxz[1], prop);
 }
 
+void Project::ChunkManager::Notify(const Input& input) {
+    if (input.GetType() != Input::InputEnum::EVENT_MOUSE_BUTTON) {
+        return;
+    }
+    if (input.GetAction() == GLFW_PRESS) {
+        if (input.GetCode() == GLFW_MOUSE_BUTTON_LEFT) {
+            this->breaking_block_held = true;
+        } else if (input.GetCode() == GLFW_MOUSE_BUTTON_RIGHT) {
+            this->placing_block_held = true;
+        }
+    } else if (input.GetAction() == GLFW_RELEASE) {
+        if (input.GetCode() == GLFW_MOUSE_BUTTON_LEFT) {
+            this->breaking_block_held = false;
+        } else if (input.GetCode() == GLFW_MOUSE_BUTTON_RIGHT) {
+            this->placing_block_held = false;
+        }
+    }
+}
+
 void Project::ChunkManager::EnablePlayerBlockDestruction() {
-    bool left = mouse->GetMouseState(MouseHandler::MouseEnum::LMB_HELD);
-    bool right = mouse->GetMouseState(MouseHandler::MouseEnum::RMB_HELD);
     int r, c, y;
     int pr, pc, py = -1;
     bool collide = this->ray_caster->Cast(this->player->GetPosition(), this->player->GetDirection(), PLAYER_REACH, *this, r, c, y, pr, pc, py);
@@ -301,17 +322,17 @@ void Project::ChunkManager::EnablePlayerBlockDestruction() {
         this->block_breaking_location[1] = -1.f;
         return;
     }
-    if (py != -1 && right) {
+    if (py != -1 && this->placing_block_held) {
         if (block_placing_flag) {
             this->QueueBlockCreation(pr, py, pc, new Stone());
             this->block_placing_counter = 0;
             this->block_placing_flag = false;
         }
     }
-    if (left) {
+    if (this->breaking_block_held) {
         if (this->block_breaking_location == glm::ivec3{r, y, c}) {
             if (this->player->InHand() == nullptr) {
-                this->block_breaking_progress += 1.f;
+                this->block_breaking_progress += 10.f * static_cast<float>(Timer::GetInstance().GetLogicDeltaTime());
             } else {
                 this->block_breaking_progress += (this->AskBlockProperty(r, y, c, &Block::RequiredTool) == this->player->InHand()->ToolType()) ? this->player->InHand()->BreakingPower() : 1.f;
             }

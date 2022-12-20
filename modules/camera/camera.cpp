@@ -10,16 +10,6 @@ Project::Camera::Camera(Program* shader, MouseHandler* mouse, KeyHandler* keyboa
     this->position = glm::vec3{0.f, 15.f, 0.f};
 }
 
-void Project::Camera::MainThreadWork() {
-    this->UpdateMovement();
-    this->UpdatePanning();
-    this->PushMatrix();
-}
-
-void Project::Camera::ThreadWork() {
-    
-}
-
 void Project::Camera::PushMatrix() {
     std::shared_lock lock{this->mutex};
     this->shader->UniformMatrix("view_matrix", this->matrix);
@@ -76,7 +66,19 @@ const glm::vec3& Project::Camera::GetPosition() const {
     return this->position;
 }
 
-const glm::vec3& Project::Camera::GetForward() const {
-    std::shared_lock lock(this->mutex);
+void Project::Camera::SetPosition(const glm::vec3& vec) {
+    this->position = vec;
+}
+
+const glm::vec3& Project::Camera::GetRight() const {
     return this->right;
+}
+
+void Project::Camera::ThreadWork() {
+
+}
+
+void Project::Camera::MainThreadWork() {
+    this->UpdatePanning();
+    this->PushMatrix();
 }

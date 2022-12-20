@@ -7,6 +7,7 @@
 
 #include <display/display.hpp>
 #include <atomic>
+#include <iostream>
 
 std::atomic<bool> key_state[6]{false, false, false, false, false};
 
@@ -33,7 +34,6 @@ int Project::MouseHandler::MouseY() const {
 Project::MouseHandler::MouseHandler() {
     if (glfwRawMouseMotionSupported())
         glfwSetInputMode(Display::GetInstance().GetWindowPointer(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    glfwSetMouseButtonCallback(Display::GetInstance().GetWindowPointer(), MouseHandlerGLFWCallback);
 }
 
 void Project::MouseHandler::Update() {

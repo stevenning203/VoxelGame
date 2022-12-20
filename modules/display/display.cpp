@@ -29,6 +29,8 @@ void Project::Display::Init(const int width, const int height, const char* title
         throw std::runtime_error("Cannot initialize GLAD");
     }
     glfwSetFramebufferSizeCallback(this->pointer, FrameBufferCallback);
+    glfwSetMouseButtonCallback(Display::GetInstance().GetWindowPointer(), MouseHandlerGLFWCallback);
+    glfwSetKeyCallback(Display::GetInstance().GetWindowPointer(), KeyHandlerGLFWCallback);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
@@ -98,8 +100,8 @@ int Project::Display::GetWidth() {
     return this->width;
 }
 
-void Project::MouseHandlerGLFWCallback(GLFWwindow* w, int b, int a, int m) {
-    Display::GetInstance().HintMouseInput(b, a, m);
+void Project::MouseHandlerGLFWCallback(GLFWwindow* w, int button, int action, int mode) {
+    Display::GetInstance().HintMouseInput(button, action, mode);
     // if (a == GLFW_PRESS) {
     //     switch (b) {
     //     case GLFW_MOUSE_BUTTON_LEFT:
@@ -147,9 +149,11 @@ void Project::KeyHandlerGLFWCallback(GLFWwindow* window, int key, int scancode, 
 }
 
 void Project::Display::HintKeyboardInput(const int key, const int scancode, const int action, const int mods) {
-    this->NotifyObservers(Input(Input::InputEnum::EVENT_KEYBOARD_STROKE, key, action));
+    const Input input(Input::InputEnum::EVENT_KEYBOARD_STROKE, key, action);
+    this->NotifyObservers(input);
 }
 
-void Project::Display::HintMouseInput(const int b, const int a, const int m) {
-    this->NotifyObservers(Input(Input::InputEnum::EVENT_MOUSE_BUTTON, b, a));
+void Project::Display::HintMouseInput(const int button, const int action, const int mode) {
+    const Input input(Input::InputEnum::EVENT_MOUSE_BUTTON, button, action);
+    this->NotifyObservers(input);
 }

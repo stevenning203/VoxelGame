@@ -8,14 +8,16 @@
 #include <generic/mod.hpp>
 #include <chunk/chunk.hpp>
 #include <input/mouse_handler.hpp>
+#include <generic/debug.hpp>
+#include <input/timer.hpp>
 
 Project::WorldCollisionHandler::WorldCollisionHandler(ChunkManager* cm, Camera* c, MouseHandler* mouse, Player* player) : player(player), chunk_manager(cm), camera(c), mouse(mouse) {
     this->caster = new DDACaster();
 }
 
 void Project::WorldCollisionHandler::UpdatePlayerCamera() {
-    this->player->SetPosition(this->camera->GetPosition());
-    this->player->SetDirection(this->camera->GetForward()); 
+    this->player->SetDirection(this->camera->GetForward());
+    this->camera->SetPosition(this->player->GetPosition());
 }
 
 void Project::WorldCollisionHandler::ThreadWork() {
@@ -32,7 +34,7 @@ float Project::WorldCollisionHandler::SweptAABB(const Entity& entity, const int 
     glm::vec3 box_location{static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
     glm::vec3 box_dimensions(1.f);
     const glm::vec3& position = entity.GetPosition();
-    const glm::vec3& velocity = entity.GetVelocity();
+    const glm::vec3& velocity = entity.GetVelocity() * static_cast<float>(Timer::GetInstance().GetExpensiveLogicDeltaTime());
     const glm::vec3& dimensions = entity.GetDimensions();
     if (velocity.x > 0.f) {
         entry_distance.x = box_location.x - (position.x - dimensions.x);
@@ -90,11 +92,16 @@ float Project::WorldCollisionHandler::SweptAABB(const Entity& entity, const int 
 }
 
 void Project::WorldCollisionHandler::UpdatePlayerPosition() {
+    float timer_delta = Timer::GetInstance().GetExpensiveLogicDeltaTime();
     int hitx, hity = -1, hitz;
     int garbage0, garbage1, garbage2;
-    this->caster->Cast(this->player->GetPosition(), glm::normalize(this->player->GetVelocity()), glm::length(this->player->GetVelocity()), *this->chunk_manager, hitz, hitz, hity, garbage0, garbage1, garbage2);
+    if (glm::abs(glm::length(this->player->GetVelocity())) == 0.f) {
+        // length of player velocity is too low
+        return;
+    }
+    this->caster->Cast(this->player->GetPosition(), glm::normalize(this->player->GetVelocity()), glm::length(timer_delta * this->player->GetVelocity()), *this->chunk_manager, hitx, hitz, hity, garbage0, garbage1, garbage2);
     if (hity == -1) { // return if the player will not collide with anything next frame
-        this->player->AddVelocity();
+        this->player->AddVelocity(timer_delta);
         return;
     }
     // else...
@@ -108,10 +115,11 @@ void Project::WorldCollisionHandler::UpdatePlayerPosition() {
         normal.z = 1.f * glm::sign(normal_test.z);
     }
     float time = SweptAABB(*this->player, hitx, hity, hitz);
+    std::cout << time << std::endl;
     if (time >= 1.f) {
-        this->player->AddVelocity();
+        this->player->AddVelocity(timer_delta);
         return;
     }
-    this->player->SetVelocity(this->player->GetVelocity() + this->player->GetVelocity() * normal);
-    this->player->SetPosition(this->player->GetPosition() + this->player->GetVelocity() * time);
+    //this->player->SetVelocity(this->player->GetVelocity() + this->player->GetVelocity() * normal);
+    this->player->AddVelocity(time * timer_delta);
 }

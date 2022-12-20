@@ -13,6 +13,7 @@
 #include <shared_mutex>
 #include <generic/workable.hpp>
 #include <item/item.hpp>
+#include <generic/input_observer.hpp>
 
 namespace Project {
     class Chunk;
@@ -27,7 +28,7 @@ namespace Project {
      * @brief Manager for chunks
      * 
      */
-    class ChunkManager : public Workable {
+    class ChunkManager : public Workable, public InputObserver {
         constexpr static float PLAYER_REACH = 5.f;
         constexpr static float BLOCK_BREAKING_THRESHOLD = 500.f; //10000.f;
         constexpr static int BLOCK_PLACING_DELAY = 500;
@@ -48,6 +49,8 @@ namespace Project {
         unsigned int selection_box_vao_id, selection_box_vbo_id;
         std::vector<unsigned int> selection_box_vertices;
         bool selection_box_first;
+        bool breaking_block_held = false;
+        bool placing_block_held = false;
 
         glm::ivec3 block_breaking_location;
         float block_breaking_progress;
@@ -190,6 +193,10 @@ namespace Project {
         virtual void MainThreadWork() override;
 
         virtual void ThreadWork() override;
+
+        virtual void ExpensiveThreadWork() override;
+
+        virtual void Notify(const Input& input) override;
 
         /**
          * @brief ask for a block boolean property
